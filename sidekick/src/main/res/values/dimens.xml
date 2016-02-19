@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <dimen name="sidekick_toolbarSize">56dp</dimen>
+    <dimen name="sidekick_toolbarSizeDouble">112dp</dimen>
+
+    <dimen name="sidekick_keyline1">16dp</dimen>
+    <dimen name="sidekick_keyline2">72dp</dimen>
+    <dimen name="sidekick_keyline3">16dp</dimen>
+
+    <dimen name="sidekick_horizontal_margin">16dp</dimen>
+</resources>
