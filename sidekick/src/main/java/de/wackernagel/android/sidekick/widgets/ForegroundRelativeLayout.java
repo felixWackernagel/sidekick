@@ -25,12 +25,11 @@ public class ForegroundRelativeLayout extends RelativeLayout {
     private boolean foregroundBoundsChanged = false;
 
     public ForegroundRelativeLayout(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public ForegroundRelativeLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs, 0);
+        this(context, attrs, 0);
     }
 
     public ForegroundRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
@@ -40,7 +39,8 @@ public class ForegroundRelativeLayout extends RelativeLayout {
 
     private void init( @NonNull final Context context, @Nullable final AttributeSet attrs, int defStyle ) {
         if( attrs != null ) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundRelativeLayout, defStyle, 0);
+            int[] definedAttr = new int[]{ android.R.attr.foreground, android.R.attr.foregroundGravity };
+            TypedArray a = context.obtainStyledAttributes(attrs, definedAttr, defStyle, 0);
             foregroundGravity = a.getInt( R.styleable.ForegroundRelativeLayout_android_foregroundGravity, foregroundGravity);
 
             final Drawable drawable = a.getDrawable(R.styleable.ForegroundRelativeLayout_android_foreground);

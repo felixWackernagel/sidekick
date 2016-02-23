@@ -8,4 +8,7 @@
     <dimen name="sidekick_keyline3">16dp</dimen>
 
     <dimen name="sidekick_horizontal_margin">16dp</dimen>
+	
+	<item name="sidekick_match_parent" type="dimen" format="integer">-1</item>
+    <item name="sidekick_wrap_content" type="dimen" format="integer">-2</item>
 </resources>
