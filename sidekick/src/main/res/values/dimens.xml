@@ -2,12 +2,16 @@
 <resources>
     <dimen name="sidekick_toolbarSize">56dp</dimen>
     <dimen name="sidekick_toolbarSizeDouble">112dp</dimen>
+	<dimen name="sidekick_toolbar_elevation">4dp</dimen>
 
     <dimen name="sidekick_keyline1">16dp</dimen>
     <dimen name="sidekick_keyline2">72dp</dimen>
     <dimen name="sidekick_keyline3">16dp</dimen>
 
     <dimen name="sidekick_horizontal_margin">16dp</dimen>
+	
+	<dimen name="sidekick_card_elevation">2dp</dimen>
+	<dimen name="sidekick_card_radius">2dp</dimen>
 	
 	<item name="sidekick_match_parent" type="dimen" format="integer">-1</item>
     <item name="sidekick_wrap_content" type="dimen" format="integer">-2</item>
