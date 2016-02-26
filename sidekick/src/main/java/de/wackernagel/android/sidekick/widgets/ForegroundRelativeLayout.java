@@ -12,8 +12,6 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.RelativeLayout;
 
-import de.wackernagel.android.sidekick.R;
-
 public class ForegroundRelativeLayout extends RelativeLayout {
 
     private Drawable foregroundDrawable;
@@ -39,14 +37,12 @@ public class ForegroundRelativeLayout extends RelativeLayout {
 
     private void init( @NonNull final Context context, @Nullable final AttributeSet attrs, int defStyle ) {
         if( attrs != null ) {
-            int[] definedAttr = new int[]{ android.R.attr.foreground, android.R.attr.foregroundGravity };
-            TypedArray a = context.obtainStyledAttributes(attrs, definedAttr, defStyle, 0);
-            foregroundGravity = a.getInt( R.styleable.ForegroundRelativeLayout_android_foregroundGravity, foregroundGravity);
+            final int[] myAttrs = { android.R.attr.foreground, android.R.attr.foregroundGravity };
+            final TypedArray a = context.obtainStyledAttributes( attrs, myAttrs, defStyle, 0 );
 
-            final Drawable drawable = a.getDrawable(R.styleable.ForegroundRelativeLayout_android_foreground);
-            if( drawable != null ) {
-                setForeground(drawable);
-            }
+            setForeground(a.getDrawable(0));
+            setForegroundGravity( a.getInt( 1, foregroundGravity) );
+
             a.recycle();
         }
     }
