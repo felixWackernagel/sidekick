@@ -29,21 +29,21 @@ import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-public class MaskImageView extends ImageView {
+public class OverlayImageView extends ImageView {
 
     private int maskAlpha = 51;
     private int maskColor = Color.BLACK;
     private final Paint maskPaint = new Paint();
 
-    public MaskImageView(Context context) {
+    public OverlayImageView(Context context) {
         this(context, null);
     }
 
-    public MaskImageView(Context context, AttributeSet attrs) {
+    public OverlayImageView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public MaskImageView(Context context, AttributeSet attrs, int defStyle) {
+    public OverlayImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 

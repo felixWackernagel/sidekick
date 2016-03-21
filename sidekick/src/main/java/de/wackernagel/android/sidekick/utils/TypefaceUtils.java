@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.util.SparseArray;
 
-public class TypefaceManager {
+public class TypefaceUtils {
 
     private final static int ROBOTO_BLACK = 0;
     private final static int ROBOTO_BOLD = 1;
@@ -57,25 +57,25 @@ public class TypefaceManager {
         Typeface typeface;
         switch (typefaceValue) {
             case ROBOTO_THIN:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Thin.ttf");                
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Thin.ttf");
                 break;
             case ROBOTO_LIGHT:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Light.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Light.ttf");
                 break;
             case ROBOTO_REGULAR:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Regular.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Regular.ttf");
                 break;
             case ROBOTO_ITALIC:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Italic.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Italic.ttf");
                 break;
             case ROBOTO_MEDIUM:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Medium.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Medium.ttf");
                 break;
             case ROBOTO_BOLD:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Bold.ttf");
                 break;
             case ROBOTO_BLACK:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Black.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Sidekick-Roboto-Black.ttf");
                 break;
             default:
                 throw new IllegalArgumentException( "Unknown `typeface` attribute value " + typefaceValue );

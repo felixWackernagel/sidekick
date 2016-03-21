@@ -14,9 +14,9 @@ import android.widget.Toast;
  * Create a Toast near to the given view on a long click.
  * Overrides a previous set OnLongClickListener.
  */
-public class Tooltip {
+public class TooltipUtils {
 
-    private Tooltip() {
+    private TooltipUtils() {
     }
 
     /**
@@ -46,7 +46,7 @@ public class Tooltip {
      */
     public static void forView(@NonNull final View view, @NonNull final CharSequence tooltipText) {
         if( TextUtils.isEmpty( tooltipText ) ) {
-            throw new IllegalArgumentException( "Tooltip.forView( ... ): text can't be empty" );
+            throw new IllegalArgumentException( "TooltipUtils.forView( ... ): text can't be empty" );
         }
 
         view.setOnLongClickListener(new View.OnLongClickListener() {
