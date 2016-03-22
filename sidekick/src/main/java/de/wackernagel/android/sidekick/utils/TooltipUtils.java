@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 /**
- * Create a Toast near to the given view on a long click.
+ * Show a Toast above or below the view on a long click.
  * Overrides a previous set OnLongClickListener.
  */
 public class TooltipUtils {
@@ -24,8 +24,8 @@ public class TooltipUtils {
      *
      * @param view which get the tooltip
      */
-    private static void forView(@NonNull final View view) {
-        forView(view, view.getContentDescription());
+    private static void createFor(@NonNull final View view) {
+        createFor(view, view.getContentDescription());
     }
 
     /**
@@ -34,8 +34,8 @@ public class TooltipUtils {
      * @param view which get the tooltip
      * @param tooltipTextId for tooltip text
      */
-    public static void forView(@NonNull final View view, @StringRes int tooltipTextId) {
-        forView(view, view.getResources().getString(tooltipTextId));
+    public static void createFor(@NonNull final View view, @StringRes int tooltipTextId) {
+        createFor(view, view.getResources().getString(tooltipTextId));
     }
 
     /**
@@ -44,9 +44,9 @@ public class TooltipUtils {
      * @param view which get the tooltip
      * @param tooltipText for tooltip text
      */
-    public static void forView(@NonNull final View view, @NonNull final CharSequence tooltipText) {
+    public static void createFor(@NonNull final View view, @NonNull final CharSequence tooltipText) {
         if( TextUtils.isEmpty( tooltipText ) ) {
-            throw new IllegalArgumentException( "TooltipUtils.forView( ... ): text can't be empty" );
+            throw new IllegalArgumentException( "TooltipUtils.createFor( ... ): text can't be empty" );
         }
 
         view.setOnLongClickListener(new View.OnLongClickListener() {
