@@ -8,6 +8,11 @@ This project is in the early stages of development but grows continuously to sup
 
 * DeviceUtils
 * NetworkUtils
+* ColorFilterUtils
+* TintUtils
+* NetworkUtils
+* TooltipUtils
+* TypefaceUtils
 
 ## Widgets
 
@@ -19,6 +24,18 @@ This project is in the early stages of development but grows continuously to sup
     android:foregroundGravity="fill">
     ...
 </ de.wackernagel.android.sidekick.widgets.ForegroundRelativeLayout>
+```
+
+```xml
+<de.wackernagel.android.sidekick.widgets.CircularRevealView
+    android:id="@+id/circularRevealView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:color="@android:color/white"/>
+```
+```java
+final CircularRevealView circularRevealView = (CircularRevealView) findViewById( R.id.circularRevealView );
+circularRevealView.enterReveal( new int[]{ centerWidth, centerHeight } );
 ```
 
 ## Helper
