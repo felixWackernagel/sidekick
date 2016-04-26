@@ -143,6 +143,16 @@ public class PreferenceUtils {
         setLong(preferences, key, value.getTime());
     }
 
+    public static void delete(@NonNull final Context context, @NonNull final String key ) {
+        delete(PreferenceManager.getDefaultSharedPreferences(context), key);
+    }
+
+    public static void delete(@NonNull final SharedPreferences preferences, @NonNull final String key) {
+        final Editor editor = preferences.edit();
+        editor.remove(key);
+        apply(editor);
+    }
+
 	private static void apply(@NonNull final Editor editor) {
 		SharedPreferencesCompat.EditorCompat.getInstance().apply( editor );
 	}
