@@ -22,6 +22,7 @@ dependencies {
 * NetworkUtils
 * TooltipUtils
 * TypefaceUtils
+* PreferenceUtils
 
 ## Widgets
 
