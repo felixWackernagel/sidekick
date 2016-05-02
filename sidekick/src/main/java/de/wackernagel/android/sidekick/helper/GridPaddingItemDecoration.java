@@ -5,50 +5,53 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 public class GridPaddingItemDecoration extends RecyclerView.ItemDecoration {
-    private final int mSizeGridSpacingPx;
-    private final int mGridSize;
+    private final int gridSpacingPx;
+    private final int columnCount;
     private boolean mNeedLeftSpacing = false;
 
     public GridPaddingItemDecoration( int gridSpacing, int gridColumns ) {
-        mSizeGridSpacingPx = gridSpacing;
-        mGridSize = gridColumns;
+        gridSpacingPx = gridSpacing;
+        columnCount = gridColumns;
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        int frameWidth = (int) ( ( parent.getWidth() - (float) mSizeGridSpacingPx * (mGridSize - 1)) / mGridSize);
-        int padding = parent.getWidth() / mGridSize - frameWidth;
+    public void getItemOffsets( Rect outRect, View view, RecyclerView parent, RecyclerView.State state ) {
+        int frameWidth = (int) ( ( parent.getWidth() - (float) gridSpacingPx * ( columnCount - 1 ) ) / columnCount );
+        int padding = parent.getWidth() / columnCount - frameWidth;
         int itemPosition = ((RecyclerView.LayoutParams) view.getLayoutParams()).getViewAdapterPosition();
-        if (itemPosition < mGridSize) {
+
+        if (itemPosition < columnCount) {
             outRect.top = 0;
         } else {
-            outRect.top = mSizeGridSpacingPx;
+            outRect.top = gridSpacingPx;
         }
-        if (itemPosition % mGridSize == 0) {
+
+        if (itemPosition % columnCount == 0) {
             outRect.left = 0;
             outRect.right = padding;
             mNeedLeftSpacing = true;
-        } else if ((itemPosition + 1) % mGridSize == 0) {
+        } else if ((itemPosition + 1) % columnCount == 0) {
             mNeedLeftSpacing = false;
             outRect.right = 0;
             outRect.left = padding;
         } else if (mNeedLeftSpacing) {
             mNeedLeftSpacing = false;
-            outRect.left = mSizeGridSpacingPx - padding;
-            if ((itemPosition + 2) % mGridSize == 0) {
-                outRect.right = mSizeGridSpacingPx - padding;
+            outRect.left = gridSpacingPx - padding;
+            if ((itemPosition + 2) % columnCount == 0) {
+                outRect.right = gridSpacingPx - padding;
             } else {
-                outRect.right = mSizeGridSpacingPx / 2;
+                outRect.right = gridSpacingPx / 2;
             }
-        } else if ((itemPosition + 2) % mGridSize == 0) {
+        } else if ((itemPosition + 2) % columnCount == 0) {
             mNeedLeftSpacing = false;
-            outRect.left = mSizeGridSpacingPx / 2;
-            outRect.right = mSizeGridSpacingPx - padding;
+            outRect.left = gridSpacingPx / 2;
+            outRect.right = gridSpacingPx - padding;
         } else {
             mNeedLeftSpacing = false;
-            outRect.left = mSizeGridSpacingPx / 2;
-            outRect.right = mSizeGridSpacingPx / 2;
+            outRect.left = gridSpacingPx / 2;
+            outRect.right = gridSpacingPx / 2;
         }
+
         outRect.bottom = 0;
     }
 }
