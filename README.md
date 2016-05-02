@@ -9,7 +9,7 @@ This project is in the early stages of development but grows continuously to sup
 ```gradle
 dependencies {
     ...
-    compile 'de.wackernagel.android:sidekick:1.0'
+    compile 'de.wackernagel.android:sidekick:1.1'
 }
 ```
 
