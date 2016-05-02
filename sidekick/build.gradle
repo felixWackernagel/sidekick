@@ -3,18 +3,18 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'de.wackernagel.android'
     PUBLISH_ARTIFACT_ID = 'sidekick'
-    PUBLISH_VERSION = '1.0'
+    PUBLISH_VERSION = '1.1'
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
     }
     buildTypes {
         release {
