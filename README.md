@@ -9,9 +9,13 @@ This project is in the early stages of development but grows continuously to sup
 ```gradle
 dependencies {
     ...
-    compile 'de.wackernagel.android:sidekick:1.1'
+    compile 'de.wackernagel.android:sidekick:1.2'
 }
 ```
+
+## Docs
+
+Check-out the [Wiki](../../wiki) pages for further examples and descriptions.
 
 ## Utils
 
