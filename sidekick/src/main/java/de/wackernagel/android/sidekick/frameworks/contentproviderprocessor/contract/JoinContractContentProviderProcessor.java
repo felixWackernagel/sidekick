@@ -11,6 +11,8 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.List;
+
 import de.wackernagel.android.sidekick.frameworks.contentproviderprocessor.AbstractContentProviderProcessor;
 
 public class JoinContractContentProviderProcessor extends AbstractContentProviderProcessor {
@@ -37,7 +39,10 @@ public class JoinContractContentProviderProcessor extends AbstractContentProvide
         builder.setTables( contract.getJoinStatement() );
 
         if( isItemType( uri ) ) {
-            builder.appendWhere( uri.getPathSegments().get( 1 ).concat(".").concat(BaseColumns._ID) + "=" + uri.getLastPathSegment() );
+            final List<String> path = uri.getPathSegments();
+            final String id = path.get(path.size() - 1);
+            final String table = path.get(path.size() - 2);
+            builder.appendWhere( table + "." + BaseColumns._ID + "=" + id );
         }
 
         String groupBy = uri.getQueryParameter( QUERY_PARAMETER_GROUP_BY );
