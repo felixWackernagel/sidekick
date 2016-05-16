@@ -50,6 +50,9 @@ public abstract class ObjectLoader<T> extends AsyncTaskLoader<T> {
         if (mData != null && isResultValid( mData ) ) {
             deliverResult(mData);
         }
+
+        onRegisterObserver();
+
         if (takeContentChanged() || mData == null) {
             forceLoad();
         }
@@ -57,6 +60,12 @@ public abstract class ObjectLoader<T> extends AsyncTaskLoader<T> {
 
     protected boolean isResultValid( T cachedResult) {
         return true;
+    }
+
+    protected void onRegisterObserver() {
+    }
+
+    protected void onUnregisterObserver() {
     }
 
     /**
@@ -81,6 +90,8 @@ public abstract class ObjectLoader<T> extends AsyncTaskLoader<T> {
 
         // Ensure the loader is stopped
         onStopLoading();
+
+        onUnregisterObserver();
 
         if ( mData != null ) {
             onReleaseResources( mData );

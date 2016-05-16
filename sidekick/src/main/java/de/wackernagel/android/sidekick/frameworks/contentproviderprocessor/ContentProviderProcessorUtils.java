@@ -3,10 +3,11 @@ package de.wackernagel.android.sidekick.frameworks.contentproviderprocessor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 public class ContentProviderProcessorUtils {
 
-	public static Uri appendLimit( Uri uri, String limit ) {
+	public static Uri appendLimit( @NonNull final Uri uri, @NonNull final String limit ) {
 		if( uri == null ) {
 			throw new IllegalArgumentException( "Uri can't be null" );
 		}
@@ -16,7 +17,7 @@ public class ContentProviderProcessorUtils {
 				.build();
 	}
 
-	public static Uri appendGroupBy( Uri uri, String groupBy ) {
+	public static Uri appendGroupBy( @NonNull final Uri uri, @NonNull final String groupBy ) {
 		if( uri == null ) {
 			throw new IllegalArgumentException( "Uri can't be null" );
 		}
@@ -26,7 +27,7 @@ public class ContentProviderProcessorUtils {
 				.build();
 	}
 	
-	public static Uri appendHaving( Uri uri, String having ) {
+	public static Uri appendHaving( @NonNull final Uri uri, @NonNull final String having ) {
 		if( uri == null ) {
 			throw new IllegalArgumentException( "Uri can't be null" );
 		}
@@ -36,12 +37,21 @@ public class ContentProviderProcessorUtils {
 				.build();
 	}
 
-	public static boolean existColumn( SQLiteDatabase db, String table, String newColumn ) {
+    public static String[] joinProjection( @NonNull final String table, @NonNull final String[] projection ) {
+        final int size = projection.length;
+        final String[] joinProjection = new String[ size ];
+        for( int index = 0; index < size; index++ ) {
+            joinProjection[ index ] = table.concat( "." ).concat( projection[ index ] );
+        }
+        return joinProjection;
+    }
+
+	public static boolean existColumn( @NonNull final SQLiteDatabase db, @NonNull final String table,@NonNull final  String columnName ) {
 		final Cursor cursor = db.rawQuery( "PRAGMA table_info(" + table + ")", null);
 		if( cursor != null && cursor.moveToFirst() ) {
 			do {
 				String existingColumn = cursor.getString( 1 );
-				if( newColumn.equals( existingColumn ) ) {
+				if( columnName.equals( existingColumn ) ) {
 					cursor.close();
 					return true;
 				}
