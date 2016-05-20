@@ -68,21 +68,23 @@ public class AspectRatioImageView extends ImageView {
             return;
         }
 
-        int width;
-        int height;
+        int contentWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
+        int contentHeight = getMeasuredHeight() - getPaddingBottom() - getPaddingTop();
 
-        if( aspect == ASPECT_WIDTH ) {
-            width = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
-            height = (int)( width / ratioFactor);
+        if( ratio == RATIO_1_1 ) {
+            contentWidth = contentHeight = Math.min( contentWidth, contentHeight );
         } else {
-            height = getMeasuredHeight() - getPaddingBottom() - getPaddingTop();
-            width = (int)( height / ratioFactor);
+            if( aspect == ASPECT_WIDTH ) {
+                contentHeight = (int)( contentWidth / ratioFactor );
+            } else {
+                contentWidth = (int)( ratioFactor * contentHeight );
+            }
         }
 
-        width += getPaddingLeft() + getPaddingRight();
-        height += getPaddingBottom() + getPaddingTop();
+        contentWidth += getPaddingLeft() + getPaddingRight();
+        contentHeight += getPaddingBottom() + getPaddingTop();
 
-        setMeasuredDimension(width, height);
+        setMeasuredDimension( contentWidth, contentHeight );
     }
 
     private float resolveAspectRatioFactor( int aspectRatio) {
