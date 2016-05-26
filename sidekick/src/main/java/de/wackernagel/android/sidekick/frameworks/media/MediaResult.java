@@ -45,6 +45,7 @@ public class MediaResult implements Parcelable {
 
     }
 
+    @Nullable
     public String getMediaPath() {
         return mediaPath;
     }
@@ -58,17 +59,15 @@ public class MediaResult implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt( canceled ? 1 : 0 );
         dest.writeInt( failed ? 1 : 0 );
-        dest.writeString(mediaPath);
+        dest.writeString( mediaPath );
     }
 
     @Override
     public String toString() {
-        return "MediaResult( " + canceled + ", " + failed + ", " + mediaPath + " )";
-
+        return "MediaResult( canceled=" + canceled + ", failed=" + failed + ", mediaPath=" + mediaPath + " )";
     }
 
     public static class Builder {
-
         private boolean canceled;
         private boolean failed;
         private String mediaPath;

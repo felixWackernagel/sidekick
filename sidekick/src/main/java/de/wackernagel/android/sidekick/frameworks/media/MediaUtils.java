@@ -31,11 +31,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MediaHelper {
-    private static final String TAG = "MediaHelper";
+public class MediaUtils {
+    private static final String TAG = "MediaUtils";
 
     public static final int REQUEST_CAMERA_IMAGE = 456;
     public static final int REQUEST_PICK_IMAGE = 457;
+
+    private MediaUtils() {
+    }
 
     @TargetApi(11)
     public static void startCameraForResult(@NonNull final android.app.Fragment fragment, @NonNull final MediaConfig config ) {
@@ -116,7 +119,7 @@ public class MediaHelper {
      * @param requestCode from launched camera app
      * @param resultCode from camera app
      * @param data from camera app
-     * @return {@link MediaResult} which contain the requested media state or null if the result doesn't belong to the {@link MediaHelper}
+     * @return {@link MediaResult} which contain the requested media state or null if the result doesn't belong to the {@link MediaUtils}
      */
     @Nullable
     public static MediaResult onActivityResult( @NonNull final Context context, @NonNull final MediaConfig config, final int requestCode, int resultCode, final Intent data ) {
@@ -214,20 +217,32 @@ public class MediaHelper {
     }
 
     /**
-     * @param compressFormat to indentify the file extension
+     * @param compressFormat to identify the file extension
      * @return file extension of the given compressFormat with leading '.'.
      */
     @NonNull
     private static String getFileExtension( Bitmap.CompressFormat compressFormat ) {
-        switch( compressFormat ) {
-            case JPEG:
-                return ".jpeg";
-            case PNG:
-                return ".png";
-//            case WEBP:
-//                return ".webp";
-            default:
-                return ".jpg";
+        if( Build.VERSION.SDK_INT >= 14 ) {
+            switch( compressFormat ) {
+                case WEBP:
+                    return ".webp";
+
+                case PNG:
+                    return ".png";
+
+                case JPEG:
+                default:
+                    return ".jpg";
+            }
+        } else {
+            switch( compressFormat ) {
+                case PNG:
+                    return ".png";
+
+                case JPEG:
+                default:
+                    return ".jpg";
+            }
         }
     }
 
@@ -243,7 +258,7 @@ public class MediaHelper {
         final Matrix matrix = new Matrix();
         matrix.postScale( scaleFactorWidth, scaleFactorHeight );
 
-        if (!bitmap.isMutable() && mediaWidth == bitmap.getWidth() && mediaHeight == bitmap.getHeight() && (matrix == null || matrix.isIdentity())) {
+        if (!bitmap.isMutable() && mediaWidth == bitmap.getWidth() && mediaHeight == bitmap.getHeight() && matrix.isIdentity()) {
             Log.e( TAG, "No scaling required because bitmap is identical!" );
             return bitmap;
         }
@@ -308,13 +323,14 @@ public class MediaHelper {
         final File mediaFile = new File( mediaPath );
         if( mediaFile.exists() ) {
             if( mediaFile.delete() ) {
-                context.getContentResolver().delete(
+                int deleteCount =  context.getContentResolver().delete(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     MediaStore.Images.Media.DATA + "=?",
                     new String[] {
                         mediaPath
                     }
                 );
+                Log.i( TAG, "Delete " + deleteCount + " entries of MediaStore for media path " + mediaPath );
             }
         }
 
@@ -364,13 +380,13 @@ public class MediaHelper {
      * @param context to check feature and applications
      * @return true if a camera exists
      */
+    @SuppressWarnings("deprecation")
     public static boolean isCameraAvailable(@NonNull final Context context) {
         final boolean existCamera = context.getPackageManager().hasSystemFeature( PackageManager.FEATURE_CAMERA );
 
         final Intent cameraApplication = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         final boolean existCameraApplication = cameraApplication.resolveActivity( context.getPackageManager() ) != null;
 
-        @SuppressWarnings("deprecation")
         int cameraCount = 1;
         if( Build.VERSION.SDK_INT >= 9 ) {
             cameraCount = Camera.getNumberOfCameras();
