@@ -142,7 +142,7 @@ public class MediaUtils {
             builder.setCanceled( false );
 
             final Uri mediaUri = data.getData();
-            final Bitmap bitmap = getBitmap( context, mediaUri );
+            final Bitmap bitmap = getBitmap(context, mediaUri);
             if( bitmap != null ) {
 
                 File mediaFile = createMediaFile( getFileExtension( config.getCompressFormat() ), config.getApplicationName());
@@ -171,7 +171,7 @@ public class MediaUtils {
             final InputStream mediaStream = context.getContentResolver().openInputStream( mediaUri );
             return BitmapFactory.decodeStream( mediaStream );
         } catch( FileNotFoundException e ) {
-            Log.i( TAG, "No media found for Uri!", e );
+            Log.i(TAG, "No media found for Uri!", e);
             return null;
         }
     }
@@ -223,26 +223,35 @@ public class MediaUtils {
     @NonNull
     private static String getFileExtension( Bitmap.CompressFormat compressFormat ) {
         if( Build.VERSION.SDK_INT >= 14 ) {
-            switch( compressFormat ) {
-                case WEBP:
-                    return ".webp";
-
-                case PNG:
-                    return ".png";
-
-                case JPEG:
-                default:
-                    return ".jpg";
-            }
+            return getFileExtensionICS( compressFormat );
         } else {
-            switch( compressFormat ) {
-                case PNG:
-                    return ".png";
+            return getFileExtensionBase( compressFormat );
+        }
+    }
 
-                case JPEG:
-                default:
-                    return ".jpg";
-            }
+    @TargetApi(14)
+    private static String getFileExtensionICS( Bitmap.CompressFormat compressFormat ) {
+        switch( compressFormat ) {
+            case WEBP:
+                return ".webp";
+
+            case PNG:
+                return ".png";
+
+            case JPEG:
+            default:
+                return ".jpg";
+        }
+    }
+
+    private static String getFileExtensionBase( Bitmap.CompressFormat compressFormat ) {
+        switch( compressFormat ) {
+            case PNG:
+                return ".png";
+
+            case JPEG:
+            default:
+                return ".jpg";
         }
     }
 
