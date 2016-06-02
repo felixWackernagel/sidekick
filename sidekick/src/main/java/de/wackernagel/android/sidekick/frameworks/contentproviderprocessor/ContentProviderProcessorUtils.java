@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
 
 public class ContentProviderProcessorUtils {
 
@@ -37,6 +38,11 @@ public class ContentProviderProcessorUtils {
 				.build();
 	}
 
+    /**
+     * @param table
+     * @param projection
+     * @return a array in which each projection element has the table as prefix like "table.projectionElement"
+     */
     public static String[] joinProjection( @NonNull final String table, @NonNull final String[] projection ) {
         final int size = projection.length;
         final String[] joinProjection = new String[ size ];
@@ -45,6 +51,35 @@ public class ContentProviderProcessorUtils {
         }
         return joinProjection;
     }
+
+    /**
+     * @param tablesWithProjection
+     * @return a single array of all projections with the table name as prefix
+     */
+	public static String[] joinProjections( @NonNull final Pair<String, String[]>[] tablesWithProjection ) {
+		final StringBuilder result = new StringBuilder();
+        final String divider = "|";
+        final int tableCount = tablesWithProjection.length;
+
+        String table;
+        String[] projection;
+        int columnCount;
+
+		for( int i = 0; i < tableCount; i++ ) {
+
+			table = tablesWithProjection[i].first;
+			projection = tablesWithProjection[i].second;
+			columnCount = projection.length;
+
+            for( int j = 0; j < columnCount; j++ ) {
+                if( !(i == 0 && j == 0) ) {
+                    result.append( divider );
+                }
+				result.append( table ).append( "." ).append( projection[j]);
+			}
+		}
+		return result.toString().split( divider );
+	}
 
 	public static boolean existColumn( @NonNull final SQLiteDatabase db, @NonNull final String table,@NonNull final  String columnName ) {
 		final Cursor cursor = db.rawQuery( "PRAGMA table_info(" + table + ")", null);
