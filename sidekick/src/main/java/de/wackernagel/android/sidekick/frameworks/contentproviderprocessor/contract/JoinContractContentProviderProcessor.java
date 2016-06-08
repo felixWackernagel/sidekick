@@ -45,9 +45,13 @@ public class JoinContractContentProviderProcessor extends AbstractContentProvide
             builder.appendWhere( table + "." + BaseColumns._ID + "=" + id );
         }
 
-        String groupBy = uri.getQueryParameter( QUERY_PARAMETER_GROUP_BY );
-        String having = uri.getQueryParameter( QUERY_PARAMETER_HAVING );
-        String limit = uri.getQueryParameter( QUERY_PARAMETER_LIMIT );
+        final String groupBy = uri.getQueryParameter( QUERY_PARAMETER_GROUP_BY );
+        final String having = uri.getQueryParameter( QUERY_PARAMETER_HAVING );
+        final String limit = uri.getQueryParameter( QUERY_PARAMETER_LIMIT );
+
+        if( uri.getQueryParameter( QUERY_PARAMETER_DISTINCT ) != null ) {
+            builder.setDistinct( true );
+        }
 
         Cursor cursor = builder.query( db, projection, selection, selectionArgs, groupBy, having, sortOrder, limit );
         if( resolver != null ) {

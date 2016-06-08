@@ -16,6 +16,7 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 	public static final String QUERY_PARAMETER_GROUP_BY = "parameter_group_by";
 	public static final String QUERY_PARAMETER_HAVING = "parameter_having";
 	public static final String QUERY_PARAMETER_LIMIT = "parameter_limit";
+	public static final String QUERY_PARAMETER_DISTINCT = "parameter_distinct";
 
 	@Override
 	public Cursor query( @NonNull SQLiteDatabase db, @Nullable ContentResolver resolver, @NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder ) {
@@ -29,6 +30,10 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 		final String groupBy = uri.getQueryParameter( QUERY_PARAMETER_GROUP_BY );
 		final String having = uri.getQueryParameter( QUERY_PARAMETER_HAVING );
 		final String limit = uri.getQueryParameter( QUERY_PARAMETER_LIMIT );
+
+		if( uri.getQueryParameter( QUERY_PARAMETER_DISTINCT ) != null ) {
+			builder.setDistinct( true );
+		}
 
 		final Cursor cursor = builder.query( db, projection, selection, selectionArgs, groupBy, having, sortOrder, limit );
 		if( resolver != null ) {

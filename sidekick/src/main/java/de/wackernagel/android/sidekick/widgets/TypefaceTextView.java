@@ -34,6 +34,10 @@ public class TypefaceTextView extends TextView {
     }
 
     private void init( Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes ) {
+        if( isInEditMode() ) {
+            return;
+        }
+
         Typeface typeface;
         int typefaceIndex = 5;
 

@@ -38,6 +38,16 @@ public class ContentProviderProcessorUtils {
 				.build();
 	}
 
+	public static Uri appendDistinct( @NonNull final Uri uri ) {
+		if( uri == null ) {
+			throw new IllegalArgumentException( "Uri can't be null" );
+		}
+
+		return uri.buildUpon()
+				.appendQueryParameter( AbstractContentProviderProcessor.QUERY_PARAMETER_DISTINCT, "distinct" )
+				.build();
+	}
+
     /**
      * @param table
      * @param projection
