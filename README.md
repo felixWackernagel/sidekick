@@ -9,7 +9,7 @@ This project is in the early stages of development but grows continuously to sup
 ```gradle
 dependencies {
     ...
-    compile 'de.wackernagel.android:sidekick:1.3.2'
+    compile 'de.wackernagel.android:sidekick:1.3.3'
 }
 ```
 
@@ -50,37 +50,4 @@ Check-out the [Wiki](../../wiki) pages for further examples and descriptions.
 ```java
 final CircularRevealView circularRevealView = (CircularRevealView) findViewById( R.id.circularRevealView );
 circularRevealView.enterReveal( new int[]{ centerWidth, centerHeight } );
-```
-
-## Helper
-
-```java
-private final CameraHelper helper = new CameraHelper( "MyAppName" );
-
-@Override
-protected void onCreate(Bundle savedInstanceState) {
-    ...
-    final Button startCamera = ( Button ) findViewById( R.id.button );
-    startCamera.setEnabled( CameraHelper.hasCameraFeatures( this ) && CameraHelper.isExternalStorageAccessible() );
-    startCamera.setOnClickListener( new View.OnClickListener() {
-        @Override
-        public void onClick( View v ) {
-            helper.startCameraActivity( MyActivity.this );
-        }
-    } );
-    ...
-}
-
-@Override
-protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
-    super.onActivityResult( requestCode, resultCode, data );
-    helper.handleCameraResult( this, requestCode, resultCode, data );
-    helper.displayCapturedPhoto( imageView );
-    imageView.setOnLongClickListener( new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick( View v ) {
-            return helper.deleteMedia( v.getContext() );
-        }
-    } );
-}
 ```
