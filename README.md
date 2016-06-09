@@ -30,3 +30,8 @@ Check-out the [Wiki](../../wiki) pages for further examples and descriptions.
 * LogUtils
 
 ## Widgets
+
+* ForegroundRelativeLayout
+* TypefaceTextView
+* AspectRatioImageView
+* CircularRevealView
