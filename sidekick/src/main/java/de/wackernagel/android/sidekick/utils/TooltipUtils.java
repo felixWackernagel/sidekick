@@ -1,18 +1,20 @@
 package de.wackernagel.android.sidekick.utils;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
 /**
- * Show a Toast above or below the view on a long click.
- * Overrides a previous set OnLongClickListener.
+ * Show a toast below an anchor view except its go over the bottom edge. Then it shows the toast above the anchor.
+ * Additional is the toast centered horizontal from anchor point except it goes over the left or right edges of the screen.
+ * Then is the toast aligned on the left or right site of the anchor.
+ * The toast is triggered by a long click so it overrides the OnLongClickListener of the given anchor view.
  */
 public class TooltipUtils {
 
@@ -24,7 +26,7 @@ public class TooltipUtils {
      *
      * @param view which get the tooltip
      */
-    private static void createFor(@NonNull final View view) {
+    public static void createFor(@NonNull final View view) {
         createFor(view, view.getContentDescription());
     }
 
@@ -34,7 +36,7 @@ public class TooltipUtils {
      * @param view which get the tooltip
      * @param tooltipTextId for tooltip text
      */
-    public static void createFor(@NonNull final View view, @StringRes int tooltipTextId) {
+    public static void createFor(@NonNull final View view, @StringRes final int tooltipTextId) {
         createFor(view, view.getResources().getString(tooltipTextId));
     }
 
@@ -44,39 +46,68 @@ public class TooltipUtils {
      * @param view which get the tooltip
      * @param tooltipText for tooltip text
      */
-    public static void createFor(@NonNull final View view, @NonNull final CharSequence tooltipText) {
-        if( TextUtils.isEmpty( tooltipText ) ) {
-            throw new IllegalArgumentException( "TooltipUtils.createFor( ... ): text can't be empty" );
+    public static void createFor( @NonNull final View view, @NonNull final CharSequence tooltipText) {
+        if( TextUtils.isEmpty(tooltipText) ) {
+            throw new IllegalArgumentException( "Tooltip text is empty" );
         }
 
-        view.setOnLongClickListener(new View.OnLongClickListener() {
+        view.setOnLongClickListener( new View.OnLongClickListener() {
+            @SuppressLint( "RtlHardcoded" )
             @Override
-            public boolean onLongClick(View v) {
-                final int[] screenPos = new int[2];
-                final Rect displayFrame = new Rect();
-                v.getLocationOnScreen(screenPos);
-                v.getWindowVisibleDisplayFrame(displayFrame);
+            public boolean onLongClick( View tooltipAnchorView ) {
+                final Toast tooltip = Toast.makeText(tooltipAnchorView.getContext(), tooltipText, Toast.LENGTH_SHORT);
 
-                final int width = v.getWidth();
-                final int height = v.getHeight();
-                final int middleY = screenPos[1] + height / 2;
-                int referenceX = screenPos[0] + width / 2;
-                if (ViewCompat.getLayoutDirection(v) == ViewCompat.LAYOUT_DIRECTION_LTR) {
-                    final int screenWidth = v.getResources().getDisplayMetrics().widthPixels;
-                    referenceX = screenWidth - referenceX; // mirror
-                }
-                Toast cheatSheet = Toast.makeText(v.getContext(), tooltipText, Toast.LENGTH_SHORT);
-                if (middleY < displayFrame.height()) {
-                    // Show along the top; follow action buttons
-                    cheatSheet.setGravity(Gravity.TOP | GravityCompat.END, referenceX, height);
+                // measure final tooltip size
+                final DisplayMetrics metrics = tooltipAnchorView.getResources().getDisplayMetrics();
+                tooltip.getView().measure(
+                        View.MeasureSpec.makeMeasureSpec(metrics.widthPixels, View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(metrics.heightPixels, View.MeasureSpec.UNSPECIFIED) );
+                final int tooltipWidth = tooltip.getView().getMeasuredWidth();
+                final int tooltipHeight = tooltip.getView().getMeasuredHeight();
+                final int tooltipHalfWidth = tooltipWidth / 2;
+
+                // collect anchor and screen coordinates
+                final int[] anchorPosition = new int[2];
+                tooltipAnchorView.getLocationOnScreen(anchorPosition);
+                final int anchorWidth = tooltipAnchorView.getWidth();
+                final int anchorHeight = tooltipAnchorView.getHeight();
+                final int anchorX = anchorPosition[0];
+                final int anchorY = anchorPosition[1];
+                final int anchorCenterY = anchorY + anchorHeight / 2;
+                final int anchorCenterX = anchorX + anchorWidth / 2;
+
+                final Rect displayScreen = new Rect();
+                tooltipAnchorView.getWindowVisibleDisplayFrame(displayScreen);
+
+                // layout the tooltip
+                int tooltipY;
+                int tooltipX;
+
+                if( anchorCenterY + tooltipHeight > displayScreen.height() ) {
+                    // above anchor
+                    tooltipY = anchorY - tooltipHeight - ( anchorHeight / 2 );
                 } else {
-                    // Show along the bottom center
-                    cheatSheet.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
+                    // below anchor
+                    tooltipY = anchorCenterY;
                 }
-                cheatSheet.show();
+
+                if( anchorCenterX - tooltipHalfWidth < 0 ) {
+                    // left align on anchor
+                    tooltipX = anchorX;
+                } else if( anchorCenterX + tooltipHalfWidth > displayScreen.width() ) {
+                    // right align on anchor
+                    tooltipX = anchorX + anchorWidth - tooltipWidth;
+                } else {
+                    // center horizontal
+                    tooltipX = anchorCenterX - tooltipHalfWidth;
+                }
+
+                tooltip.setGravity(Gravity.TOP | Gravity.LEFT, tooltipX, tooltipY );
+                tooltip.show();
+
                 return true;
             }
-        });
+        } );
     }
 
     /**

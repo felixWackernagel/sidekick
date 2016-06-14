@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 
+import java.util.List;
+
 public class ContentProviderProcessorUtils {
 
 	public static Uri appendLimit( @NonNull final Uri uri, @NonNull final String limit ) {
@@ -66,10 +68,10 @@ public class ContentProviderProcessorUtils {
      * @param tablesWithProjection
      * @return a single array of all projections with the table name as prefix
      */
-	public static String[] joinProjections( @NonNull final Pair<String, String[]>[] tablesWithProjection ) {
+	public static String[] joinProjections( @NonNull final List<Pair<String, String[]>> tablesWithProjection ) {
 		final StringBuilder result = new StringBuilder();
         final String divider = "|";
-        final int tableCount = tablesWithProjection.length;
+        final int tableCount = tablesWithProjection.size();
 
         String table;
         String[] projection;
@@ -77,8 +79,8 @@ public class ContentProviderProcessorUtils {
 
 		for( int i = 0; i < tableCount; i++ ) {
 
-			table = tablesWithProjection[i].first;
-			projection = tablesWithProjection[i].second;
+			table = tablesWithProjection.get(i).first;
+			projection = tablesWithProjection.get(i).second;
 			columnCount = projection.length;
 
             for( int j = 0; j < columnCount; j++ ) {
