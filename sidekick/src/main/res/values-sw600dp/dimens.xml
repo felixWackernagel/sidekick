@@ -8,4 +8,5 @@
     <dimen name="sidekick_keyline3">24dp</dimen>
 
     <dimen name="sidekick_horizontal_margin">24dp</dimen>
+    <dimen name="sidekick_vertical_margin">24dp</dimen>
 </resources>

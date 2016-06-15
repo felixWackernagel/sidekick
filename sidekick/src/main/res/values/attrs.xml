@@ -29,4 +29,12 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="IndicatorView">
+        <attr name="count" format="integer"/>
+        <attr name="selectedIndex" format="integer"/>
+        <attr name="paddingBetween" format="dimension"/>
+        <attr name="selectedDrawable" format="reference"/>
+        <attr name="unselectedDrawable" format="reference"/>
+    </declare-styleable>
+
 </resources>

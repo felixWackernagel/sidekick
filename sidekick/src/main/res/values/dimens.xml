@@ -9,6 +9,8 @@
     <dimen name="sidekick_keyline3">16dp</dimen>
 
     <dimen name="sidekick_horizontal_margin">16dp</dimen>
+    <dimen name="sidekick_vertical_margin">16dp</dimen>
+    <dimen name="sidekick_space_between_content">8dp</dimen>
 	
 	<dimen name="sidekick_card_elevation">2dp</dimen>
 	<dimen name="sidekick_card_radius">2dp</dimen>
