@@ -1,10 +1,14 @@
 package de.wackernagel.android.sidekick.widgets;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.IntDef;
@@ -16,9 +20,7 @@ import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
 import android.view.animation.Interpolator;
-import android.view.animation.Transformation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,45 +36,58 @@ public class CircularRevealView extends View {
     @Retention(RetentionPolicy.SOURCE)
     public @interface State {}
 
-    private static final long DURATION = 500;
-    private static final Interpolator INTERPOLATOR = new AccelerateInterpolator();
+    private static final int ANIMATION_STARTING = 0;
+    private static final int ANIMATION_RUNNING = 1;
+    private static final int ANIMATION_NONE = 2;
+
+    private int animationState = ANIMATION_NONE;
+    private long animationStartTimeMillis;
+    private long animationDuration = 500l;
+    private Interpolator interpolator = new AccelerateInterpolator();
 
     private int state;
 
+    private int maxRadius;
     private int circleX;
     private int circleY;
-    private int circleRadius;
     private Paint circlePaint;
 
     private OnStateChangeListener stateChangeListener;
 
     public CircularRevealView(@NonNull final Context context) {
-        this(context, null);
+        super(context);
+        init(context, null, 0, 0);
     }
 
     public CircularRevealView(@NonNull final Context context, @Nullable final AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        init(context, attrs, 0, 0);
     }
 
     public CircularRevealView(@NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr, 0);
     }
 
-    private void init( @NonNull final Context context, @Nullable final AttributeSet attrs, int defStyle ) {
+    @TargetApi(21)
+    public CircularRevealView(@NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr, final int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    private void init( @NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr, final int defStyleRes ) {
         circlePaint = new Paint();
         circlePaint.setStyle(Paint.Style.FILL);
-        circlePaint.setColor( Color.WHITE );
+        circlePaint.setColor(Color.WHITE);
 
         if( attrs != null ) {
             int[] myAttr = { android.R.attr.color };
-            TypedArray a = context.obtainStyledAttributes(attrs, myAttr, defStyle, 0);
-            setColor( a.getColor( 0, Color.WHITE ) );
+            TypedArray a = context.obtainStyledAttributes(attrs, myAttr, defStyleAttr, defStyleRes);
+            circlePaint.setColor( a.getColor( 0, Color.WHITE ) );
             a.recycle();
         }
 
         state = STATE_UNREVEALED;
-        setVisibility(INVISIBLE);
     }
 
     @ColorInt
@@ -91,72 +106,98 @@ public class CircularRevealView extends View {
         setColor( ContextCompat.getColor(getContext(), resId) );
     }
 
-    private void setCircleRadius( int radius ) {
-        this.circleRadius = radius;
-        ViewCompat.postInvalidateOnAnimation(this);
+    public Interpolator getInterpolator() {
+        return interpolator;
+    }
+
+    public void setInterpolator(Interpolator interpolator) {
+        this.interpolator = interpolator;
+    }
+
+    public long getAnimationDuration() {
+        return animationDuration;
+    }
+
+    public void setAnimationDuration(long animationDuration) {
+        this.animationDuration = animationDuration;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        maxRadius = (int) Math.sqrt( Math.pow( (double) getMeasuredWidth(), 2d ) + Math.pow( (double) getMeasuredHeight(), 2d ) );
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if ( state == STATE_REVEALED ) {
-            // background
+        if( state == STATE_UNREVEALED ) {
+            return;
+        }
+        if( state == STATE_REVEALED ) {
             canvas.drawRect( 0, 0, getWidth(), getHeight(), circlePaint );
+            return;
+        }
+
+        boolean animationDone = true;
+        int circleRadius = state == STATE_REVEAL_STARTED ? 0 : maxRadius;
+
+        switch( animationState ) {
+            case ANIMATION_STARTING:
+                animationStartTimeMillis = SystemClock.uptimeMillis();
+                animationDone = false;
+                animationState = ANIMATION_RUNNING;
+                break;
+
+            case ANIMATION_RUNNING:
+                if ( animationStartTimeMillis >= 0) {
+                    float normalized = Math.min( 1.0f, (float) (SystemClock.uptimeMillis() - animationStartTimeMillis) / animationDuration );
+                    animationDone = normalized >= 1.0f;
+                    if( state == STATE_REVEAL_STARTED ) {
+                        circleRadius = (int) ( interpolator.getInterpolation(normalized) * maxRadius );
+                    } else {
+                        circleRadius = (int) ( interpolator.getInterpolation(1.0f - normalized) * maxRadius );
+                    }
+                }
+                break;
+        }
+
+        canvas.drawCircle( circleX, circleY, circleRadius, circlePaint );
+
+        if( animationDone ) {
+            animationState = ANIMATION_NONE;
+
+            if( state == STATE_REVEAL_STARTED ) {
+                changeState(STATE_REVEALED );
+            } else {
+                changeState(STATE_UNREVEALED);
+            }
         } else {
-            // circular reveal
-            canvas.drawCircle( circleX, circleY , circleRadius, circlePaint );
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
     public void enterReveal( @Size(2) final int[] startPoint ) {
-        changeState( STATE_REVEAL_STARTED );
-
+        changeState(STATE_REVEAL_STARTED);
+        animationState = ANIMATION_STARTING;
         circleX = startPoint[0];
         circleY = startPoint[1];
-
-        final CircularRevealAnimation animation = new CircularRevealAnimation( this, 0, getWidth() + getHeight() );
-        animation.setInterpolator(INTERPOLATOR);
-        animation.setDuration(DURATION);
-        animation.setAnimationListener(new AnimationListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                changeState(STATE_REVEALED);
-            }
-        });
-
-        setVisibility(VISIBLE);
-        clearAnimation();
-        startAnimation( animation );
+        ViewCompat.postInvalidateOnAnimation( this );
     }
 
     public void exitReveal( @Size(2) final int[] endPoint ) {
         changeState( STATE_UNREVEAL_STARTED );
-
+        animationState = ANIMATION_STARTING;
         circleX = endPoint[0];
         circleY = endPoint[1];
-
-        final CircularRevealAnimation animation = new CircularRevealAnimation( this, getWidth() + getHeight(), 0 );
-        animation.setInterpolator(INTERPOLATOR);
-        animation.setDuration(DURATION);
-        animation.setAnimationListener(new AnimationListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                changeState(STATE_UNREVEALED);
-                setVisibility(INVISIBLE);
-            }
-        });
-
-        clearAnimation();
-        startAnimation(animation);
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setRevealed() {
-        setVisibility( VISIBLE );
         changeState(STATE_REVEALED);
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setUnrevealed() {
-        setVisibility( INVISIBLE);
         changeState(STATE_UNREVEALED);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -192,41 +233,53 @@ public class CircularRevealView extends View {
         void onStateChange(@State int state);
     }
 
-    /**
-     * Animate radius of given CircularRevealView.
-     */
-    private static class CircularRevealAnimation extends Animation {
-        private final int startRadius;
-        private final int endRadius;
-        private final CircularRevealView view;
-
-        public CircularRevealAnimation( @NonNull final CircularRevealView view, final int startRadius, final int endRadius ) {
-            this.startRadius = startRadius;
-            this.endRadius = endRadius;
-            this.view = view;
-        }
-
-        @Override
-        protected void applyTransformation(float interpolatedTime, Transformation t) {
-            view.setCircleRadius( (int)( ( endRadius - startRadius ) * interpolatedTime + startRadius ) );
-        }
+    @Override
+    public Parcelable onSaveInstanceState() {
+        final Parcelable superState = super.onSaveInstanceState();
+        final SavedState savedState = new SavedState(superState);
+        savedState.state = state;
+        savedState.color = circlePaint.getColor();
+        return savedState;
     }
 
-    /**
-     * Simple AnimationListener to override only necessary method hooks.
-     */
-    private static class AnimationListenerAdapter implements Animation.AnimationListener {
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        final SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState( savedState.getSuperState() );
+        this.state = savedState.state;
+        this.circlePaint.setColor( savedState.color );
+    }
 
-        @Override
-        public void onAnimationStart(Animation animation) {
+    private static class SavedState extends BaseSavedState {
+
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+
+        int state;
+        int color;
+
+        private SavedState( final Parcelable superState ) {
+            super( superState );
+        }
+
+        private SavedState( final Parcel in ) {
+            super( in );
+            state = in.readInt();
+            color = in.readInt();
         }
 
         @Override
-        public void onAnimationEnd(Animation animation) {
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(state);
+            out.writeInt(color);
         }
     }
 }
