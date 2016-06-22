@@ -9,7 +9,7 @@ This project is in the early stages of development but grows continuously to sup
 ```gradle
 dependencies {
     ...
-    compile 'de.wackernagel.android:sidekick:1.3.3'
+    compile 'de.wackernagel.android:sidekick:1.3.4'
 }
 ```
 
@@ -35,3 +35,4 @@ Check-out the [Wiki](../../wiki) pages for further examples and descriptions.
 * TypefaceTextView
 * AspectRatioImageView
 * CircularRevealView
+* IndicatorView
