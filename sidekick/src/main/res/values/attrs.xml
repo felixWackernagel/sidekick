@@ -37,4 +37,12 @@
         <attr name="unselectedDrawable" format="reference"/>
     </declare-styleable>
 
+    <declare-styleable name="CircularRevealView">
+        <attr name="backgroundColor" format="color" />
+        <attr name="state">
+            <enum name="unrevealed" value="0" />
+            <enum name="revealed" value="3" />
+        </attr>
+    </declare-styleable>
+
 </resources>

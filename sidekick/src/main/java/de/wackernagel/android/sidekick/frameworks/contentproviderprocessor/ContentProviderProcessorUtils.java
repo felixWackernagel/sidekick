@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
+import android.text.TextUtils;
 
 import java.util.List;
 
@@ -108,6 +109,27 @@ public class ContentProviderProcessorUtils {
 			cursor.close();
 		}
 		return false;
+	}
+
+	/**
+	 * If the projection or column are empty it returns immediate -1.
+	 *
+	 * @param projection of a query
+	 * @param column to find its index in project
+	 * @return index of column in projection or -1
+	 */
+	public static int getColumnIndex( @NonNull final String[] projection, @NonNull final String column ) {
+		if( projection.length == 0 || TextUtils.isEmpty( column ) ) {
+			return -1;
+		}
+
+		final int size = projection.length;
+		for( int index = 0; index < size; index++ ) {
+			if( projection[index].equalsIgnoreCase( column ) ) {
+				return index;
+			}
+		}
+		return -1;
 	}
 
 }

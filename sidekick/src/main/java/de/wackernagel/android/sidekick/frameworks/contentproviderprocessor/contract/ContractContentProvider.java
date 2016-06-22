@@ -2,6 +2,7 @@ package de.wackernagel.android.sidekick.frameworks.contentproviderprocessor.cont
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -20,20 +21,20 @@ public abstract class ContractContentProvider extends AbstractContentProvider {
     // DATABASE
     private final List<SQLiteTable> sqLiteTables;
     private final @NonNull String databaseName;
-    private final int databaseVersion;
+    private final @IntRange(from = 1) int databaseVersion;
     private final @Nullable SQLiteDatabase.CursorFactory cursorFactory;
 
     public ContractContentProvider(
             @NonNull final String authority,
             @NonNull final String databaseName,
-            int databaseVersion ) {
+            @IntRange(from = 1) final int databaseVersion ) {
         this( authority, databaseName, databaseVersion, null );
     }
 
     public ContractContentProvider(
             @NonNull final String authority,
             @NonNull final String databaseName,
-            int databaseVersion,
+            @IntRange(from = 1) final int databaseVersion,
             @Nullable final SQLiteDatabase.CursorFactory cursorFactory ) {
         this.authority = authority;
         this.databaseName = databaseName;
@@ -43,10 +44,6 @@ public abstract class ContractContentProvider extends AbstractContentProvider {
         this.sqLiteTables = new ArrayList<>();
     }
 
-    public List<SQLiteTable> getSqLiteTables() {
-        return sqLiteTables;
-    }
-
     /**
      * The {@link SQLiteTable} is used for the {@link SQLiteTableOpenHelper}.
      *
@@ -54,10 +51,6 @@ public abstract class ContractContentProvider extends AbstractContentProvider {
      */
     public void addSQLiteTable( final SQLiteTable sqLiteTable ) {
         sqLiteTables.add( sqLiteTable );
-    }
-
-    public List<Contract> getContracts() {
-        return contracts;
     }
 
     /**
@@ -104,5 +97,35 @@ public abstract class ContractContentProvider extends AbstractContentProvider {
         } else {
             throw new IllegalStateException( "ContentProviderProcessor can't be resolved from '" + contract.getClass().getSimpleName() + "'." );
         }
+    }
+
+    @NonNull
+    public List<SQLiteTable> getSQLiteTables() {
+        return sqLiteTables;
+    }
+
+    @NonNull
+    public List<Contract> getContracts() {
+        return contracts;
+    }
+
+    @NonNull
+    public String getAuthority() {
+        return authority;
+    }
+
+    @NonNull
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    @IntRange(from = 1)
+    public int getDatabaseVersion() {
+        return databaseVersion;
+    }
+
+    @Nullable
+    public SQLiteDatabase.CursorFactory getCursorFactory() {
+        return cursorFactory;
     }
 }

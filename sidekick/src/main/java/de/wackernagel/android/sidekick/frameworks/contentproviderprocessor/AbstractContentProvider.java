@@ -90,4 +90,13 @@ public abstract class AbstractContentProvider extends ContentProvider {
         return context != null ? context.getContentResolver() : null;
     }
 
+    @NonNull
+    public SQLiteOpenHelper getSQLiteOpenHelper() {
+        return dbHelper;
+    }
+
+    @NonNull
+    public ContentProviderProcessor[] getProcessors() {
+        return processors;
+    }
 }

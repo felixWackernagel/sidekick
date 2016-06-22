@@ -25,6 +25,8 @@ import android.view.animation.Interpolator;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import de.wackernagel.android.sidekick.R;
+
 public class CircularRevealView extends View {
 
     public static final int STATE_UNREVEALED = 0;
@@ -42,17 +44,16 @@ public class CircularRevealView extends View {
 
     private int animationState = ANIMATION_NONE;
     private long animationStartTimeMillis;
-    private long animationDuration = 500l;
+    private long animationDuration = 400l;
     private Interpolator interpolator = new AccelerateInterpolator();
 
     private int state;
+    private OnStateChangeListener stateChangeListener;
 
     private int maxRadius;
     private int circleX;
     private int circleY;
     private Paint circlePaint;
-
-    private OnStateChangeListener stateChangeListener;
 
     public CircularRevealView(@NonNull final Context context) {
         super(context);
@@ -80,14 +81,14 @@ public class CircularRevealView extends View {
         circlePaint.setStyle(Paint.Style.FILL);
         circlePaint.setColor(Color.WHITE);
 
+        state = STATE_UNREVEALED;
+
         if( attrs != null ) {
-            int[] myAttr = { android.R.attr.color };
-            TypedArray a = context.obtainStyledAttributes(attrs, myAttr, defStyleAttr, defStyleRes);
-            circlePaint.setColor( a.getColor( 0, Color.WHITE ) );
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircularRevealView, defStyleAttr, defStyleRes);
+            circlePaint.setColor( a.getColor( R.styleable.CircularRevealView_backgroundColor, Color.WHITE ) );
+            state = a.getInt( R.styleable.CircularRevealView_state, STATE_UNREVEALED );
             a.recycle();
         }
-
-        state = STATE_UNREVEALED;
     }
 
     @ColorInt
