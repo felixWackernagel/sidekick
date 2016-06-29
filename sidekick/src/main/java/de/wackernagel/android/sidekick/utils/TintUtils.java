@@ -59,4 +59,15 @@ public class TintUtils {
         return tinted;
     }
 
+    /**
+     * Clear a previous applied tint.
+     *
+     * @param drawable of which the tint is cleared
+     */
+    public static void clearTint( @Nullable final Drawable drawable ) {
+        if( drawable != null ) {
+            drawable.setColorFilter( null );
+        }
+    }
+
 }
