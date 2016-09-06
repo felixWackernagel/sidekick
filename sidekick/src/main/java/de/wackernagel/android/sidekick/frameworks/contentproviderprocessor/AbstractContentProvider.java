@@ -1,14 +1,20 @@
 package de.wackernagel.android.sidekick.frameworks.contentproviderprocessor;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
 
 public abstract class AbstractContentProvider extends ContentProvider {
 
@@ -71,6 +77,33 @@ public abstract class AbstractContentProvider extends ContentProvider {
             throw new IllegalArgumentException("Unkown URI: " + uri);
         }
         return processor.delete(dbHelper.getWritableDatabase(), getContentResolver(), uri, selection, selectionArgs);
+    }
+
+    /**
+     * Apply the given set of {@link ContentProviderOperation}, executing inside
+     * a {@link SQLiteDatabase} transaction. All changes will be rolled back if
+     * any single one fails.
+     */
+    @NonNull
+    @Override
+    public ContentProviderResult[] applyBatch( @NonNull ArrayList<ContentProviderOperation> operations ) throws OperationApplicationException {
+        if( operations.isEmpty() ) {
+            return new ContentProviderResult[0];
+        }
+
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            final int numOperations = operations.size();
+            final ContentProviderResult[] results = new ContentProviderResult[numOperations];
+            for( int index = 0; index < numOperations; index++ ) {
+                results[index] = operations.get(index).apply( this, results, index );
+            }
+            db.setTransactionSuccessful();
+            return results;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @Nullable
