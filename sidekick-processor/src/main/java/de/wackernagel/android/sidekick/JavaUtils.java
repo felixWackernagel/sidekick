@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -14,7 +15,7 @@ public class JavaUtils {
     public static Set<Element> getAbstractMethods( final TypeElement clazz ) {
         final Set<Element> methods = new HashSet<>();
         for( Element element : clazz.getEnclosedElements() ) {
-            if( element.getModifiers().contains( Modifier.ABSTRACT ) ) {
+            if( element.getKind() == ElementKind.METHOD && element.getModifiers().contains( Modifier.ABSTRACT ) ) {
                 methods.add( element );
             }
         }
