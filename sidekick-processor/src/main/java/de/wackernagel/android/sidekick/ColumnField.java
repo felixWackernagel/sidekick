@@ -1,45 +1,107 @@
 package de.wackernagel.android.sidekick;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+
+import de.wackernagel.android.sidekick.annotations.Contract;
 
 public class ColumnField {
 
-    private String name;
-    private String constantName;
-    private ClassName type;
+    /**
+     * Name for parameters
+     */
+    private String fieldName;
 
-    public ColumnField( final Element field ) {
-        name = columnName( field );
-        constantName = "COLUMN" + ( name.startsWith( "_" ) ? "" : "_" ) + name.toUpperCase();
+    /**
+     * Name of the SQLite column
+     */
+    private String columnName;
 
-        DeclaredType declaredFieldType = (DeclaredType) field.asType();
-        TypeElement fieldTypeElement = (TypeElement) declaredFieldType.asElement();
-        type = ClassName.get(fieldTypeElement);
+    /**
+     * Name of the column name constant
+     */
+    private String constantFieldName;
+
+    /**
+     * Object type
+     */
+    private TypeName objectType;
+
+    /**
+     * SQLite type
+     */
+    private String sqliteType;
+
+    private boolean primitive;
+    private Element origin;
+
+    public ColumnField(final Element field, Types typeUtils, Elements elementUtils) {
+        origin = field;
+        fieldName = field.getSimpleName().toString();
+        columnName = columnName(field);
+        constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
+        objectType = JavaUtils.getType(field.asType());
+        primitive = objectType.isPrimitive();
+
+        if( field.asType() instanceof DeclaredType ) {
+            final List<? extends TypeMirror> generics = ( (DeclaredType) field.asType() ).getTypeArguments();
+            for( TypeMirror g : generics ) {
+                System.out.println( "Generic type of " + field + " is " + g.toString() );
+            }
+        }
+
+        if( !primitive && !objectType.toString().equals( String.class.getName() ) ) {
+            fieldName = fieldName.concat("Id");
+            columnName = columnName.concat( "_id" );
+            constantFieldName = constantFieldName.concat("_ID");
+            objectType = TypeName.LONG;
+        }
     }
 
-    public ColumnField( final String constantName, final String name, final Class<?> type ) {
-        this.name = name;
-        this.constantName = constantName;
-        this.type = ClassName.get( type );
+    public ColumnField( final String constantFieldName, final String fieldName, final String columnName, final Class<?> objectType) {
+        this.fieldName = fieldName;
+        this.columnName = columnName;
+        this.constantFieldName = constantFieldName;
+        this.primitive = objectType.isPrimitive();
+        this.objectType = primitive ? TypeName.get(objectType) : ClassName.get(objectType);
     }
 
-    public String getName() {
-        return name;
+    public String getFieldName() {
+        return fieldName;
     }
 
-    public String getConstantName() {
-        return constantName;
+    public String getColumnName() {
+        return columnName;
     }
 
-    public ClassName getType() {
-        return type;
+    public String getConstantFieldName() {
+        return constantFieldName;
     }
 
+    public TypeName getObjectType() {
+        return objectType;
+    }
+
+    /**
+     * Convert the field name to a database column name.
+     * Makes 'deliveryAddress' to 'delivery_address'.
+     *
+     * @param field as name template
+     * @return name of column
+     */
     private static String columnName(final Element field) {
         final String name = field.getSimpleName().toString();
         final StringBuilder sb = new StringBuilder(name);
