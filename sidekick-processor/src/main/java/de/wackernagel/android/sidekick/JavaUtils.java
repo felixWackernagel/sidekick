@@ -1,5 +1,6 @@
 package de.wackernagel.android.sidekick;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,6 +10,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+
+import de.wackernagel.android.sidekick.annotations.Column;
 
 public class JavaUtils {
 
@@ -30,4 +33,14 @@ public class JavaUtils {
         return pkg.getQualifiedName().toString();
     }
 
+    public static Set<ColumnField> getAnnotatedFields( TypeElement clazz, Class<? extends Annotation> annotation) {
+        final Set<ColumnField> annotatedFields = new HashSet<>();
+        annotatedFields.add( new ColumnField( "COLUMN_ID", "_id", Integer.class ));
+        for( Element element : clazz.getEnclosedElements() ) {
+            if( element.getKind() == ElementKind.FIELD && element.getAnnotation( annotation ) != null ) {
+                annotatedFields.add( new ColumnField( element ) );
+            }
+        }
+        return annotatedFields;
+    }
 }

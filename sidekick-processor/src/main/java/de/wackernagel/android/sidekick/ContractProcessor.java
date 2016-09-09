@@ -9,26 +9,26 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
+import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
 
 import static com.squareup.javapoet.TypeSpec.classBuilder;
@@ -40,9 +40,23 @@ import static javax.lang.model.element.Modifier.STATIC;
 @AutoService(Processor.class)
 public class ContractProcessor extends AbstractProcessor {
 
+    private Types typeUtils;
+    private Elements elementUtils;
+    private Messager log;
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        elementUtils = processingEnv.getElementUtils();
+        typeUtils = processingEnv.getTypeUtils();
+        log = processingEnv.getMessager();
+    }
+
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton( Contract.class.getCanonicalName() );
+        final Set<String> annotations = new HashSet<>();
+        annotations.add( Contract.class.getCanonicalName() );
+        return annotations;
     }
 
     @Override
@@ -54,108 +68,93 @@ public class ContractProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for( Element annotatedElement : roundEnv.getElementsAnnotatedWith( Contract.class ) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
-            final String authority = annotatedClass.getAnnotation( Contract.class ).authority();
+            final String authority = annotatedClass.getAnnotation(Contract.class).authority();
             final String className = annotatedClass.getSimpleName().toString();
-            final String packageName = JavaUtils.getPackageName( processingEnv.getElementUtils(), annotatedClass );
+            final String packageName = JavaUtils.getPackageName(elementUtils, annotatedClass);
 
             if (packageName == null) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "No package for " + className + ". SKIP");
+                log.printMessage(Diagnostic.Kind.WARNING, "No package for " + className + ". SKIP");
                 continue;
             }
 
-            final Set<Element> methods = JavaUtils.getAbstractMethods(annotatedClass);
-            final Set<String> columnConstants = getColumns( methods );
-            final TypeSpec generatedClass = generateContract(className, columnConstants, methods, authority);
+            final Set<ColumnField> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
+            final TypeSpec generatedClass = generateContract(className, fields, authority);
             writeClass(generatedClass, packageName, className);
         }
         return true;
     }
 
-    private Set<String> getColumns(Set<Element> methods) {
-        final Set<String> columns = new HashSet<>( methods.size() );
-        columns.add("COLUMN_ID");
-        for( Element method : methods ) {
-           columns.add("COLUMN_" + columnName(method.getSimpleName().toString()).toUpperCase());
-        }
-        return columns;
-    }
-
     private void writeClass(final TypeSpec generatedClass, final String packageName, final String className) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Generate contract for " + packageName + "." + className);
+        log.printMessage(Diagnostic.Kind.NOTE, "Generate contract for " + packageName + "." + className);
         try {
             JavaFile javaFile = JavaFile.builder(packageName, generatedClass).build();
             javaFile.writeTo(processingEnv.getFiler());
         } catch (IOException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "File wasn't generated.");
+            log.printMessage(Diagnostic.Kind.WARNING, "File wasn't generated.");
         }
     }
 
-    private static TypeSpec generateContract(final String className, final Set<String> columns, final Set<Element> methods, final String authority) {
+    private TypeSpec generateContract(final String className, final Set<ColumnField> fields, final String authority) {
         final TypeSpec.Builder classBuilder = classBuilder(className + "Contract")
                 .addModifiers(PUBLIC, ABSTRACT)
                 .addJavadoc("Generated by Sidekick at " + new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH).format(new Date()) + "\n")
-                .addField(constant(String.class, "TABLE", tableName(className) ) );
+                .addField(constant(String.class, "TABLE", tableName(className)));
 
-        columnConstants(classBuilder, columns);
-        projection(classBuilder, columns, methods);
+        columnConstants(classBuilder, fields);
+        projection(classBuilder, fields);
         contentUri(classBuilder, authority);
-        insert(classBuilder, methods);
+        insert(classBuilder, fields);
 
         return classBuilder.build();
     }
-/*
-    @Nullable
-    public static Uri insert( @NonNull final Context context, @NonNull final String name, @Nullable final String url ) {
-        final ContentValues insert = new ContentValues();
-        insert.put(BrandContract.COLUMN_NAME, name);
-        insert.put(BrandContract.COLUMN_URL, url);
-        return context.getContentResolver().insert(BrandContract.CONTENT_URI, insert);
-    }
-*/
-    private static void insert( final TypeSpec.Builder classBuilder, final Set<Element> methods ) {
+
+    private void insert( final TypeSpec.Builder classBuilder, final Set<ColumnField> fields ) {
         ClassName uri = ClassName.get( "android.net", "Uri" );
         ClassName contentValues = ClassName.get( "android.content", "ContentValues" );
         ClassName context = ClassName.get( "android.content", "Context" );
         ClassName nullable = ClassName.get( "android.support.annotation", "Nullable" );
 
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("insert")
+                .returns(uri)
+                .addModifiers(PUBLIC, STATIC, FINAL)
+                .addAnnotation(nullable)
+                .addParameter(context, "context", FINAL)
+                .addStatement("final $T insert = new $T()", contentValues, contentValues);
+        for( ColumnField field : fields ) {
+            if( field.getName().equals( "_id" ) )
+                continue;
+            methodBuilder.addParameter( field.getType(), field.getName(), Modifier.FINAL);
+            methodBuilder.addStatement( "insert.put( $L, $L )", field.getConstantName(), field.getName() );
+        }
+        methodBuilder.addStatement("return context.getContentResolver().insert( CONTENT_URI, insert )");
+
         classBuilder.addMethod(
-                MethodSpec.methodBuilder("insert")
-                        .returns(uri)
-                        .addModifiers( PUBLIC, STATIC, FINAL )
-                        .addAnnotation(nullable)
-                        .addParameter(context, "context", FINAL)
-                        .addStatement("final $T insert = new $T()", contentValues, contentValues)
-                        .addStatement("return context.getContentResolver().insert( CONTENT_URI, insert )")
-                        .build());
+                methodBuilder.build());
     }
 
-    private static void columnConstants( final TypeSpec.Builder classBuilder, final Set<String> columns ) {
-        for( String columnConstant : columns ) {
-            String value = columnConstant.substring( "COLUMN_".length() ).toLowerCase();
-            if( value.equals( "id" ) ) {
-                value = "_".concat( value );
-            }
+    private static void columnConstants( final TypeSpec.Builder classBuilder, final Set<ColumnField> columnFields ) {
+        for( ColumnField columnField : columnFields ) {
             classBuilder.addField(
-                    constant( String.class, columnConstant, value ) );
+                    constant(String.class, columnField.getConstantName(), columnField.getName()));
         }
     }
 
-    private static void projection( final TypeSpec.Builder classBuilder, final Set<String> columns, final Set<Element> methods ) {
-        if( methods.size() > 0 ) {
+    private static void projection( final TypeSpec.Builder classBuilder, final Set<ColumnField> columns ) {
+        if( columns.size() > 0 ) {
             final StringBuilder pattern = new StringBuilder();
-            pattern.append( "$L" );
-
-            for( Element method : methods ) {
+            final Set<String> values = new HashSet<>(columns.size());
+            for( ColumnField column : columns ) {
                 if( pattern.length() > 0 ) {
                     pattern.append(", ");
                 }
                 pattern.append("$L");
+                values.add(column.getConstantName());
             }
 
             classBuilder.addField(
                 FieldSpec.builder( String[].class, "PROJECTION" )
                         .addModifiers(PUBLIC, STATIC, FINAL)
-                        .initializer("{ " + pattern.toString() + " }", columns.toArray() )
+                        .initializer("{ " + pattern.toString() + " }", values.toArray())
                         .build());
         }
     }
@@ -169,24 +168,6 @@ public class ContractProcessor extends AbstractProcessor {
                     .initializer("Uri.parse( \"content://" + authority + "/\" + $L )", "TABLE")
                     .build());
         }
-    }
-
-    private static String columnName(final String methodName) {
-        String name = methodName;
-        if (name.startsWith("get")) {
-            name = methodName.substring(3);
-        }
-
-        final StringBuilder sb = new StringBuilder(name);
-        final int length = sb.length();
-        int offset = 0;
-        for (int index = 0; index < length; index++) {
-            if (index > 0 && Character.isUpperCase(name.charAt(index))) {
-                sb.insert(index + offset, "_");
-                offset++;
-            }
-        }
-        return sb.toString().toLowerCase();
     }
 
     private static String tableName(final String className) {
