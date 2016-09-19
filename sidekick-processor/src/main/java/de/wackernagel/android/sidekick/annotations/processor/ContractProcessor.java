@@ -3,8 +3,10 @@ package de.wackernagel.android.sidekick.annotations.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.TypeName;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -23,6 +25,8 @@ import javax.tools.Diagnostic;
 
 import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
+
+import static javax.tools.Diagnostic.Kind.NOTE;
 
 @AutoService(Processor.class)
 public class ContractProcessor extends AbstractProcessor {
@@ -51,53 +55,57 @@ public class ContractProcessor extends AbstractProcessor {
         return SourceVersion.latestSupported();
     }
 
+    private Map<TableDefinition, Set<ColumnDefinition>> toGenerate = new HashMap<TableDefinition, Set<ColumnDefinition>>();
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for( Element annotatedElement : roundEnv.getElementsAnnotatedWith( Contract.class ) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
-            final String authority = annotatedClass.getAnnotation(Contract.class).authority();
-            final String className = annotatedClass.getSimpleName().toString();
-            final String packageName = JavaUtils.getPackageName(elementUtils, annotatedClass);
+            final TableDefinition tableDefinition = new TableDefinition(
+                    typeUtils,
+                    elementUtils,
+                    log,
+                    annotatedClass.getSimpleName().toString(),
+                    annotatedClass.getAnnotation(Contract.class).authority() );
 
-            if (packageName == null) {
-                log.printMessage(Diagnostic.Kind.WARNING, "No package for " + className + ". SKIP");
-                continue;
+            final String packageName = JavaUtils.getPackageName(elementUtils, annotatedClass);
+            final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
+            final Set<ColumnDefinition> columnDefinitions = filterFields(fields);
+
+            final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions );
+            if( generatedContractClass.writeClass( packageName, processingEnv.getFiler() ) ) {
+                log.printMessage(NOTE, "Contract for " + packageName + "." + tableDefinition.getClassName() + " generated." );
             }
 
-            final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
-            final Set<ColumnField> memberFields = filterFields(fields);
-
-            final ContractGenerator generatedContractClass = new ContractGenerator( className, memberFields, authority );
-            generatedContractClass.writeClass( packageName, className, log, processingEnv.getFiler() );
-
-            final ModelGenerator generatedModelClass = new ModelGenerator( className, memberFields );
-            generatedModelClass.writeClass(packageName, className, log, processingEnv.getFiler());
+            final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
+            if( generatedModelClass.writeClass(packageName, processingEnv.getFiler()) ) {
+                log.printMessage(NOTE, "Model for " + packageName + "." + tableDefinition.getClassName() + " generated." );
+            }
         }
         return true;
     }
 
-    private Set<ColumnField> filterFields( Set<Element> fields ) {
-        final Set<ColumnField> annotatedFields = new LinkedHashSet<>();
-        annotatedFields.add( ColumnField.primaryField() );
+    private Set<ColumnDefinition> filterFields( Set<Element> fields ) {
+        final Set<ColumnDefinition> annotatedFields = new LinkedHashSet<>();
+        annotatedFields.add( ColumnDefinition.primaryField( typeUtils, elementUtils, log ) );
 
         for( Element field : fields ) {
             final TypeName type = JavaUtils.getType( field.asType() );
-            log.printMessage(Diagnostic.Kind.NOTE, "Filter FIELD of type " + type.toString() );
             if( type.isPrimitive() ) {
                 // boolean, byte, double, float, int, long, short
-                annotatedFields.add( new ColumnField( field, type, true, false, false, typeUtils, elementUtils ) );
+                annotatedFields.add( new ColumnDefinition( field, type, true, false, false, typeUtils, elementUtils, log ) );
             } else if( type.toString().equals( "byte[]" ) ) {
                 // byte[]
-                annotatedFields.add( new ColumnField( field, type, false, true, false, typeUtils, elementUtils ) );
+                annotatedFields.add( new ColumnDefinition( field, type, false, true, false, typeUtils, elementUtils, log ) );
             } else if( String.class.getName().equals(type.toString() ) ) {
                 // String
-                annotatedFields.add( new ColumnField(field, type, false, false, true, typeUtils, elementUtils ) );
+                annotatedFields.add( new ColumnDefinition(field, type, false, false, true, typeUtils, elementUtils, log ) );
             } else if( field.asType() instanceof DeclaredType && typeUtils.asElement( field.asType() ).getAnnotation( Contract.class ) != null ) {
                 // Class with @Contract()
-                annotatedFields.add( new ColumnField(field, type, false, false, false, typeUtils, elementUtils ) );
+                annotatedFields.add( new ColumnDefinition(field, type, false, false, false, typeUtils, elementUtils, log ) );
             } else if( JavaUtils.isCollectionType(field, elementUtils, typeUtils) ) {
                 // Collection
-                final Set<TypeMirror> generic = JavaUtils.getGenericTypes(field, elementUtils, typeUtils);
+                final Set<TypeMirror> generic = JavaUtils.getGenericTypes(field);
                 if( generic.size() == 1 &&
                     typeUtils.asElement( generic.iterator().next() ).getAnnotation( Contract.class ) != null ) {
                     // Set<@Contract>, List<@Contract>
@@ -105,7 +113,7 @@ public class ContractProcessor extends AbstractProcessor {
                     log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD because collection has more then 1 generic type or type is no Contract." );
                 }
             } else {
-                log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD because type is unsupported." );
+                log.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString() );
             }
         }
         return annotatedFields;

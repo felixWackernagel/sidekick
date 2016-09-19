@@ -24,7 +24,7 @@ public class JavaUtils {
     public static String getPackageName( final Elements elementUtils, final TypeElement clazz ) {
         final PackageElement pkg = elementUtils.getPackageOf( clazz );
         if (pkg.isUnnamed()) {
-            return null;
+            return "";
         }
         return pkg.getQualifiedName().toString();
     }
@@ -59,7 +59,7 @@ public class JavaUtils {
         return annotatedFields;
     }
 
-    public static Set<TypeMirror> getGenericTypes(Element field, Elements elementUtils, Types typeUtils) {
+    public static Set<TypeMirror> getGenericTypes(Element field ) {
         final Set<TypeMirror> annotatedFields = new LinkedHashSet<>();
         if( field.asType() instanceof DeclaredType ) {
             for( TypeMirror gen : ((DeclaredType) field.asType()).getTypeArguments() ) {

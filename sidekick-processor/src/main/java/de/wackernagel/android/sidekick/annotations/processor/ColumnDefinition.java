@@ -2,6 +2,7 @@ package de.wackernagel.android.sidekick.annotations.processor;
 
 import com.squareup.javapoet.TypeName;
 
+import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -10,7 +11,7 @@ import de.wackernagel.android.sidekick.annotations.Default;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
 
-public class ColumnField {
+public class ColumnDefinition extends Definition {
 
     /**
      * Name for parameters
@@ -45,7 +46,8 @@ public class ColumnField {
 
     private boolean isFinal;
 
-    public ColumnField( final Element field, final TypeName type, final boolean primitiveType, final boolean arrayType, final boolean stringType, final Types typeUtils, final Elements elementUtils) {
+    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean arrayType, final boolean stringType, final Types types, final Elements elements, final Messager log ) {
+        super( types, elements, log );
         this.origin = field;
         this.objectType = type;
         this.primitiveType = primitiveType;
@@ -68,11 +70,12 @@ public class ColumnField {
         }
     }
 
-    public static ColumnField primaryField() {
-        return new ColumnField();
+    public static ColumnDefinition primaryField( final Types types, final Elements elements, final Messager log ) {
+        return new ColumnDefinition( types, elements, log);
     }
 
-    private ColumnField() {
+    private ColumnDefinition( final Types types, final Elements elements, final Messager log ) {
+        super(types, elements, log);
         this.origin = null;
         this.fieldName = "id";
         this.columnName = "_id";
@@ -132,8 +135,8 @@ public class ColumnField {
         return stringType;
     }
 
-    public boolean isUnique() {
-        return origin != null && origin.getAnnotation( Unique.class ) != null;
+    public Unique unique() {
+        return origin != null ? origin.getAnnotation( Unique.class ) : null;
     }
 
     private String resolveSQLiteType( TypeName type, boolean stringType, boolean primitiveType, boolean arrayType) {

@@ -9,6 +9,7 @@ import de.wackernagel.android.sidekick.annotations.Unique;
 
 @Contract( authority = "com.example.provider" )
 public class Product {
+    
     @Column
     boolean favorite;
 
