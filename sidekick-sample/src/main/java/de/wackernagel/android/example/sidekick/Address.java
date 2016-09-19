@@ -1,4 +1,4 @@
-package de.wackernagel.android.sidekick.sample;
+package de.wackernagel.android.example.sidekick;
 
 import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;

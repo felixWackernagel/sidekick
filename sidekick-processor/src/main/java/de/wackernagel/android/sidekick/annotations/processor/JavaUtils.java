@@ -1,8 +1,9 @@
-package de.wackernagel.android.sidekick;
+package de.wackernagel.android.sidekick.annotations.processor;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
+import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,8 +19,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
-import de.wackernagel.android.sidekick.annotations.Column;
-
 public class JavaUtils {
 
     public static String getPackageName( final Elements elementUtils, final TypeElement clazz ) {
@@ -28,17 +27,6 @@ public class JavaUtils {
             return null;
         }
         return pkg.getQualifiedName().toString();
-    }
-
-    public static Set<ColumnField> getAnnotatedColumnFields(final TypeElement clazz, Types typeUtils, Elements elementUtils) {
-        final Set<ColumnField> annotatedFields = new LinkedHashSet<>();
-        annotatedFields.add( new ColumnField( "COLUMN_ID", "id", "_id", long.class ) );
-        for( Element element : clazz.getEnclosedElements() ) {
-            if( element.getKind() == ElementKind.FIELD && element.getAnnotation( Column.class ) != null ) {
-                annotatedFields.add( new ColumnField( element, typeUtils, elementUtils ) );
-            }
-        }
-        return annotatedFields;
     }
 
     public static TypeName getType( TypeMirror field ) {
@@ -59,5 +47,25 @@ public class JavaUtils {
                 typeUtils.getDeclaredType( // Collection<?>
                         elementUtils.getTypeElement( Collection.class.getName() ), // type
                         typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
+    }
+
+    public static Set<Element> getAnnotatedFields(TypeElement clazz, Class<? extends Annotation> annotation) {
+        final Set<Element> annotatedFields = new LinkedHashSet<>();
+        for( Element element : clazz.getEnclosedElements() ) {
+            if( element.getKind() == ElementKind.FIELD && element.getAnnotation( annotation ) != null ) {
+                annotatedFields.add( element );
+            }
+        }
+        return annotatedFields;
+    }
+
+    public static Set<TypeMirror> getGenericTypes(Element field, Elements elementUtils, Types typeUtils) {
+        final Set<TypeMirror> annotatedFields = new LinkedHashSet<>();
+        if( field.asType() instanceof DeclaredType ) {
+            for( TypeMirror gen : ((DeclaredType) field.asType()).getTypeArguments() ) {
+                annotatedFields.add( gen );
+            }
+        }
+        return annotatedFields;
     }
 }

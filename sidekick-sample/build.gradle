@@ -6,7 +6,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "de.wackernagel.android.sidekick"
+        applicationId "de.wackernagel.android.example.sidekick"
         minSdkVersion 7
         targetSdkVersion 23
         versionCode 1
@@ -25,6 +25,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
 
+    compile project(':sidekick')
     compile project(':sidekick-annotations')
     apt project(':sidekick-processor')
 }

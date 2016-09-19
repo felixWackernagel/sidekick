@@ -1,4 +1,4 @@
-package de.wackernagel.android.sidekick;
+package de.wackernagel.android.example.sidekick;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
