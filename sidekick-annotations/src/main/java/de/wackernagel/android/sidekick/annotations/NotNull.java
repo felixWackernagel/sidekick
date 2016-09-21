@@ -6,6 +6,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.CLASS;
+import static de.wackernagel.android.sidekick.annotations.ConflictClause.NONE;
 
 /**
  * A marker interface to make a SQLite columns NOT NULL inside a {@link Contract} annotated class.
@@ -14,4 +15,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Retention( CLASS )
 @Target( FIELD )
 public @interface NotNull {
+
+    ConflictClause onConflict() default NONE;
+
 }

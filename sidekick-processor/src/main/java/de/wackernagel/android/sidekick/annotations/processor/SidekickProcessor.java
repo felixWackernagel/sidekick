@@ -110,7 +110,7 @@ public class SidekickProcessor extends AbstractProcessor {
                     typeUtils.asElement( generic.iterator().next() ).getAnnotation( Contract.class ) != null ) {
                     // Set<@Contract>, List<@Contract>
                 } else {
-                    log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD because collection has more then 1 generic type or type is no Contract." );
+                    log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD because collection are unsupported or type is no primitive or Contract." );
                 }
             } else {
                 log.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString() );

@@ -1,5 +1,6 @@
 package de.wackernagel.android.sidekick.annotations.processor;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import javax.annotation.processing.Messager;
@@ -62,10 +63,10 @@ public class ColumnDefinition extends Definition {
 
         // simple foreign key
         if( !primitiveType && !arrayType && !stringType ) {
-            objectType = TypeName.LONG;
-            fieldName = fieldName.concat("Id");
-            columnName = columnName.concat( "_id" );
+            objectType = ClassName.bestGuess( type.toString() + "Model" );
+
             constantFieldName = constantFieldName.concat("_ID");
+            columnName = columnName.concat( "_id" );
             sqliteType = "INTEGER";
         }
     }
@@ -110,8 +111,12 @@ public class ColumnDefinition extends Definition {
         return isFinal;
     }
 
+    public NotNull notNull() {
+        return origin != null ? origin.getAnnotation(NotNull.class) : null;
+    }
+
     public boolean isNotNull() {
-        return origin != null && origin.getAnnotation(NotNull.class) != null;
+        return notNull() != null;
     }
 
     public boolean isPrimaryKey() {
@@ -133,6 +138,10 @@ public class ColumnDefinition extends Definition {
 
     public boolean isString() {
         return stringType;
+    }
+
+    public boolean isForeignKey() {
+        return !stringType && !primitiveType && !arrayType;
     }
 
     public Unique unique() {

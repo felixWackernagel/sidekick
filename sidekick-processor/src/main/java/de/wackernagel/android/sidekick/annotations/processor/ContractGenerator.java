@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.annotation.processing.Filer;
 
+import de.wackernagel.android.sidekick.annotations.ConflictClause;
+import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
 
 import static javax.lang.model.element.Modifier.FINAL;
@@ -86,27 +88,46 @@ public class ContractGenerator {
         for( ColumnDefinition column : fields ) {
             sql.append( column.getColumnName() )
                 .append( " " )
-                .append( column.getSQLiteType() );
-            if( column.isPrimaryKey() )
-                sql.append( " PRIMARY KEY AUTOINCREMENT");
-            if( column.isNotNull() )
-                sql.append( " NOT NULL");
-            String defaultValue = column.defaultValue();
-            if( defaultValue != null && defaultValue.length() > 0 )
-                sql.append( " DEFAULT " ).append( defaultValue );
+                .append(column.getSQLiteType());
+
+            if( column.isPrimaryKey() ) {
+                sql.append( " CONSTRAINT " ).append( column.getColumnName() ).append( "_pk PRIMARY KEY AUTOINCREMENT");
+            }
+
+            final NotNull notNull = column.notNull();
+            if( notNull != null ) {
+                sql.append(" CONSTRAINT ").append( column.getColumnName() ).append( "_not_null NOT NULL" );
+                if( notNull.onConflict() != ConflictClause.NONE ) {
+                    sql.append( " ON CONFLICT " ).append( notNull.onConflict().toString() );
+                }
+            }
+
             final Unique unique = column.unique();
-            if( unique != null && unique.onConflict() == Unique.OnConflict.NOTHING )
-                sql.append( " UNIQUE" );
-            if( column.isBoolean() )
-                sql.append( " CHECK (" ).append( column.getColumnName() ).append(" IN ( 0, 1 ) )");
-            if( index != fields.size() - 1 )
+            if( unique != null ) {
+                sql.append(" CONSTRAINT ").append( column.getColumnName() ).append( "_unique UNIQUE" );
+                if( unique.onConflict() != ConflictClause.NONE ) {
+                    sql.append( " ON CONFLICT " ).append( unique.onConflict().toString() );
+                }
+            }
+
+            final String defaultValue = column.defaultValue();
+            if( defaultValue != null && defaultValue.length() > 0 ) {
+                sql.append(" CONSTRAINT ").append( column.getColumnName() ).append( "_default DEFAULT " ).append( defaultValue );
+            }
+
+            if( column.isBoolean() ) {
+                sql.append( " CONSTRAINT " ).append( column.getColumnName() ).append("_check_boolean CHECK (").append(column.getColumnName()).append(" IN ( 0, 1 ) )");
+            }
+
+            if( column.isForeignKey() ) {
+                String parentTable = column.getObjectType().toString();
+                parentTable = parentTable.substring( parentTable.lastIndexOf( '.' ) + 1, parentTable.lastIndexOf( "Model" ) ).toLowerCase();
+
+                sql.append(" CONSTRAINT ").append( column.getColumnName() ).append("_fk REFERENCES " ).append( parentTable ).append("(_id)");
+            }
+
+            if( index != fields.size() - 1 ) {
                 sql.append(", ");
-            if( unique != null && unique.onConflict() != Unique.OnConflict.NOTHING ) {
-                sql.append( "UNIQUE(" )
-                        .append( column.getColumnName() )
-                        .append( ") ON CONFLICT " )
-                        .append( unique.onConflict().getAsSql() )
-                        .append( ", " );
             }
             index++;
         }
@@ -134,11 +155,26 @@ public class ContractGenerator {
                 .addParameter( ParameterSpec.builder(context, "context", FINAL).addAnnotation( nonNull ).build() )
                 .addStatement("final $T insert = new $T()", contentValues, contentValues);
         for( ColumnDefinition field : fields ) {
-            if( field.getColumnName().equals("_id") )
+            if( field.getColumnName().equals("_id") ) {
                 continue;
-            methodBuilder.addParameter(field.getObjectType(), field.getFieldName(), FINAL);
+            }
+
+            final ParameterSpec.Builder parameter = ParameterSpec.builder(field.getObjectType(), field.getFieldName(), FINAL);
+            if( field.isNotNull() ) {
+                parameter.addAnnotation(nonNull);
+            } else if( field.isString() || field.isForeignKey() ) {
+                parameter.addAnnotation( nullable );
+            }
+            methodBuilder.addParameter(parameter.build());
+
             if( field.isBoolean() ) {
-                methodBuilder.addStatement( "insert.put( $L, $L ? 1 : 0 )", field.getConstantFieldName(), field.getFieldName() );
+                methodBuilder.addStatement("insert.put( $L, $L ? 1 : 0 )", field.getConstantFieldName(), field.getFieldName() );
+            } else if( field.isForeignKey() ) {
+                if( field.isNotNull() ) {
+                    methodBuilder.addStatement("insert.put( $L, $L.getId() )", field.getConstantFieldName(), field.getFieldName() );
+                } else {
+                    methodBuilder.addStatement("insert.put( $L, $L != null ? $L.getId() : 0 )", field.getConstantFieldName(), field.getFieldName(), field.getFieldName() );
+                }
             } else {
                 methodBuilder.addStatement( "insert.put( $L, $L )", field.getConstantFieldName(), field.getFieldName() );
             }

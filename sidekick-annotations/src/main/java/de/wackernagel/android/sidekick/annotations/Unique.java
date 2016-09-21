@@ -6,6 +6,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.CLASS;
+import static de.wackernagel.android.sidekick.annotations.ConflictClause.NONE;
 
 /**
  * A marker interface to make a SQLite columns UNIQUE inside a {@link Contract} annotated class.
@@ -15,27 +16,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target( FIELD )
 public @interface Unique {
 
-    OnConflict onConflict() default OnConflict.NOTHING;
-
-    enum OnConflict {
-
-        ROLLBACK( "ROLLBACK" ),
-        ABORT( "ABORT" ),
-        FAIL( "FAIL" ),
-        IGNORE( "IGNORE" ),
-        REPLACE( "REPLACE" ),
-        NOTHING( "" );
-
-        private String asSql;
-
-        OnConflict( String asSql ) {
-            this.asSql = asSql;
-        }
-
-        public String getAsSql() {
-            return asSql;
-        }
-
-    }
+    ConflictClause onConflict() default NONE;
 
 }
