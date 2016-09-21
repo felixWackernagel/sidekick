@@ -29,7 +29,7 @@ import de.wackernagel.android.sidekick.annotations.Contract;
 import static javax.tools.Diagnostic.Kind.NOTE;
 
 @AutoService(Processor.class)
-public class ContractProcessor extends AbstractProcessor {
+public class SidekickProcessor extends AbstractProcessor {
 
     private Types typeUtils;
     private Elements elementUtils;
