@@ -1,10 +1,13 @@
 package de.wackernagel.android.sidekick.annotations.processor;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
@@ -45,30 +48,47 @@ public class ColumnDefinition extends Definition {
     private boolean primitiveType;
     private boolean arrayType;
     private boolean stringType;
+    private boolean collectionType;
 
     private boolean isFinal;
+    private boolean skipSQLite = false;
 
     public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean arrayType, final boolean stringType, final Types types, final Elements elements, final Messager log ) {
+        this(field, type, primitiveType, arrayType, stringType, false, types, elements, log);
+    }
+
+    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean arrayType, final boolean stringType, final boolean collectionType, final Types types, final Elements elements, final Messager log ) {
         super( types, elements, log );
         this.origin = field;
         this.objectType = type;
         this.primitiveType = primitiveType;
         this.arrayType = arrayType;
         this.stringType = stringType;
+        this.collectionType = collectionType;
 
         fieldName = field.getSimpleName().toString();
-        columnName = formatNameForSQL(field.getSimpleName().toString());
+        columnName = formatNameForSQL(fieldName);
         constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
 
         sqliteType = resolveSQLiteType( objectType, stringType, primitiveType, arrayType );
 
-        // simple foreign key
-        if( !primitiveType && !arrayType && !stringType ) {
+        // one-one foreign key
+        if( !primitiveType && !arrayType && !stringType && !collectionType ) {
             objectType = ClassName.bestGuess( type.toString() + "Model" );
 
             constantFieldName = constantFieldName.concat("_ID");
             columnName = columnName.concat( "_id" );
             sqliteType = "INTEGER";
+        }
+
+        // one-many/many-many foreign key
+        if( !primitiveType && !arrayType && !stringType && collectionType ) {
+            //types.isSubtype()
+
+            objectType = ParameterizedTypeName.get(
+                    ClassName.get((TypeElement)((DeclaredType)origin.asType()).asElement()),
+                    ClassName.bestGuess( JavaUtils.getGenericTypes( field ).iterator().next().toString() + "Model" ) );
+            skipSQLite = true;
         }
     }
 
@@ -86,6 +106,7 @@ public class ColumnDefinition extends Definition {
         this.objectType = TypeName.get(long.class);
         this.sqliteType = "INTEGER";
         this.isFinal = true;
+        this.collectionType = false;
     }
 
     public String getFieldName() {
@@ -106,6 +127,10 @@ public class ColumnDefinition extends Definition {
 
     public String getSQLiteType() {
         return sqliteType;
+    }
+
+    public boolean isCollectionType() {
+        return collectionType;
     }
 
     public boolean isFinal() {
@@ -142,7 +167,7 @@ public class ColumnDefinition extends Definition {
     }
 
     public boolean isForeignKey() {
-        return !stringType && !primitiveType && !arrayType;
+        return !stringType && !primitiveType && !arrayType && !collectionType;
     }
 
     public ForeignKey foreignKey() {
@@ -151,6 +176,10 @@ public class ColumnDefinition extends Definition {
 
     public Unique unique() {
         return origin != null ? origin.getAnnotation( Unique.class ) : null;
+    }
+
+    public boolean skipSQLite() {
+        return skipSQLite;
     }
 
     private String resolveSQLiteType( TypeName type, boolean stringType, boolean primitiveType, boolean arrayType) {

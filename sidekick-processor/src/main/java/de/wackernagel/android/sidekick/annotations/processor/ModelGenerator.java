@@ -86,7 +86,7 @@ public class ModelGenerator {
                 }
             }
 
-            classBuilder.addMethod( getMethod.build());
+            classBuilder.addMethod(getMethod.build());
 
             if( !columnDefinition.isFinal() ) {
                 final ParameterSpec.Builder param = ParameterSpec.builder(columnDefinition.getObjectType(), columnDefinition.getFieldName(), Modifier.FINAL);
@@ -113,6 +113,11 @@ public class ModelGenerator {
         final MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers( Modifier.PUBLIC );
         for( ColumnDefinition columnDefinition : fields ) {
+            if( columnDefinition.isCollectionType() ) {
+                constructor.addStatement( "this.$N = new $T()", columnDefinition.getFieldName(), columnDefinition.getObjectType() );
+                continue;
+            }
+
             final ParameterSpec.Builder parameter = ParameterSpec.builder( columnDefinition.getObjectType(), columnDefinition.getFieldName(), Modifier.FINAL );
             if( columnDefinition.isString() || columnDefinition.isForeignKey() ) {
                 if( columnDefinition.isNotNull() ) {
@@ -122,7 +127,7 @@ public class ModelGenerator {
                 }
             }
 
-            constructor.addParameter( parameter.build() )
+            constructor.addParameter(parameter.build())
                     .addStatement("this.$N = $N", columnDefinition.getFieldName(), columnDefinition.getFieldName());
         }
         classBuilder.addMethod( constructor.build() );

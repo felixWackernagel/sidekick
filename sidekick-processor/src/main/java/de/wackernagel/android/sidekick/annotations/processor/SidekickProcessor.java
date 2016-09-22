@@ -1,6 +1,7 @@
 package de.wackernagel.android.sidekick.annotations.processor;
 
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.HashMap;
@@ -113,10 +114,16 @@ public class SidekickProcessor extends AbstractProcessor {
             } else if( JavaUtils.isCollectionType(field, elementUtils, typeUtils) ) {
                 // Collection
                 final Set<TypeMirror> generics = JavaUtils.getGenericTypes(field);
-                if( !generics.isEmpty() && typeUtils.asElement( generics.iterator().next() ).getAnnotation( Contract.class ) != null ) {
-                    // Set<@Contract>, List<@Contract>
-                } else {
+                if( generics.isEmpty() ) {
                     log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD of type " + type.toString() + " because no generic type found." );
+                    continue;
+                }
+                final Element collectionType = typeUtils.asElement( generics.iterator().next() );
+                if( collectionType.getAnnotation( Contract.class ) != null ) {
+                    // Set<@Contract>, List<@Contract>
+                    annotatedFields.add(new ColumnDefinition(field, ParameterizedTypeName.get(field.asType()), false, false, false, true, typeUtils, elementUtils, log));
+                } else {
+                    // TODO Collection<Primitive>
                 }
             } else {
                 log.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString() );
