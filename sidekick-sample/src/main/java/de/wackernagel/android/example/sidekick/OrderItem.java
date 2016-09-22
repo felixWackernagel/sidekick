@@ -6,10 +6,12 @@ import de.wackernagel.android.sidekick.annotations.Contract;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 
 @Contract( authority = "com.example.provider" )
-public class Address {
+public class OrderItem {
 
     @Column
-    @NotNull( onConflict = ConflictClause.FAIL )
-    String street;
+    String name;
+
+    @Column
+    Order order;
 
 }

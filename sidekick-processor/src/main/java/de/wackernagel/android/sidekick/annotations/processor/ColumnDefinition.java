@@ -9,6 +9,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import de.wackernagel.android.sidekick.annotations.Default;
+import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
 
@@ -56,7 +57,7 @@ public class ColumnDefinition extends Definition {
         this.stringType = stringType;
 
         fieldName = field.getSimpleName().toString();
-        columnName = columnName(field);
+        columnName = formatNameForSQL(field.getSimpleName().toString());
         constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
 
         sqliteType = resolveSQLiteType( objectType, stringType, primitiveType, arrayType );
@@ -144,6 +145,10 @@ public class ColumnDefinition extends Definition {
         return !stringType && !primitiveType && !arrayType;
     }
 
+    public ForeignKey foreignKey() {
+        return origin != null ? origin.getAnnotation(ForeignKey.class) : null;
+    }
+
     public Unique unique() {
         return origin != null ? origin.getAnnotation( Unique.class ) : null;
     }
@@ -167,26 +172,4 @@ public class ColumnDefinition extends Definition {
             return "BLOB";
         }
     }
-
-    /**
-     * Convert the field name to a database column name.
-     * Makes 'deliveryAddress' to 'delivery_address'.
-     *
-     * @param field as name template
-     * @return name of column
-     */
-    private static String columnName(final Element field) {
-        final String name = field.getSimpleName().toString();
-        final StringBuilder sb = new StringBuilder(name);
-        final int length = sb.length();
-        int offset = 0;
-        for (int index = 0; index < length; index++) {
-            if (index > 0 && Character.isUpperCase(name.charAt(index))) {
-                sb.insert(index + offset, "_");
-                offset++;
-            }
-        }
-        return sb.toString().toLowerCase();
-    }
-
 }

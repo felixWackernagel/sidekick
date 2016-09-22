@@ -65,21 +65,28 @@ public class SidekickProcessor extends AbstractProcessor {
                     typeUtils,
                     elementUtils,
                     log,
+                    JavaUtils.getPackageName(elementUtils, annotatedClass),
                     annotatedClass.getSimpleName().toString(),
                     annotatedClass.getAnnotation(Contract.class).authority() );
+            log.printMessage(NOTE, tableDefinition.toString() );
 
-            final String packageName = JavaUtils.getPackageName(elementUtils, annotatedClass);
             final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
             final Set<ColumnDefinition> columnDefinitions = filterFields(fields);
+            toGenerate.put( tableDefinition, columnDefinitions );
+        }
+
+        for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
+            final TableDefinition tableDefinition = entry.getKey();
+            final Set<ColumnDefinition> columnDefinitions = entry.getValue();
 
             final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions );
-            if( generatedContractClass.writeClass( packageName, processingEnv.getFiler() ) ) {
-                log.printMessage(NOTE, "Contract for " + packageName + "." + tableDefinition.getClassName() + " generated." );
+            if( generatedContractClass.writeClass( tableDefinition.getPackageName(), processingEnv.getFiler() ) ) {
+                log.printMessage(NOTE, "Contract for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated." );
             }
 
             final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
-            if( generatedModelClass.writeClass(packageName, processingEnv.getFiler()) ) {
-                log.printMessage(NOTE, "Model for " + packageName + "." + tableDefinition.getClassName() + " generated." );
+            if( generatedModelClass.writeClass(tableDefinition.getPackageName(), processingEnv.getFiler()) ) {
+                log.printMessage(NOTE, "Model for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated." );
             }
         }
         return true;
@@ -105,12 +112,11 @@ public class SidekickProcessor extends AbstractProcessor {
                 annotatedFields.add( new ColumnDefinition(field, type, false, false, false, typeUtils, elementUtils, log ) );
             } else if( JavaUtils.isCollectionType(field, elementUtils, typeUtils) ) {
                 // Collection
-                final Set<TypeMirror> generic = JavaUtils.getGenericTypes(field);
-                if( generic.size() == 1 &&
-                    typeUtils.asElement( generic.iterator().next() ).getAnnotation( Contract.class ) != null ) {
+                final Set<TypeMirror> generics = JavaUtils.getGenericTypes(field);
+                if( !generics.isEmpty() && typeUtils.asElement( generics.iterator().next() ).getAnnotation( Contract.class ) != null ) {
                     // Set<@Contract>, List<@Contract>
                 } else {
-                    log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD because collection are unsupported or type is no primitive or Contract." );
+                    log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD of type " + type.toString() + " because no generic type found." );
                 }
             } else {
                 log.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString() );

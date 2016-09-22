@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.annotation.processing.Filer;
 
 import de.wackernagel.android.sidekick.annotations.ConflictClause;
+import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
 
@@ -38,7 +39,7 @@ public class ContractGenerator {
         tableConstant(classBuilder, tableDefinition.getTableName() );
         columnConstants(classBuilder, fields);
         projection(classBuilder, fields);
-        contentUri(classBuilder, tableDefinition.getAuthority());
+        contentUri(classBuilder, tableDefinition.getTableAuthority());
         insert(classBuilder, fields);
         update(classBuilder);
         delete(classBuilder);
@@ -116,7 +117,7 @@ public class ContractGenerator {
             }
 
             if( column.isBoolean() ) {
-                sql.append( " CONSTRAINT " ).append( column.getColumnName() ).append("_check_boolean CHECK (").append(column.getColumnName()).append(" IN ( 0, 1 ) )");
+                sql.append( " CONSTRAINT " ).append(column.getColumnName()).append("_check_boolean CHECK (").append(column.getColumnName()).append(" IN ( 0, 1 ) )");
             }
 
             if( column.isForeignKey() ) {
@@ -124,6 +125,14 @@ public class ContractGenerator {
                 parentTable = parentTable.substring( parentTable.lastIndexOf( '.' ) + 1, parentTable.lastIndexOf( "Model" ) ).toLowerCase();
 
                 sql.append(" CONSTRAINT ").append( column.getColumnName() ).append("_fk REFERENCES " ).append( parentTable ).append("(_id)");
+
+                final ForeignKey foreignKey = column.foreignKey();
+                if( foreignKey != null && foreignKey.onDelete() != ForeignKey.Action.NONE ) {
+                    sql.append(" ON DELETE ").append( foreignKey.onDelete().toString() );
+                }
+                if( foreignKey != null && foreignKey.onUpdate() != ForeignKey.Action.NONE ) {
+                    sql.append(" ON UPDATE ").append( foreignKey.onUpdate().toString() );
+                }
             }
 
             if( index != fields.size() - 1 ) {
