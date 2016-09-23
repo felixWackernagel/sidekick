@@ -60,6 +60,9 @@ public class SidekickProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        log.printMessage( NOTE, "Sidekick Annotation Processor" );
+
+        // collect data
         for( Element annotatedElement : roundEnv.getElementsAnnotatedWith( Contract.class ) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
             final TableDefinition tableDefinition = new TableDefinition(
@@ -69,13 +72,29 @@ public class SidekickProcessor extends AbstractProcessor {
                     JavaUtils.getPackageName(elementUtils, annotatedClass),
                     annotatedClass.getSimpleName().toString(),
                     annotatedClass.getAnnotation(Contract.class).authority() );
-            log.printMessage(NOTE, tableDefinition.toString() );
 
             final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
             final Set<ColumnDefinition> columnDefinitions = filterFields(fields);
             toGenerate.put( tableDefinition, columnDefinitions );
         }
 
+        // analyse relations
+        for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
+            log.printMessage( NOTE, entry.getKey().toString() );
+            for( ColumnDefinition columnDefinition : entry.getValue() ) {
+                log.printMessage( NOTE, "> " + columnDefinition.toString() );
+
+                if( columnDefinition.isCollectionType() ) {
+                    if( !exist( columnDefinition.getCollectionElementModelType(), entry.getKey().getModelType() ) ) {
+                        log.printMessage( NOTE, "TODO Many-Many TableContract" );
+                    } else {
+                        log.printMessage( NOTE, "Found One-Many Relation" );
+                    }
+                }
+            }
+        }
+
+        // generate model and contract
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             final TableDefinition tableDefinition = entry.getKey();
             final Set<ColumnDefinition> columnDefinitions = entry.getValue();
@@ -91,6 +110,19 @@ public class SidekickProcessor extends AbstractProcessor {
             }
         }
         return true;
+    }
+
+    private boolean exist( final TypeName tableModelType, final String columnModelType ) {
+        for( final Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
+            if( entry.getKey().getModelType().equals( tableModelType.toString() ) ) {
+                for( ColumnDefinition columnDefinition : entry.getValue() ) {
+                    if( columnDefinition.getObjectType().toString().equals( columnModelType ) ) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private Set<ColumnDefinition> filterFields( Set<Element> fields ) {
@@ -118,8 +150,8 @@ public class SidekickProcessor extends AbstractProcessor {
                     log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD of type " + type.toString() + " because no generic type found." );
                     continue;
                 }
-                final Element collectionType = typeUtils.asElement( generics.iterator().next() );
-                if( collectionType.getAnnotation( Contract.class ) != null ) {
+                final Element collectionElementType = typeUtils.asElement( generics.iterator().next() );
+                if( collectionElementType.getAnnotation( Contract.class ) != null ) {
                     // Set<@Contract>, List<@Contract>
                     annotatedFields.add(new ColumnDefinition(field, ParameterizedTypeName.get(field.asType()), false, false, false, true, typeUtils, elementUtils, log));
                 } else {

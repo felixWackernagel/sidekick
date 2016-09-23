@@ -114,7 +114,7 @@ public class ModelGenerator {
                 .addModifiers( Modifier.PUBLIC );
         for( ColumnDefinition columnDefinition : fields ) {
             if( columnDefinition.isCollectionType() ) {
-                constructor.addStatement( "this.$N = new $T()", columnDefinition.getFieldName(), columnDefinition.getObjectType() );
+                constructor.addStatement( "this.$N = new $T()", columnDefinition.getFieldName(), columnDefinition.getInstantiableCollectionType() );
                 continue;
             }
 

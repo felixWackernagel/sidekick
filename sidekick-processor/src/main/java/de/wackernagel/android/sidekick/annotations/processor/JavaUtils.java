@@ -6,6 +6,7 @@ import com.squareup.javapoet.TypeName;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -46,6 +47,22 @@ public class JavaUtils {
                 field.asType(), // i.e. List<?>
                 typeUtils.getDeclaredType( // Collection<?>
                         elementUtils.getTypeElement( Collection.class.getName() ), // type
+                        typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
+    }
+
+    public static boolean isListType( final Element field, final Elements elementUtils, final Types typeUtils ) {
+        return typeUtils.isAssignable(  // a is subtype of b
+                field.asType(), // i.e. List<?>
+                typeUtils.getDeclaredType( // List<?>
+                        elementUtils.getTypeElement( List.class.getName() ), // type
+                        typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
+    }
+
+    public static boolean isSetType( final Element field, final Elements elementUtils, final Types typeUtils ) {
+        return typeUtils.isAssignable(  // a is subtype of b
+                field.asType(), // i.e. List<?>
+                typeUtils.getDeclaredType( // Set<?>
+                        elementUtils.getTypeElement( Set.class.getName() ), // type
                         typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
     }
 

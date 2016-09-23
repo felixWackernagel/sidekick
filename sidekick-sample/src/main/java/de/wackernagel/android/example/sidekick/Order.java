@@ -6,7 +6,7 @@ import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
 
 @Contract( authority = "com.example.provider" )
-public class Order {
+public class Order extends Base {
 
     @Column
     String name;

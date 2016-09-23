@@ -4,6 +4,11 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -37,6 +42,7 @@ public class ColumnDefinition extends Definition {
      * Object type
      */
     private TypeName objectType;
+    private TypeName collectionElementModelType;
 
     /**
      * SQLite type
@@ -83,14 +89,14 @@ public class ColumnDefinition extends Definition {
 
         // one-many/many-many foreign key
         if( !primitiveType && !arrayType && !stringType && collectionType ) {
-            //types.isSubtype()
-
+            collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( field ).iterator().next().toString() + "Model" );
             objectType = ParameterizedTypeName.get(
                     ClassName.get((TypeElement)((DeclaredType)origin.asType()).asElement()),
-                    ClassName.bestGuess( JavaUtils.getGenericTypes( field ).iterator().next().toString() + "Model" ) );
+                    collectionElementModelType);
             skipSQLite = true;
         }
     }
+
 
     public static ColumnDefinition primaryField( final Types types, final Elements elements, final Messager log ) {
         return new ColumnDefinition( types, elements, log);
@@ -125,12 +131,34 @@ public class ColumnDefinition extends Definition {
         return objectType;
     }
 
+    public boolean isContractObjectType() {
+        return !primitiveType && !arrayType && !stringType && !collectionType;
+    }
+
     public String getSQLiteType() {
         return sqliteType;
     }
 
     public boolean isCollectionType() {
         return collectionType;
+    }
+
+    public TypeName getInstantiableCollectionType() {
+        if( JavaUtils.isListType( origin, elements, types) && origin.asType().toString().startsWith( List.class.getTypeName() ) ) {
+            return ParameterizedTypeName.get(
+                    ClassName.get(ArrayList.class),
+                    collectionElementModelType);
+        } else if( JavaUtils.isSetType(origin, elements, types) && origin.asType().toString().startsWith( Set.class.getTypeName() ) ) {
+            return ParameterizedTypeName.get(
+                    ClassName.get(LinkedHashSet.class),
+                    collectionElementModelType);
+        } else {
+            return objectType;
+        }
+    }
+
+    public TypeName getCollectionElementModelType() {
+        return collectionElementModelType;
     }
 
     public boolean isFinal() {
@@ -142,7 +170,7 @@ public class ColumnDefinition extends Definition {
     }
 
     public boolean isNotNull() {
-        return notNull() != null;
+        return collectionType || notNull() != null;
     }
 
     public boolean isPrimaryKey() {
@@ -158,8 +186,28 @@ public class ColumnDefinition extends Definition {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if( this == o ) return true;
+        if( o == null || getClass() != o.getClass() ) return false;
+
+        ColumnDefinition that = ( ColumnDefinition ) o;
+
+        if( !fieldName.equals(that.fieldName) ) return false;
+        return objectType.equals(that.objectType);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fieldName.hashCode();
+        result = 31 * result + objectType.hashCode();
+        return result;
+    }
+
     public boolean isBoolean() {
         return primitiveType && objectType.equals( TypeName.BOOLEAN );
+
     }
 
     public boolean isString() {
@@ -167,7 +215,7 @@ public class ColumnDefinition extends Definition {
     }
 
     public boolean isForeignKey() {
-        return !stringType && !primitiveType && !arrayType && !collectionType;
+        return !stringType && !primitiveType && !arrayType;
     }
 
     public ForeignKey foreignKey() {
@@ -200,5 +248,10 @@ public class ColumnDefinition extends Definition {
         } else {
             return "BLOB";
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Definition of " + objectType + " " + fieldName;
     }
 }

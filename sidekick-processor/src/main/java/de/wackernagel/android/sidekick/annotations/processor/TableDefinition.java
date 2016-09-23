@@ -28,6 +28,15 @@ public class TableDefinition extends Definition {
         return className;
     }
 
+    public String getModelType() {
+        if( packageName != null && packageName.length() > 0 ) {
+            return packageName + "." + className + "Model";
+        } else
+        {
+            return className + "Model";
+        }
+    }
+
     public String getTableName() {
         return formatNameForSQL(className);
     }
