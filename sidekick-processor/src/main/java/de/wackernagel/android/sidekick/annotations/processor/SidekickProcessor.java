@@ -1,6 +1,7 @@
 package de.wackernagel.android.sidekick.annotations.processor;
 
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
@@ -79,14 +80,38 @@ public class SidekickProcessor extends AbstractProcessor {
         }
 
         // analyse relations
+        final Map<TableDefinition, Set<ColumnDefinition>> relations = new HashMap<TableDefinition, Set<ColumnDefinition>>();
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             log.printMessage( NOTE, entry.getKey().toString() );
             for( ColumnDefinition columnDefinition : entry.getValue() ) {
                 log.printMessage( NOTE, "> " + columnDefinition.toString() );
-
                 if( columnDefinition.isCollectionType() ) {
-                    if( !exist( columnDefinition.getCollectionElementModelType(), entry.getKey().getModelType() ) ) {
-                        log.printMessage( NOTE, "TODO Many-Many TableContract" );
+                    if( !exist( columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType( true ) ) ) {
+                        String clazz = columnDefinition.getCollectionElementModelType().toString();
+                        final int index = clazz.lastIndexOf( '.' );
+                        if( index >= 0 ) {
+                            clazz = clazz.substring(index + 1);
+                        }
+                        clazz = clazz.replace("Model", "").concat( "Relation" );
+                        final TableDefinition tableDefinition = new TableDefinition(
+                                typeUtils,
+                                elementUtils,
+                                log,
+                                entry.getKey().getPackageName(),
+                                entry.getKey().getClassName().concat( clazz ),
+                                entry.getKey().getTableAuthority() );
+
+                        final Set<ColumnDefinition> columnDefinitions = new LinkedHashSet<>();
+                        columnDefinitions.add( ColumnDefinition.primaryField( typeUtils, elementUtils, log ) );
+
+                        columnDefinitions.add( new ColumnDefinition(
+                            null, columnDefinition.getCollectionElementType(), false, false, false, typeUtils, elementUtils, log ) );
+
+                        columnDefinitions.add( new ColumnDefinition(
+                                null, ClassName.bestGuess( tableDefinition.getObjectType(false) ), false, false, false, typeUtils, elementUtils, log ) );
+
+                        relations.put( tableDefinition, columnDefinitions );
+                        log.printMessage( NOTE, "Many-Many TableContract: " + tableDefinition.toString() );
                     } else {
                         log.printMessage( NOTE, "Found One-Many Relation" );
                     }
@@ -114,7 +139,7 @@ public class SidekickProcessor extends AbstractProcessor {
 
     private boolean exist( final TypeName tableModelType, final String columnModelType ) {
         for( final Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
-            if( entry.getKey().getModelType().equals( tableModelType.toString() ) ) {
+            if( entry.getKey().getObjectType( true ).equals( tableModelType.toString() ) ) {
                 for( ColumnDefinition columnDefinition : entry.getValue() ) {
                     if( columnDefinition.getObjectType().toString().equals( columnModelType ) ) {
                         return true;

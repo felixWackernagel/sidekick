@@ -19,8 +19,6 @@ public @interface ForeignKey {
 
     Action onUpdate() default Action.NONE;
 
-    Relation relation() default Relation.AUTO;
-
     enum Action {
         NONE,
         SET_NULL,
@@ -33,13 +31,6 @@ public @interface ForeignKey {
         public String toString() {
             return super.toString().replace( '_', ' ' );
         }
-    }
-
-    enum Relation {
-        AUTO,
-        ONE_ONE,
-        ONE_MANY,
-        MANY_MANY;
     }
 
 }

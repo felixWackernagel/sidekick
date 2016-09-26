@@ -10,8 +10,4 @@ public class OrderItem {
 
     @Column
     String name;
-
-    @Column
-    Order order;
-
 }

@@ -13,5 +13,4 @@ public class Order extends Base {
 
     @Column
     List<OrderItem> orderItems;
-
 }

@@ -20,27 +20,44 @@ public class TableDefinition extends Definition {
         this.authority = authority;
     }
 
+    /**
+     * @return package name or empty String of class with Contract annotation
+     */
     public String getPackageName() {
         return packageName;
     }
 
+    /**
+     * @return class name of class with Contract annotation
+     */
     public String getClassName() {
         return className;
     }
 
-    public String getModelType() {
+    /**
+     * @return fully name of generating class with package, class and model suffix
+     */
+    public String getObjectType( boolean withModel ) {
+        String result = className;
         if( packageName != null && packageName.length() > 0 ) {
-            return packageName + "." + className + "Model";
-        } else
-        {
-            return className + "Model";
+            result = packageName + "." + className;
         }
+        if( withModel ) {
+            return result.concat( "Model" );
+        }
+        return result;
     }
 
+    /**
+     * @return name of sqlite table
+     */
     public String getTableName() {
         return formatNameForSQL(className);
     }
 
+    /**
+     * @return authority from Contract annotation
+     */
     public String getTableAuthority() {
         return authority;
     }
