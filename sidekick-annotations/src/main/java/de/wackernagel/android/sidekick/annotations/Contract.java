@@ -12,6 +12,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target( TYPE )
 public @interface Contract {
 
-    String authority() default "";
+    String authority();
 
 }

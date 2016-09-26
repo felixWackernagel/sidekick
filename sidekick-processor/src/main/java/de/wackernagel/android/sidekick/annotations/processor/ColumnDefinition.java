@@ -52,6 +52,7 @@ public class ColumnDefinition extends Definition {
 
     private Element origin;
 
+    private boolean primaryKey;
     private boolean primitiveType;
     private boolean arrayType;
     private boolean stringType;
@@ -82,8 +83,9 @@ public class ColumnDefinition extends Definition {
         this.arrayType = arrayType;
         this.stringType = stringType;
         this.collectionType = collectionType;
+        this.primaryKey = false;
 
-        fieldName = field.getSimpleName().toString();
+        fieldName = field != null ? field.getSimpleName().toString() : JavaUtils.toVariableCase( JavaUtils.getSimpleName( type ) );
         columnName = formatNameForSQL(fieldName);
         constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
 
@@ -100,8 +102,8 @@ public class ColumnDefinition extends Definition {
 
         // one-many/many-many foreign key
         if( !primitiveType && !arrayType && !stringType && collectionType ) {
-            collectionElementType = ClassName.bestGuess( JavaUtils.getGenericTypes( field ).iterator().next().toString() );
-            collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( field ).iterator().next().toString() + "Model" );
+            collectionElementType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() );
+            collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() + "Model" );
             objectType = ParameterizedTypeName.get(
                     ClassName.get((TypeElement)((DeclaredType)origin.asType()).asElement()),
                     collectionElementModelType);
@@ -125,6 +127,7 @@ public class ColumnDefinition extends Definition {
         this.sqliteType = "INTEGER";
         this.isFinal = true;
         this.collectionType = false;
+        this.primaryKey = true;
     }
 
     /**
@@ -235,7 +238,7 @@ public class ColumnDefinition extends Definition {
      * @return true only for _id column
      */
     public boolean isPrimaryKey() {
-        return origin == null;
+        return primaryKey;
     }
 
     /**

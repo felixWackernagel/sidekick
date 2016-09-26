@@ -42,6 +42,26 @@ public class JavaUtils {
         }
     }
 
+    public static String getSimpleName( final TypeName classType ) {
+        if( classType == null ) {
+            return null;
+        }
+
+        final String name = classType.toString();
+        final int index = name.lastIndexOf( '.' );
+        if( index >= 0 ) {
+            return name.substring( index + 1 );
+        }
+        return name;
+    }
+
+    public static String toVariableCase( final String name ) {
+        if( name == null || name.length() == 0 ) {
+            return name;
+        }
+        return Character.toLowerCase( name.charAt( 0 ) ) + name.substring( 1 );
+    }
+
     public static boolean isCollectionType( final Element field, final Elements elementUtils, final Types typeUtils ) {
         return typeUtils.isAssignable(  // a is subtype of b
                 field.asType(), // i.e. List<?>

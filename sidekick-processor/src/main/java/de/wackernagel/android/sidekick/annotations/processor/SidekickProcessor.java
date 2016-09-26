@@ -57,14 +57,15 @@ public class SidekickProcessor extends AbstractProcessor {
         return SourceVersion.latestSupported();
     }
 
-    private Map<TableDefinition, Set<ColumnDefinition>> toGenerate = new HashMap<TableDefinition, Set<ColumnDefinition>>();
+    private final Map<TableDefinition, Set<ColumnDefinition>> toGenerate = new HashMap<>();
+    private final Map<TableDefinition, Set<ColumnDefinition>> relations = new HashMap<>();
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         log.printMessage( NOTE, "Sidekick Annotation Processor" );
 
         // collect data
-        for( Element annotatedElement : roundEnv.getElementsAnnotatedWith( Contract.class ) ) {
+        for( Element annotatedElement : roundEnv.getElementsAnnotatedWith(Contract.class) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
             final TableDefinition tableDefinition = new TableDefinition(
                     typeUtils,
@@ -76,39 +77,37 @@ public class SidekickProcessor extends AbstractProcessor {
 
             final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
             final Set<ColumnDefinition> columnDefinitions = filterFields(fields);
-            toGenerate.put( tableDefinition, columnDefinitions );
+            toGenerate.put(tableDefinition, columnDefinitions);
         }
 
         // analyse relations
-        final Map<TableDefinition, Set<ColumnDefinition>> relations = new HashMap<TableDefinition, Set<ColumnDefinition>>();
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
-            log.printMessage( NOTE, entry.getKey().toString() );
             for( ColumnDefinition columnDefinition : entry.getValue() ) {
-                log.printMessage( NOTE, "> " + columnDefinition.toString() );
                 if( columnDefinition.isCollectionType() ) {
-                    if( !exist( columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType( true ) ) ) {
-                        String clazz = columnDefinition.getCollectionElementModelType().toString();
-                        final int index = clazz.lastIndexOf( '.' );
-                        if( index >= 0 ) {
-                            clazz = clazz.substring(index + 1);
-                        }
-                        clazz = clazz.replace("Model", "").concat( "Relation" );
-                        final TableDefinition tableDefinition = new TableDefinition(
-                                typeUtils,
-                                elementUtils,
-                                log,
-                                entry.getKey().getPackageName(),
-                                entry.getKey().getClassName().concat( clazz ),
-                                entry.getKey().getTableAuthority() );
+                    if( !isOneManyRelation(columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType(true)) ) {
+                        final String tableOne = entry.getKey().getClassName();
+                        final String tableTwo = JavaUtils.getSimpleName( columnDefinition.getCollectionElementType() );
+                        final TableDefinition tableDefinition = getOrCreateTableRelation(
+                                tableOne, tableTwo, entry.getKey().getPackageName(), entry.getKey().getTableAuthority()
+                        );
 
-                        final Set<ColumnDefinition> columnDefinitions = new LinkedHashSet<>();
+                        Set<ColumnDefinition> columnDefinitions;
+                        if( relations.containsKey( tableDefinition ) ) {
+                            columnDefinitions = relations.get( tableDefinition );
+                        } else {
+                            columnDefinitions = new LinkedHashSet<>();
+                        }
+
+                        // primary key
                         columnDefinitions.add( ColumnDefinition.primaryField( typeUtils, elementUtils, log ) );
 
+                        // table one reference
+                        columnDefinitions.add( new ColumnDefinition(
+                                null, ClassName.bestGuess( entry.getKey().getObjectType(false) ), false, false, false, typeUtils, elementUtils, log ) );
+
+                        // table two reference
                         columnDefinitions.add( new ColumnDefinition(
                             null, columnDefinition.getCollectionElementType(), false, false, false, typeUtils, elementUtils, log ) );
-
-                        columnDefinitions.add( new ColumnDefinition(
-                                null, ClassName.bestGuess( tableDefinition.getObjectType(false) ), false, false, false, typeUtils, elementUtils, log ) );
 
                         relations.put( tableDefinition, columnDefinitions );
                         log.printMessage( NOTE, "Many-Many TableContract: " + tableDefinition.toString() );
@@ -116,6 +115,15 @@ public class SidekickProcessor extends AbstractProcessor {
                         log.printMessage( NOTE, "Found One-Many Relation" );
                     }
                 }
+            }
+        }
+
+        // integrate relations into definitions
+        for( Map.Entry<TableDefinition, Set<ColumnDefinition>> relation : relations.entrySet() ) {
+            if( toGenerate.containsKey( relation.getKey() ) ) {
+                toGenerate.get( relation.getKey() ).addAll( relation.getValue() );
+            } else {
+                toGenerate.put( relation.getKey(), relation.getValue() );
             }
         }
 
@@ -137,7 +145,35 @@ public class SidekickProcessor extends AbstractProcessor {
         return true;
     }
 
-    private boolean exist( final TypeName tableModelType, final String columnModelType ) {
+    private TableDefinition getOrCreateTableRelation( String tableOne, String tableTwo, String packageName, String tableAuthority ) {
+        final TableDefinition tableDefinition = new TableDefinition(
+                typeUtils,
+                elementUtils,
+                log,
+                packageName,
+                tableOne.concat( tableTwo ).concat("Relation"),
+                tableAuthority );
+
+        if( toGenerate.containsKey( tableDefinition ) || relations.containsKey( tableDefinition ) ) {
+            return tableDefinition;
+        }
+
+        final TableDefinition tableAlternativeDefinition = new TableDefinition(
+                typeUtils,
+                elementUtils,
+                log,
+                packageName,
+                tableTwo.concat( tableOne ).concat("Relation"),
+                tableAuthority );
+
+        if( toGenerate.containsKey( tableAlternativeDefinition ) || relations.containsKey( tableAlternativeDefinition ) ) {
+            return tableAlternativeDefinition;
+        } else {
+            return tableDefinition;
+        }
+    }
+
+    private boolean isOneManyRelation(final TypeName tableModelType, final String columnModelType) {
         for( final Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             if( entry.getKey().getObjectType( true ).equals( tableModelType.toString() ) ) {
                 for( ColumnDefinition columnDefinition : entry.getValue() ) {
