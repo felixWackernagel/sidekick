@@ -84,7 +84,7 @@ public class SidekickProcessor extends AbstractProcessor {
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             for( ColumnDefinition columnDefinition : entry.getValue() ) {
                 if( columnDefinition.isCollectionType() ) {
-                    if( !isOneManyRelation(columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType(true)) ) {
+                    if( !isOneManyRelation(columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType( true, true )) ) {
                         final String tableOne = entry.getKey().getClassName();
                         final String tableTwo = JavaUtils.getSimpleName( columnDefinition.getCollectionElementType() );
                         final TableDefinition tableDefinition = getOrCreateTableRelation(
@@ -103,7 +103,7 @@ public class SidekickProcessor extends AbstractProcessor {
 
                         // table one reference
                         columnDefinitions.add( new ColumnDefinition(
-                                null, ClassName.bestGuess( entry.getKey().getObjectType(false) ), false, false, false, typeUtils, elementUtils, log ) );
+                                null, ClassName.bestGuess( entry.getKey().getObjectType( true, false) ), false, false, false, typeUtils, elementUtils, log ) );
 
                         // table two reference
                         columnDefinitions.add( new ColumnDefinition(
@@ -175,7 +175,7 @@ public class SidekickProcessor extends AbstractProcessor {
 
     private boolean isOneManyRelation(final TypeName tableModelType, final String columnModelType) {
         for( final Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
-            if( entry.getKey().getObjectType( true ).equals( tableModelType.toString() ) ) {
+            if( entry.getKey().getObjectType( true, true ).equals( tableModelType.toString() ) ) {
                 for( ColumnDefinition columnDefinition : entry.getValue() ) {
                     if( columnDefinition.getObjectType().toString().equals( columnModelType ) ) {
                         return true;

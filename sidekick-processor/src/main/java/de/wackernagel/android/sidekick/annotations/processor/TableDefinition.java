@@ -37,9 +37,9 @@ public class TableDefinition extends Definition {
     /**
      * @return fully name of generating class with package, class and model suffix
      */
-    public String getObjectType( boolean withModel ) {
+    public String getObjectType( boolean withPackage, boolean withModel ) {
         String result = className;
-        if( packageName != null && packageName.length() > 0 ) {
+        if( withPackage && packageName != null && packageName.length() > 0 ) {
             result = packageName + "." + className;
         }
         if( withModel ) {
