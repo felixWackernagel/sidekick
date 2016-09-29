@@ -9,9 +9,5 @@ public class Tag {
 
     @NotNull
     @Column
-    String code;
-
-    @NotNull
-    @Column
     String name;
 }

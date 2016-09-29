@@ -18,8 +18,8 @@ public class ObjectsCompatTest {
         Assert.assertFalse(ObjectsCompat.equals(null, "hello"));
         Assert.assertTrue(ObjectsCompat.equals(null, null));
 
-        final TagModel tagA = new TagModel( 1, "tag_1", "A" );
-        final TagModel tagB = new TagModel( 2, "tag_2", "B" );
+        final TagModel tagA = new TagModel( 1, "A" );
+        final TagModel tagB = new TagModel( 2, "B" );
         Assert.assertTrue(ObjectsCompat.equals(tagA, tagA));
         Assert.assertFalse(ObjectsCompat.equals(tagA, tagB));
     }
