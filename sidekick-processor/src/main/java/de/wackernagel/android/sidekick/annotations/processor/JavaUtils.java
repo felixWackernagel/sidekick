@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
@@ -86,14 +87,22 @@ public class JavaUtils {
                         typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
     }
 
-    public static Set<Element> getAnnotatedFields(TypeElement clazz, Class<? extends Annotation> annotation) {
+    public static Set<Element> getAnnotatedFields(final TypeElement clazz, final Class<? extends Annotation> annotation, final Elements elements,  final Types types, final Messager log) {
         final Set<Element> annotatedFields = new LinkedHashSet<>();
         for( Element element : clazz.getEnclosedElements() ) {
             if( element.getKind() == ElementKind.FIELD && element.getAnnotation( annotation ) != null ) {
                 annotatedFields.add( element );
             }
         }
-        return annotatedFields;
+        if( types.isSameType(elements.getTypeElement(Object.class.getName()).asType(), clazz.getSuperclass() ) ) {
+            return annotatedFields;
+        } else {
+            final Set<Element> inheritingFields = getAnnotatedFields( elements.getTypeElement( clazz.getSuperclass().toString() ), annotation, elements, types, log );
+            if( !inheritingFields.isEmpty() ) {
+                annotatedFields.addAll( inheritingFields );
+            }
+            return annotatedFields;
+        }
     }
 
     public static Set<TypeMirror> getGenericTypes(Element field ) {

@@ -75,7 +75,7 @@ public class SidekickProcessor extends AbstractProcessor {
                     annotatedClass.getSimpleName().toString(),
                     annotatedClass.getAnnotation(Contract.class).authority() );
 
-            final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class);
+            final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class, elementUtils, typeUtils, log);
             final Set<ColumnDefinition> columnDefinitions = filterFields(fields);
             toGenerate.put(tableDefinition, columnDefinitions);
         }

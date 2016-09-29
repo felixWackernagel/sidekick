@@ -14,5 +14,4 @@ public class Tag {
     @NotNull
     @Column
     String name;
-
 }
