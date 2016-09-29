@@ -16,7 +16,7 @@ public abstract class Definition {
         this.log = log;
     }
 
-    protected String formatNameForSQL( final String originName ) {
+    public static String formatNameForSQL( final String originName ) {
         final StringBuilder sb = new StringBuilder(originName);
         final int length = sb.length();
         int offset = 0;
