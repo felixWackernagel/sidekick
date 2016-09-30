@@ -26,90 +26,122 @@ public class ColumnDefinition extends Definition {
     /**
      * Name for parameters
      */
-    private String fieldName;
+    private final String fieldName;
 
     /**
      * Name of the SQLite column
      */
-    private String columnName;
+    private final String columnName;
 
     /**
      * Name of the column name constant
      */
-    private String constantFieldName;
+    private final String constantFieldName;
 
     /**
      * Object type
      */
-    private TypeName objectType;
-    private TypeName collectionElementType;
-    private TypeName collectionElementModelType;
+    private final TypeName objectType;
+    private final TypeName collectionElementType;
+    private final TypeName collectionElementModelType;
 
     /**
      * SQLite type
      */
-    private String sqliteType;
+    private final String sqliteType;
 
-    private Element origin;
+    private final Element origin;
 
-    private boolean primaryKey;
-    private boolean primitiveType;
-    private boolean collectionType;
+    private final boolean primaryKey;
+    private final boolean primitiveType;
+    private final boolean collectionType;
 
-    private boolean isFinal;
-    private boolean skipSQLite = false;
-
-    /**
-     * @param field is member variable of defined class with Contract annotation
-     * @param type of member variable from defined class with Contract annotation
-     * @param primitiveType when Element is primitive type
-     * @param types as helper
-     * @param elements as helper
-     * @param log as helper
-     */
-    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final Types types, final Elements elements, final Messager log ) {
-        this(field, type, primitiveType, false, types, elements, log);
-    }
-
-    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean collectionType, final Types types, final Elements elements, final Messager log ) {
-        super( types, elements, log );
-        this.origin = field;
-        this.objectType = type;
-        this.primitiveType = primitiveType;
-        this.collectionType = collectionType;
-        this.primaryKey = false;
-
-        fieldName = field != null ? field.getSimpleName().toString() : JavaUtils.toVariableCase( JavaUtils.getSimpleName( type ) );
-        columnName = formatNameForSQL(fieldName);
-        constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
-
-        sqliteType = resolveSQLiteType( objectType, primitiveType, collectionType );
-
-        // one-one foreign key
-        if( !primitiveType && !collectionType ) {
-            objectType = ClassName.bestGuess( type.toString() + "Model" );
-
-            constantFieldName = constantFieldName.concat("_ID");
-            columnName = columnName.concat( "_id" );
-            sqliteType = "INTEGER";
-        }
-
-        // one-many/many-many foreign key
-        if( !primitiveType && collectionType ) {
-            collectionElementType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() );
-            collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() + "Model" );
-            objectType = ParameterizedTypeName.get(
-                    ClassName.get((TypeElement)((DeclaredType)origin.asType()).asElement()),
-                    collectionElementModelType);
-            skipSQLite = true;
-        }
-    }
-
+    private final boolean isFinal;
+    private final boolean skipSQLite;
 
     public static ColumnDefinition primaryField( final Types types, final Elements elements, final Messager log ) {
         return new ColumnDefinition( types, elements, log);
     }
 
+    public static ColumnDefinition primitiveField( final Element field, final TypeName type, final Types types, final Elements elements, final Messager log ) {
+        return new ColumnDefinition( field, type, types, elements, log );
+    }
+
+    public static ColumnDefinition contractField( final Element field, final TypeName type, final Types types, final Elements elements, final Messager log ) {
+        return new ColumnDefinition( field, type, true, types, elements, log );
+    }
+
+    public static ColumnDefinition collectionContractField(final Element field, final TypeName type, final Types types, final Elements elements, final Messager log) {
+        return new ColumnDefinition( field, type, false, true, types, elements, log );
+    }
+
+    // Collection<Contract>
+    private ColumnDefinition(final Element field, final TypeName type, final boolean isModel, final boolean isCollection, final Types types, final Elements elements, final Messager log ) {
+        super(types, elements, log);
+        this.origin = field;
+        this.primitiveType = false;
+        this.collectionType = true;
+        this.primaryKey = false;
+        this.isFinal = false;
+        this.skipSQLite = true;
+        this.collectionElementType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() );
+        this.collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() + "Model" );
+        this.objectType = ParameterizedTypeName.get(
+                ClassName.get(( TypeElement ) (( DeclaredType ) origin.asType()).asElement()),
+                collectionElementModelType);
+
+        fieldName = field != null ? field.getSimpleName().toString() : JavaUtils.toVariableCase(JavaUtils.getSimpleName(type));
+        columnName = formatNameForSQL(fieldName).concat("_id");
+        constantFieldName = "COLUMN" + (columnName.startsWith("_") ? "" : "_") + columnName.toUpperCase();
+        sqliteType = "";
+    }
+
+    // Contract
+    private ColumnDefinition(final Element field, final TypeName type, final boolean isModel, final Types types, final Elements elements, final Messager log ) {
+        super(types, elements, log);
+        this.origin = field;
+        this.objectType = type;
+        this.primitiveType = false;
+        this.collectionType = false;
+        this.primaryKey = false;
+        this.isFinal = false;
+        this.skipSQLite = false;
+        this.collectionElementType = null;
+        this.collectionElementModelType = null;
+
+        fieldName = field != null ? field.getSimpleName().toString() : JavaUtils.toVariableCase(JavaUtils.getSimpleName(type));
+        columnName = formatNameForSQL(fieldName).concat("_id");
+        constantFieldName = "COLUMN" + (columnName.startsWith("_") ? "" : "_") + columnName.toUpperCase();
+        sqliteType = "INTEGER";
+    }
+
+    /**
+     * @param field is member variable of defined class with Contract annotation
+     * @param type of member variable from defined class with Contract annotation
+     * @param types as helper
+     * @param elements as helper
+     * @param log as helper
+     */
+    // Primitive
+    private ColumnDefinition(final Element field, final TypeName type, final Types types, final Elements elements, final Messager log ) {
+        super( types, elements, log );
+        this.origin = field;
+        this.objectType = type;
+        this.primitiveType = true;
+        this.collectionType = false;
+        this.primaryKey = false;
+        this.isFinal = false;
+        this.skipSQLite = false;
+        this.collectionElementType = null;
+        this.collectionElementModelType = null;
+
+        fieldName = field != null ? field.getSimpleName().toString() : JavaUtils.toVariableCase( JavaUtils.getSimpleName( type ) );
+        columnName = formatNameForSQL(fieldName);
+        constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
+        sqliteType = resolveSQLiteType( objectType );
+    }
+
+    // Primary
     private ColumnDefinition( final Types types, final Elements elements, final Messager log ) {
         super(types, elements, log);
         this.origin = null;
@@ -122,6 +154,9 @@ public class ColumnDefinition extends Definition {
         this.isFinal = true;
         this.collectionType = false;
         this.primaryKey = true;
+        this.skipSQLite = false;
+        this.collectionElementType = null;
+        this.collectionElementModelType = null;
     }
 
     /**
@@ -149,6 +184,9 @@ public class ColumnDefinition extends Definition {
      * @return type of member variable like int, array[] or ...Model or List<...Model>
      */
     public TypeName getObjectType() {
+        if( !primitiveType && !collectionType ) {
+            return ClassName.bestGuess( objectType.toString() + "Model" );
+        }
         return objectType;
     }
 
@@ -315,7 +353,7 @@ public class ColumnDefinition extends Definition {
         return skipSQLite;
     }
 
-    private String resolveSQLiteType( final TypeName type, final boolean primitiveType, final boolean collectionType ) {
+    private String resolveSQLiteType( final TypeName type ) {
         if( String.class.getName().equals( type.toString() ) ) {
             return "TEXT";
         }

@@ -13,6 +13,8 @@ public class TableDefinition extends Definition {
     private final String className;
     private final String authority;
 
+    private boolean manyToManyRelation = false;
+
     public TableDefinition( final Types types, final Elements elements, final Messager log, final String packageName, final String className, final String authority ) {
         super(types, elements, log);
         this.packageName = packageName;
@@ -60,6 +62,14 @@ public class TableDefinition extends Definition {
      */
     public String getTableAuthority() {
         return authority;
+    }
+
+    public boolean isManyToManyRelation() {
+        return manyToManyRelation;
+    }
+
+    public void setManyToManyRelation(boolean manyToManyRelation) {
+        this.manyToManyRelation = manyToManyRelation;
     }
 
     @Override
