@@ -83,6 +83,7 @@ public class SidekickProcessor extends AbstractProcessor {
         // analyse relations
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             for( ColumnDefinition columnDefinition : entry.getValue() ) {
+                JavaUtils.isPrimitiveOfContentProvider( columnDefinition.getObjectType() );
                 if( columnDefinition.isCollectionType() ) {
                     if( !isOneManyRelation(columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType( true, true )) ) {
                         final String tableOne = entry.getKey().getClassName();
@@ -103,16 +104,13 @@ public class SidekickProcessor extends AbstractProcessor {
 
                         // table one reference
                         columnDefinitions.add( new ColumnDefinition(
-                                null, ClassName.bestGuess( entry.getKey().getObjectType( true, false) ), false, false, false, typeUtils, elementUtils, log ) );
+                                null, ClassName.bestGuess(entry.getKey().getObjectType(true, false)), false, typeUtils, elementUtils, log ) );
 
                         // table two reference
-                        columnDefinitions.add( new ColumnDefinition(
-                            null, columnDefinition.getCollectionElementType(), false, false, false, typeUtils, elementUtils, log ) );
+                        columnDefinitions.add(new ColumnDefinition(
+                                null, columnDefinition.getCollectionElementType(), false, typeUtils, elementUtils, log));
 
-                        relations.put( tableDefinition, columnDefinitions );
-                        log.printMessage( NOTE, "Many-Many TableContract: " + tableDefinition.toString() );
-                    } else {
-                        log.printMessage( NOTE, "Found One-Many Relation" );
+                        relations.put(tableDefinition, columnDefinitions);
                     }
                 }
             }
@@ -192,18 +190,9 @@ public class SidekickProcessor extends AbstractProcessor {
 
         for( Element field : fields ) {
             final TypeName type = JavaUtils.getType( field.asType() );
-            if( type.isPrimitive() ) {
-                // boolean, byte, double, float, int, long, short
-                annotatedFields.add( new ColumnDefinition( field, type, true, false, false, typeUtils, elementUtils, log ) );
-            } else if( type.toString().equals( "byte[]" ) ) {
-                // byte[]
-                annotatedFields.add( new ColumnDefinition( field, type, false, true, false, typeUtils, elementUtils, log ) );
-            } else if( String.class.getName().equals(type.toString() ) ) {
-                // String
-                annotatedFields.add( new ColumnDefinition(field, type, false, false, true, typeUtils, elementUtils, log ) );
-            } else if( field.asType() instanceof DeclaredType && typeUtils.asElement( field.asType() ).getAnnotation( Contract.class ) != null ) {
-                // Class with @Contract()
-                annotatedFields.add( new ColumnDefinition(field, type, false, false, false, typeUtils, elementUtils, log ) );
+            if( JavaUtils.isPrimitiveOfContentProvider( type ) ) {
+                // boolean, byte, double, float, int, long, short, String, byte[], Boolean, Byte, Double, Float, Integer, Long, Short
+                annotatedFields.add( new ColumnDefinition( field, type, true, typeUtils, elementUtils, log ) );
             } else if( JavaUtils.isCollectionType(field, elementUtils, typeUtils) ) {
                 // Collection
                 final Set<TypeMirror> generics = JavaUtils.getGenericTypes(field);
@@ -214,10 +203,13 @@ public class SidekickProcessor extends AbstractProcessor {
                 final Element collectionElementType = typeUtils.asElement( generics.iterator().next() );
                 if( collectionElementType.getAnnotation( Contract.class ) != null ) {
                     // Set<@Contract>, List<@Contract>
-                    annotatedFields.add(new ColumnDefinition(field, ParameterizedTypeName.get(field.asType()), false, false, false, true, typeUtils, elementUtils, log));
+                    annotatedFields.add(new ColumnDefinition(field, ParameterizedTypeName.get(field.asType()), false, true, typeUtils, elementUtils, log));
                 } else {
                     // TODO Collection<Primitive>
                 }
+            } else if( field.asType() instanceof DeclaredType && typeUtils.asElement( field.asType() ).getAnnotation( Contract.class ) != null ) {
+                // Class with @Contract()
+                annotatedFields.add(new ColumnDefinition(field, type, false, typeUtils, elementUtils, log));
             } else {
                 log.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString() );
             }

@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,12 +33,10 @@ public class JavaUtils {
     }
 
     public static TypeName getType( TypeMirror field ) {
-        if( field instanceof PrimitiveType ) {
+        if( field instanceof PrimitiveType || field instanceof ArrayType ) {
             return TypeName.get( field );
         } else if( field instanceof DeclaredType ) {
             return ClassName.get(( TypeElement ) (( DeclaredType ) field).asElement() );
-        } else if( field instanceof ArrayType ) {
-            return TypeName.get( field );
         } else {
             throw new IllegalArgumentException( "Unknow field type: " + field.toString() );
         }
@@ -113,5 +112,29 @@ public class JavaUtils {
             }
         }
         return annotatedFields;
+    }
+
+    public static boolean isPrimitiveOfContentProvider( final TypeName typeName ) {
+        final String type = typeName.toString();
+        final List<String> primitives = Arrays.asList(
+            short.class.getName(),
+            long.class.getName(),
+            double.class.getName(),
+            int.class.getName(),
+            String.class.getName(),
+            boolean.class.getName(),
+            float.class.getName(),
+            byte.class.getName(),
+            "byte[]",
+
+            Short.class.getName(),
+            Long.class.getName(),
+            Double.class.getName(),
+            Integer.class.getName(),
+            Boolean.class.getName(),
+            Float.class.getName(),
+            Byte.class.getName()
+        );
+        return primitives.contains( type );
     }
 }

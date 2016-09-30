@@ -126,7 +126,7 @@ public class ModelGenerator {
                     .returns(columnDefinition.getObjectType())
                     .addStatement("return $N", columnDefinition.getFieldName());
 
-            if( columnDefinition.isString() || columnDefinition.isForeignKey() ) {
+            if( columnDefinition.isObjectTypeNotPrimitive() ) {
                 if( columnDefinition.isNotNull() ) {
                     getMethod.addAnnotation(nonNull);
                 } else {
@@ -139,7 +139,7 @@ public class ModelGenerator {
             if( !columnDefinition.isFinal() ) {
                 final ParameterSpec.Builder param = ParameterSpec.builder(columnDefinition.getObjectType(), columnDefinition.getFieldName(), Modifier.FINAL);
 
-                if( columnDefinition.isString() || columnDefinition.isForeignKey() ) {
+                if( columnDefinition.isObjectTypeNotPrimitive() ) {
                     if( columnDefinition.isNotNull() ) {
                         param.addAnnotation( nonNull );
                     } else {
@@ -167,7 +167,7 @@ public class ModelGenerator {
             }
 
             final ParameterSpec.Builder parameter = ParameterSpec.builder( columnDefinition.getObjectType(), columnDefinition.getFieldName(), Modifier.FINAL );
-            if( columnDefinition.isString() || columnDefinition.isForeignKey() ) {
+            if( columnDefinition.isObjectTypeNotPrimitive() ) {
                 if( columnDefinition.isNotNull() ) {
                     parameter.addAnnotation( nonNull );
                 } else {

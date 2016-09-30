@@ -54,8 +54,6 @@ public class ColumnDefinition extends Definition {
 
     private boolean primaryKey;
     private boolean primitiveType;
-    private boolean arrayType;
-    private boolean stringType;
     private boolean collectionType;
 
     private boolean isFinal;
@@ -65,23 +63,19 @@ public class ColumnDefinition extends Definition {
      * @param field is member variable of defined class with Contract annotation
      * @param type of member variable from defined class with Contract annotation
      * @param primitiveType when Element is primitive type
-     * @param arrayType when Element is arrayType
-     * @param stringType when Element is String
      * @param types as helper
      * @param elements as helper
      * @param log as helper
      */
-    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean arrayType, final boolean stringType, final Types types, final Elements elements, final Messager log ) {
-        this(field, type, primitiveType, arrayType, stringType, false, types, elements, log);
+    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final Types types, final Elements elements, final Messager log ) {
+        this(field, type, primitiveType, false, types, elements, log);
     }
 
-    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean arrayType, final boolean stringType, final boolean collectionType, final Types types, final Elements elements, final Messager log ) {
+    public ColumnDefinition(final Element field, final TypeName type, final boolean primitiveType, final boolean collectionType, final Types types, final Elements elements, final Messager log ) {
         super( types, elements, log );
         this.origin = field;
         this.objectType = type;
         this.primitiveType = primitiveType;
-        this.arrayType = arrayType;
-        this.stringType = stringType;
         this.collectionType = collectionType;
         this.primaryKey = false;
 
@@ -89,10 +83,10 @@ public class ColumnDefinition extends Definition {
         columnName = formatNameForSQL(fieldName);
         constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
 
-        sqliteType = resolveSQLiteType( objectType, stringType, primitiveType );
+        sqliteType = resolveSQLiteType( objectType, primitiveType, collectionType );
 
         // one-one foreign key
-        if( !primitiveType && !arrayType && !stringType && !collectionType ) {
+        if( !primitiveType && !collectionType ) {
             objectType = ClassName.bestGuess( type.toString() + "Model" );
 
             constantFieldName = constantFieldName.concat("_ID");
@@ -101,7 +95,7 @@ public class ColumnDefinition extends Definition {
         }
 
         // one-many/many-many foreign key
-        if( !primitiveType && !arrayType && !stringType && collectionType ) {
+        if( !primitiveType && collectionType ) {
             collectionElementType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() );
             collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() + "Model" );
             objectType = ParameterizedTypeName.get(
@@ -162,7 +156,7 @@ public class ColumnDefinition extends Definition {
      * @return true if objectType is non-primitive and non-collection type with @Contract annotation otherwise false
      */
     public boolean isContractObjectType() {
-        return !primitiveType && !arrayType && !stringType && !collectionType;
+        return !primitiveType && !collectionType;
     }
 
     /**
@@ -170,6 +164,13 @@ public class ColumnDefinition extends Definition {
      */
     public String getSQLiteType() {
         return sqliteType;
+    }
+
+    /**
+     * @return true if objectType can be null like all non primitive types otherwise false
+     */
+    public boolean isObjectTypeNotPrimitive() {
+        return collectionType || !primitiveType || objectType.isBoxedPrimitive();
     }
 
     /**
@@ -283,14 +284,14 @@ public class ColumnDefinition extends Definition {
      * @return true if objectType is String otherwise false
      */
     public boolean isString() {
-        return stringType;
+        return String.class.getName().equals( objectType.toString() );
     }
 
     /**
      * @return true if objectType is Collection<@Contract> or Class with @Contract
      */
     public boolean isForeignKey() {
-        return !stringType && !primitiveType && !arrayType;
+        return ( !primitiveType && !collectionType ) || collectionType;
     }
 
     /**
@@ -314,21 +315,23 @@ public class ColumnDefinition extends Definition {
         return skipSQLite;
     }
 
-    private String resolveSQLiteType( TypeName type, boolean stringType, boolean primitiveType ) {
-        if( stringType ) {
+    private String resolveSQLiteType( final TypeName type, final boolean primitiveType, final boolean collectionType ) {
+        if( String.class.getName().equals( type.toString() ) ) {
             return "TEXT";
-        } else if( primitiveType ) {
-            if( type.equals( TypeName.BOOLEAN ) ||
-                    type.equals( TypeName.INT ) ||
-                    type.equals( TypeName.LONG ) ||
-                    type.equals( TypeName.SHORT ) ) {
-                return "INTEGER";
-            } else if( type.equals( TypeName.DOUBLE ) ||
-                    type.equals( TypeName.FLOAT ) ) {
-                return "REAL";
-            } else {
-                return "BLOB";
-            }
+        }
+        if( collectionType ) {
+            return "INTEGER";
+        }
+
+        final TypeName unboxedType = type.isBoxedPrimitive() ? type.unbox() : type;
+        if( unboxedType.equals( TypeName.BOOLEAN ) ||
+                unboxedType.equals( TypeName.INT ) ||
+                unboxedType.equals( TypeName.LONG ) ||
+                unboxedType.equals( TypeName.SHORT ) ) {
+            return "INTEGER";
+        } else if( unboxedType.equals( TypeName.DOUBLE ) ||
+                unboxedType.equals( TypeName.FLOAT ) ) {
+            return "REAL";
         } else {
             return "BLOB";
         }
@@ -338,4 +341,5 @@ public class ColumnDefinition extends Definition {
     public String toString() {
         return "Definition of " + objectType + " " + fieldName;
     }
+
 }

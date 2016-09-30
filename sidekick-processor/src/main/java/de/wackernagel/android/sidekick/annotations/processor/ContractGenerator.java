@@ -132,7 +132,7 @@ public class ContractGenerator {
             }
 
             if( column.isBoolean() ) {
-                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_check_boolean CHECK (").add(column.getColumnName()).add(" IN ( 0, 1 ) )");
+                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_check_boolean CHECK (\" + " + column.getConstantFieldName() + " + \" IN ( 0, 1 ) )");
             }
 
             if( column.isForeignKey() ) {
@@ -176,7 +176,8 @@ public class ContractGenerator {
                 .returns(uri)
                 .addModifiers(PUBLIC, STATIC, FINAL)
                 .addAnnotation(nullable)
-                .addParameter( ParameterSpec.builder(context, "context", FINAL).addAnnotation( nonNull ).build() )
+                .addParameter(ParameterSpec.builder(context, "context", FINAL).addAnnotation(nonNull).build())
+                .addParameter(ParameterSpec.builder(uri, "contentUri", FINAL).addAnnotation(nonNull).build() )
                 .addStatement("final $T insert = new $T()", contentValues, contentValues);
         for( ColumnDefinition field : fields ) {
             if( field.getColumnName().equals("_id") ) {
@@ -185,8 +186,8 @@ public class ContractGenerator {
 
             final ParameterSpec.Builder parameter = ParameterSpec.builder(field.getObjectType(), field.getFieldName(), FINAL);
             if( field.isNotNull() ) {
-                parameter.addAnnotation(nonNull);
-            } else if( field.isString() || field.isForeignKey() ) {
+                parameter.addAnnotation( nonNull );
+            } else if( field.isObjectTypeNotPrimitive() ) {
                 parameter.addAnnotation( nullable );
             }
             methodBuilder.addParameter(parameter.build());
@@ -203,13 +204,14 @@ public class ContractGenerator {
                 methodBuilder.addStatement( "insert.put( $L, $L )", field.getConstantFieldName(), field.getFieldName() );
             }
         }
-        methodBuilder.addStatement("return context.getContentResolver().insert( CONTENT_URI, insert )");
+        methodBuilder.addStatement("return context.getContentResolver().insert( contentUri, insert )");
 
         classBuilder.addMethod(
                 methodBuilder.build());
     }
 
     private void update( final TypeSpec.Builder classBuilder ) {
+        ClassName uri = ClassName.get("android.net", "Uri");
         ClassName contentValues = ClassName.get( "android.content", "ContentValues" );
         ClassName context = ClassName.get( "android.content", "Context" );
         ClassName nullable = ClassName.get( "android.support.annotation", "Nullable" );
@@ -220,14 +222,16 @@ public class ContractGenerator {
                         .returns(int.class)
                         .addModifiers(PUBLIC, STATIC, FINAL)
                         .addParameter(ParameterSpec.builder(context, "context", FINAL).addAnnotation(nonNull).build())
+                        .addParameter(ParameterSpec.builder(uri, "contentUri", FINAL).addAnnotation(nonNull).build() )
                         .addParameter(ParameterSpec.builder(contentValues, "update", FINAL).addAnnotation(nullable).build())
                         .addParameter(ParameterSpec.builder(String.class, "where", FINAL).addAnnotation(nullable).build())
                         .addParameter(ParameterSpec.builder(String[].class, "selectionArgs", FINAL).addAnnotation(nullable).build())
-                        .addStatement("return context.getContentResolver().update( CONTENT_URI, update, where, selectionArgs )")
+                        .addStatement("return context.getContentResolver().update( contentUri, update, where, selectionArgs )")
                         .build() );
     }
 
     private void delete( final TypeSpec.Builder classBuilder ) {
+        ClassName uri = ClassName.get("android.net", "Uri");
         ClassName context = ClassName.get( "android.content", "Context" );
         ClassName nullable = ClassName.get( "android.support.annotation", "Nullable" );
         ClassName nonNull = ClassName.get( "android.support.annotation", "NonNull" );
@@ -237,9 +241,10 @@ public class ContractGenerator {
                         .returns(int.class)
                         .addModifiers(PUBLIC, STATIC, FINAL)
                         .addParameter(ParameterSpec.builder(context, "context", FINAL).addAnnotation(nonNull).build())
+                        .addParameter(ParameterSpec.builder(uri, "contentUri", FINAL).addAnnotation(nonNull).build() )
                         .addParameter(ParameterSpec.builder(String.class, "where", FINAL).addAnnotation(nullable).build())
                         .addParameter(ParameterSpec.builder(String[].class, "selectionArgs", FINAL).addAnnotation(nullable).build())
-                        .addStatement("return context.getContentResolver().delete( CONTENT_URI, where, selectionArgs )")
+                        .addStatement("return context.getContentResolver().delete( contentUri, where, selectionArgs )")
                         .build() );
     }
 
