@@ -19,7 +19,6 @@ public class CursorCompat {
      * The preferred type of the column is returned but the data may be converted to other types
      * as documented in the get-type methods such as {@link Cursor#getInt(int)}, {@link Cursor#getFloat(int)}
      * etc.
-     *<p>
      * Returned column types are
      * <ul>
      *   <li>{@link #FIELD_TYPE_NULL}</li>
@@ -28,7 +27,6 @@ public class CursorCompat {
      *   <li>{@link #FIELD_TYPE_STRING}</li>
      *   <li>{@link #FIELD_TYPE_BLOB}</li>
      *</ul>
-     *</p>
      *
      * @param columnIndex the zero-based index of the target column.
      * @return column value type

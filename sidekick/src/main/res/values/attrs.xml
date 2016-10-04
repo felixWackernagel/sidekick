@@ -45,4 +45,9 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="ForegroundRelativeLayout">
+        <attr name="android:foreground" />
+        <attr name="android:foregroundGravity"/>
+    </declare-styleable>
+
 </resources>

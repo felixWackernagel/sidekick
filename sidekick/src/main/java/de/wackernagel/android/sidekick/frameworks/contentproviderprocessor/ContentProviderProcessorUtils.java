@@ -52,8 +52,8 @@ public class ContentProviderProcessorUtils {
 	}
 
     /**
-     * @param table
-     * @param projection
+     * @param table name of database table
+     * @param projection columns of database table
      * @return a array in which each projection element has the table as prefix like "table.projectionElement"
      */
     public static String[] joinProjection( @NonNull final String table, @NonNull final String[] projection ) {
@@ -66,7 +66,7 @@ public class ContentProviderProcessorUtils {
     }
 
     /**
-     * @param tablesWithProjection
+     * @param tablesWithProjection list of tables and columns
      * @return a single array of all projections with the table name as prefix
      */
 	public static String[] joinProjections( @NonNull final List<Pair<String, String[]>> tablesWithProjection ) {

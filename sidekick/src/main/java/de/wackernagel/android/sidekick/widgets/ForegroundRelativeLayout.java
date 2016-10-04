@@ -7,10 +7,14 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StyleableRes;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.RelativeLayout;
+
+import de.wackernagel.android.sidekick.R;
 
 public class ForegroundRelativeLayout extends RelativeLayout {
 
@@ -37,11 +41,10 @@ public class ForegroundRelativeLayout extends RelativeLayout {
 
     private void init( @NonNull final Context context, @Nullable final AttributeSet attrs, int defStyle ) {
         if( attrs != null ) {
-            final int[] myAttrs = { android.R.attr.foreground, android.R.attr.foregroundGravity };
-            final TypedArray a = context.obtainStyledAttributes( attrs, myAttrs, defStyle, 0 );
+            final TypedArray a = context.obtainStyledAttributes( attrs, R.styleable.ForegroundRelativeLayout, defStyle, 0 );
 
-            setForeground(a.getDrawable(0));
-            setForegroundGravity( a.getInt( 1, foregroundGravity) );
+            setForeground(a.getDrawable(R.styleable.ForegroundRelativeLayout_android_foreground));
+            setForegroundGravity(a.getInt(R.styleable.ForegroundRelativeLayout_android_foregroundGravity, Gravity.FILL));
 
             a.recycle();
         }

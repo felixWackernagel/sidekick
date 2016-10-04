@@ -56,7 +56,6 @@ public class ColumnDefinition extends Definition {
     private final boolean primitiveType;
     private final boolean collectionType;
 
-    private final boolean isFinal = true;
     private final boolean skipSQLite;
 
     public static ColumnDefinition primaryField( final Types types, final Elements elements, final Messager log ) {
@@ -252,7 +251,7 @@ public class ColumnDefinition extends Definition {
      * @return true if member variable inside model has no setter otherwise false
      */
     public boolean isFinal() {
-        return isFinal;
+        return true;
     }
 
     /**
