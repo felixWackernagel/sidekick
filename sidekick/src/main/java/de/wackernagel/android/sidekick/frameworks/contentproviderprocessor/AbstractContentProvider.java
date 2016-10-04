@@ -47,7 +47,7 @@ public abstract class AbstractContentProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         final ContentProviderProcessor processor = findProcessor(uri);
         if (processor == null) {
-            throw new IllegalArgumentException("Unkown URI: " + uri);
+            throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         return processor.query(dbHelper.getWritableDatabase(), getContentResolver(), uri, projection, selection, selectionArgs, sortOrder);
     }
@@ -56,7 +56,7 @@ public abstract class AbstractContentProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final ContentProviderProcessor processor = findProcessor(uri);
         if (processor == null) {
-            throw new IllegalArgumentException("Unkown URI: " + uri);
+            throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         return processor.insert(dbHelper.getWritableDatabase(), getContentResolver(), uri, values);
     }
@@ -65,7 +65,7 @@ public abstract class AbstractContentProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         final ContentProviderProcessor processor = findProcessor(uri);
         if (processor == null) {
-            throw new IllegalArgumentException("Unkown URI: " + uri);
+            throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         return processor.update(dbHelper.getWritableDatabase(), getContentResolver(), uri, values, selection, selectionArgs);
     }
@@ -74,7 +74,7 @@ public abstract class AbstractContentProvider extends ContentProvider {
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         final ContentProviderProcessor processor = findProcessor(uri);
         if (processor == null) {
-            throw new IllegalArgumentException("Unkown URI: " + uri);
+            throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         return processor.delete(dbHelper.getWritableDatabase(), getContentResolver(), uri, selection, selectionArgs);
     }

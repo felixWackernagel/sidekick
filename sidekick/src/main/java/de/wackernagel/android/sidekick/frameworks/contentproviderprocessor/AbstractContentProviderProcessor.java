@@ -50,7 +50,7 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 			id = db.insert( getTable(), null, values );
 		}
 
-		if( resolver != null ) {
+		if( resolver != null && id > 0 ) {
 			resolver.notifyChange(uri, null);
 		}
 		return ContentUris.withAppendedId( uri, id );
@@ -71,7 +71,7 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 			updatedRows = db.update( getTable(), values, selection, selectionArgs );
 		}
 
-		if( resolver != null ) {
+		if( resolver != null && updatedRows > 0 ) {
 			resolver.notifyChange( uri, null );
 		}
 		return updatedRows;
@@ -92,7 +92,7 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 			deletedRows = db.delete( getTable(), selection, selectionArgs);
 		}
 
-		if( resolver != null ) {
+		if( resolver != null && ( deletedRows > 0 || selection == null ) ) {
 			resolver.notifyChange( uri, null );
 		}
 		return deletedRows;

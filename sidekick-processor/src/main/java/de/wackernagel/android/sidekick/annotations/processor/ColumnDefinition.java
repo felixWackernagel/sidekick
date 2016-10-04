@@ -56,7 +56,7 @@ public class ColumnDefinition extends Definition {
     private final boolean primitiveType;
     private final boolean collectionType;
 
-    private final boolean isFinal;
+    private final boolean isFinal = true;
     private final boolean skipSQLite;
 
     public static ColumnDefinition primaryField( final Types types, final Elements elements, final Messager log ) {
@@ -82,7 +82,6 @@ public class ColumnDefinition extends Definition {
         this.primitiveType = false;
         this.collectionType = true;
         this.primaryKey = false;
-        this.isFinal = false;
         this.skipSQLite = true;
         this.collectionElementType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() );
         this.collectionElementModelType = ClassName.bestGuess( JavaUtils.getGenericTypes( origin ).iterator().next().toString() + "Model" );
@@ -104,7 +103,6 @@ public class ColumnDefinition extends Definition {
         this.primitiveType = false;
         this.collectionType = false;
         this.primaryKey = false;
-        this.isFinal = false;
         this.skipSQLite = false;
         this.collectionElementType = null;
         this.collectionElementModelType = null;
@@ -130,7 +128,6 @@ public class ColumnDefinition extends Definition {
         this.primitiveType = true;
         this.collectionType = false;
         this.primaryKey = false;
-        this.isFinal = false;
         this.skipSQLite = false;
         this.collectionElementType = null;
         this.collectionElementModelType = null;
@@ -151,7 +148,6 @@ public class ColumnDefinition extends Definition {
         this.primitiveType = true;
         this.objectType = TypeName.get(long.class);
         this.sqliteType = "INTEGER";
-        this.isFinal = true;
         this.collectionType = false;
         this.primaryKey = true;
         this.skipSQLite = false;
