@@ -1,12 +1,14 @@
-package de.wackernagel.android.example.sidekick;
+package de.wackernagel.android.example.sidekick.db;
+
+import java.util.List;
 
 import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
 
 @Contract( authority = "com.example.provider" )
-public class OrderOrderItemRelation {
+public class OrderItem {
 
     @Column
-    int position;
+    String name;
 
 }

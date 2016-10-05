@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">Sidekick-Sample</string>
+    <string name="app_name">Sidekick Showcase</string>
+    <string name="tooltip_from_resource">Tooltip from resource</string>
+
+    <string name="reveal_view_revealing">start reveal</string>
+    <string name="reveal_view_revealed">revealed</string>
+    <string name="reveal_view_unrevealing">start unreveal</string>
+    <string name="reveal_view_unrevealed">unrevealed</string>
+
+    <string name="photo_canceled">User canceled operation</string>
+    <string name="photo_failed">Operation failed</string>
+    <string name="photo_path">Photo path %1$s</string>
+    <string name="photo_enabled">Photo features enabled? %1$b</string>
 </resources>

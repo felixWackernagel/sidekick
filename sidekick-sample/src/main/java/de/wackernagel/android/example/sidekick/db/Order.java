@@ -1,4 +1,4 @@
-package de.wackernagel.android.example.sidekick;
+package de.wackernagel.android.example.sidekick.db;
 
 import java.util.List;
 
