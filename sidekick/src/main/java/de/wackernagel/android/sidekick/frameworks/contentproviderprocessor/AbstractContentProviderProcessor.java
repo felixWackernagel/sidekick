@@ -53,7 +53,11 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 		if( resolver != null && id > 0 ) {
 			resolver.notifyChange(uri, null);
 		}
-		return ContentUris.withAppendedId( uri, id );
+
+		if( id > 0 ) {
+			return ContentUris.withAppendedId( uri, id );
+		}
+		return null;
 	}
 
 	@Override
@@ -93,7 +97,7 @@ public abstract class AbstractContentProviderProcessor implements ContentProvide
 		}
 
 		if( resolver != null && ( deletedRows > 0 || selection == null ) ) {
-			resolver.notifyChange( uri, null );
+			resolver.notifyChange(uri, null);
 		}
 		return deletedRows;
 	}

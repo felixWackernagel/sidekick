@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.wackernagel.android.example.sidekick.TagModel;
+import de.wackernagel.android.example.sidekick.db.TagModel;
 import de.wackernagel.android.sidekick.compats.ObjectsCompat;
 
 public class ObjectsCompatTest {

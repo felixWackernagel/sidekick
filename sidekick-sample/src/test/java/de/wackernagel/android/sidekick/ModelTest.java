@@ -1,17 +1,10 @@
 package de.wackernagel.android.sidekick;
 
-import android.support.v4.util.Pair;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-
-import de.wackernagel.android.example.sidekick.OrderContract;
-import de.wackernagel.android.example.sidekick.TagContract;
-import de.wackernagel.android.example.sidekick.TagModel;
-import de.wackernagel.android.sidekick.frameworks.contentproviderprocessor.ContentProviderProcessorUtils;
+import de.wackernagel.android.example.sidekick.db.TagModel;
 
 public class ModelTest {
 

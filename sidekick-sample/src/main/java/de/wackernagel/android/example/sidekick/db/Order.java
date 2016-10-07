@@ -6,7 +6,7 @@ import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 
-@Contract( authority = "com.example.provider" )
+@Contract( authority = Constants.AUTHORITY )
 public class Order extends Base {
 
     @Column

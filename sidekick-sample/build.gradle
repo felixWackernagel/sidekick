@@ -11,7 +11,10 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -30,8 +33,8 @@ dependencies {
 
     // Required for local unit tests (JUnit 4 framework)
     testCompile 'junit:junit:4.12'
-
-    // Required for instrumented tests
     androidTestCompile 'com.android.support:support-annotations:24.2.1'
     androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
 }
