@@ -25,6 +25,12 @@
         <activity android:name=".DeviceActivity" />
         <activity android:name=".TintingActivity" />
         <activity android:name=".PhotoActivity" />
+        <activity android:name=".SimpleProviderActivity" />
+
+        <provider
+            android:authorities="de.wackernagel.android.example.sidekick"
+            android:name=".provider.SimpleProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

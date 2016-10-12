@@ -44,7 +44,14 @@ public class SimpleObjectCursorLoader<T> extends ObjectCursorLoader<T> {
 
     @Override
     public Cursor loadCursorInBackground() {
-        return ContentResolverCompat.query(getContext().getContentResolver(), mUri, mProjection, mSelection, mSelectionArgs, mSortOrder, getCancellationSignal());
+        return ContentResolverCompat.query(
+                getContext().getContentResolver(),
+                mUri,
+                mProjection,
+                mSelection,
+                mSelectionArgs,
+                mSortOrder,
+                getCancellationSignal());
     }
 
     protected final Uri getUri() {

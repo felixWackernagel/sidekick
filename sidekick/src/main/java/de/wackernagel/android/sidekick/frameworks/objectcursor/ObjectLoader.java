@@ -2,6 +2,7 @@ package de.wackernagel.android.sidekick.frameworks.objectcursor;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 
 public abstract class ObjectLoader<T> extends AsyncTaskLoader<T> {
@@ -58,7 +59,11 @@ public abstract class ObjectLoader<T> extends AsyncTaskLoader<T> {
         }
     }
 
-    protected boolean isResultValid( T cachedResult) {
+    /**
+     * @param cachedResult of previous load
+     * @return true to return cached result (default) otherwise false to start new load
+     */
+    protected boolean isResultValid( @Nullable T cachedResult) {
         return true;
     }
 

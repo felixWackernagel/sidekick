@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.addItem( "Utils - Drawable Tinting", TintingActivity.class );
         adapter.addItem( "Helper - Photos", PhotoActivity.class );
         adapter.addItem( "Resources - Colors", ColorsActivity.class );
+        adapter.addItem( "Frameworks - ContentProviderProcessor", SimpleProviderActivity.class );
 
         final RecyclerView recyclerView = ( RecyclerView ) findViewById(R.id.recyclerView);
         if( recyclerView != null ) {
