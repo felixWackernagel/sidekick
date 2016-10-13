@@ -26,7 +26,8 @@ public class TintingActivity extends AppCompatActivity {
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO
+                TintUtils.clearTint( image.getDrawable() );
+                TintUtils.clearTint( text );
             }
         });
 

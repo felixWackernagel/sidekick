@@ -6,6 +6,6 @@ public class SimpleProvider extends ContractContentProvider {
 
     public SimpleProvider() {
         super( "de.wackernagel.android.example.sidekick", "simple.db", 1);
-        addSQLiteTable( new ArticleContract() );
+        addContract( new ArticleContract() );
     }
 }

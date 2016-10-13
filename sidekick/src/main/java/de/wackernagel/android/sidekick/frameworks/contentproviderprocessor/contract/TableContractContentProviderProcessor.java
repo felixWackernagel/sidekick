@@ -3,6 +3,7 @@ package de.wackernagel.android.sidekick.frameworks.contentproviderprocessor.cont
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import de.wackernagel.android.sidekick.frameworks.contentproviderprocessor.AbstractContentProviderProcessor;
 
@@ -21,6 +22,7 @@ public class TableContractContentProviderProcessor extends AbstractContentProvid
         uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
         uriMatcher.addURI( authority, contract.getTable(), MANY_ITEMS);
         uriMatcher.addURI( authority, contract.getTable() + "/#", ONE_ITEM);
+        Log.i( "Processor" ,"Register URI " + authority + ", " + contract.getTable() );
     }
 
     @Override

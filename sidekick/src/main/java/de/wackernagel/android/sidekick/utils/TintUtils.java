@@ -33,8 +33,8 @@ public class TintUtils {
      */
     @NonNull
     private static Drawable[] tintDrawables( @NonNull final Drawable[] drawables, @ColorInt final int color ) {
-        int size = drawables.length;
-        Drawable[] tinted = new Drawable[size];
+        final int size = drawables.length;
+        final Drawable[] tinted = new Drawable[size];
         for( int index = 0; index < size; index++ ) {
            tinted[index] = tint( drawables[index], color );
         }
@@ -67,6 +67,31 @@ public class TintUtils {
     public static void clearTint( @Nullable final Drawable drawable ) {
         if( drawable != null ) {
             drawable.setColorFilter( null );
+        }
+    }
+
+    /**
+     * Clear a previous applied tint.
+     *
+     * @param drawables of which the tint is cleared
+     */
+    public static void clearTint( @Nullable final Drawable[] drawables ) {
+        if( drawables != null && drawables.length > 0 ) {
+            final int length = drawables.length;
+            for( int position = 0; position < length; position++ ) {
+                clearTint( drawables[position] );
+            }
+        }
+    }
+
+    /**
+     * Clear a previous applied tint.
+     *
+     * @param textView with compound drawables of which the tint is cleared
+     */
+    public static void clearTint( @Nullable final TextView textView ) {
+        if( textView != null ) {
+            clearTint( textView.getCompoundDrawables() );
         }
     }
 

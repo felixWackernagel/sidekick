@@ -50,11 +50,11 @@ public class ColorFilterUtilsActivity extends AppCompatActivity implements SeekB
     }
 
     public void onResetClicked(View v) {
-        brightness = contrast = saturation = hue = 0;
         brightnessView.setProgress(100);
         contrastView.setProgress(100);
         saturationView.setProgress(100);
         hueView.setProgress(180);
+        brightness = contrast = saturation = hue = 0;
         image.setColorFilter( ColorFilterUtils.adjustColor( brightness, contrast, saturation, hue ) );
     }
 
