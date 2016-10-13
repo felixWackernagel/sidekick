@@ -8,12 +8,14 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.wackernagel.android.example.sidekick.provider.ArticleContract;
@@ -58,7 +61,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this));
         recyclerView.setAdapter(adapter);
-        recyclerView.getItemAnimator().setAddDuration( 500l );
+        recyclerView.getItemAnimator().setAddDuration( 1000l );
 
         queryHandler = new CallbackAsyncQueryHandler( getContentResolver() );
         queryHandler.setCallback( this );
@@ -135,6 +138,9 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         adapter.clearItems();
     }
 
+    /**
+     * Helper to explain differences in ArticleModels
+     */
     public static class ArticleDiffCallback extends DiffUtil.Callback {
         private final List<ArticleModel> oldList;
         private final List<ArticleModel> newList;
@@ -178,6 +184,9 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         }
     }
 
+    /**
+     * A simple ViewHolder for Articles
+     */
     public static class ArticleHolder extends RecyclerView.ViewHolder {
         public final TextView title;
 
@@ -187,8 +196,12 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         }
     }
 
+    /**
+     * A RecycleView Adapter which holds 'ArticleModel's and uses DiffUtil to calculate changes in updates.
+     */
     public static class ArticleAdapter extends RecyclerView.Adapter<ArticleHolder> {
         private ArrayList<ArticleModel> items;
+        private AsyncTask<ArticleModel, Void, DiffUtil.DiffResult> itemSwapTask;
 
         public ArticleAdapter() {
             this.items = new ArrayList<>();
@@ -201,10 +214,23 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         }
 
         public void swapItems( @NonNull final ArrayList<ArticleModel> newItems ) {
-            final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff( new ArticleDiffCallback( items, newItems ) );
-            items.clear();
-            items.addAll( newItems );
-            diffResult.dispatchUpdatesTo(this);
+            if( itemSwapTask != null && itemSwapTask.getStatus() != AsyncTask.Status.FINISHED ) {
+                itemSwapTask.cancel( true );
+            }
+
+            itemSwapTask = new AsyncTask<ArticleModel, Void, DiffUtil.DiffResult>() {
+                @Override
+                protected DiffUtil.DiffResult doInBackground(ArticleModel... params) {
+                    return DiffUtil.calculateDiff( new ArticleDiffCallback( items, Arrays.asList( params ) ) );
+                }
+
+                @Override
+                protected void onPostExecute(DiffUtil.DiffResult diffResult) {
+                    items.clear();
+                    items.addAll( newItems );
+                    diffResult.dispatchUpdatesTo(ArticleAdapter.this);
+                }
+            }.execute( newItems.toArray(new ArticleModel[ newItems.size() ] ) );
         }
 
         public void clearItems() {
@@ -264,6 +290,9 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         }
     }
 
+    /**
+     * A ItemDecoration which draws a divider under each item.
+     */
     public static class DividerItemDecoration extends RecyclerView.ItemDecoration {
         private final Drawable mDivider;
         private final int mHeight;
@@ -281,8 +310,14 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
             for (int position = 0; position < childCount; position++) {
                 final View child = parent.getChildAt(position);
                 final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-                final int top = child.getBottom() + params.bottomMargin;
+                final int top = child.getBottom() + params.bottomMargin + (int) ViewCompat.getTranslationY( child );
                 final int bottom = top + mHeight;
+                // include ItemAnimators effect to drawing process
+                if( parent.getItemAnimator().isRunning() ) {
+                    mDivider.setAlpha( (int) ( 255 * ViewCompat.getAlpha( child ) ) );
+                } else {
+                    mDivider.setAlpha(255);
+                }
                 mDivider.setBounds(left, top, right, bottom);
                 mDivider.draw(c);
             }
