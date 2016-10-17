@@ -58,6 +58,8 @@ public class ColumnDefinition extends Definition {
 
     private final boolean skipSQLite;
 
+    private final String initValue;
+
     public static ColumnDefinition primaryField( final Types types, final Elements elements, final Messager log ) {
         return new ColumnDefinition( types, elements, log);
     }
@@ -92,6 +94,7 @@ public class ColumnDefinition extends Definition {
         columnName = formatNameForSQL(fieldName).concat("_id");
         constantFieldName = "COLUMN" + (columnName.startsWith("_") ? "" : "_") + columnName.toUpperCase();
         sqliteType = "";
+        initValue = "null";
     }
 
     // Contract
@@ -110,6 +113,7 @@ public class ColumnDefinition extends Definition {
         columnName = formatNameForSQL(fieldName).concat("_id");
         constantFieldName = "COLUMN" + (columnName.startsWith("_") ? "" : "_") + columnName.toUpperCase();
         sqliteType = "INTEGER";
+        initValue = "0";
     }
 
     /**
@@ -135,6 +139,7 @@ public class ColumnDefinition extends Definition {
         columnName = formatNameForSQL(fieldName);
         constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
         sqliteType = resolveSQLiteType( objectType );
+        initValue = resolveInitValue( objectType );
     }
 
     // Primary
@@ -152,6 +157,11 @@ public class ColumnDefinition extends Definition {
         this.skipSQLite = false;
         this.collectionElementType = null;
         this.collectionElementModelType = null;
+        this.initValue = "0";
+    }
+
+    public String getInitValue() {
+        return initValue;
     }
 
     /**
@@ -310,7 +320,8 @@ public class ColumnDefinition extends Definition {
      * @return true if objectType is the primitive boolean otherwise false
      */
     public boolean isBoolean() {
-        return primitiveType && objectType.equals( TypeName.BOOLEAN );
+        final TypeName unboxedType = objectType.isBoxedPrimitive() ? objectType.unbox() : objectType;
+        return primitiveType && TypeName.BOOLEAN.equals( unboxedType );
     }
 
     /**
@@ -318,6 +329,11 @@ public class ColumnDefinition extends Definition {
      */
     public boolean isString() {
         return String.class.getName().equals( objectType.toString() );
+    }
+
+    public boolean isByte() {
+        final TypeName unboxedType = objectType.isBoxedPrimitive() ? objectType.unbox() : objectType;
+        return TypeName.BYTE.equals( unboxedType );
     }
 
     /**
@@ -367,6 +383,59 @@ public class ColumnDefinition extends Definition {
             return "REAL";
         } else {
             return "BLOB";
+        }
+    }
+
+    private String resolveInitValue( final TypeName type ) {
+        if( String.class.getName().equals( type.toString() ) ) {
+            return "\"\"";
+        }
+        if( collectionType ) {
+            return "0";
+        }
+
+        final TypeName unboxedType = type.isBoxedPrimitive() ? type.unbox() : type;
+        if( unboxedType.equals( TypeName.BOOLEAN ) ) {
+            return "false";
+        } else if( unboxedType.equals( TypeName.INT ) || unboxedType.equals( TypeName.SHORT ) ) {
+            return "0";
+        } else if( unboxedType.equals( TypeName.LONG ) ) {
+            return "0l";
+        } else if( unboxedType.equals( TypeName.DOUBLE ) ) {
+            return "0d";
+        } else if( unboxedType.equals( TypeName.FLOAT ) ) {
+            return "0f";
+        } else if( "byte[]".equals( type.toString() ) ) {
+            return "new byte[0]";
+        } else {
+            return "0";
+        }
+    }
+
+    public String getCursorMethod() {
+        if( primaryKey ) {
+            return "Long";
+        } else if( isContractObjectType() ) {
+            return "Int";
+        } else if( String.class.getName().equals( objectType.toString() ) ) {
+            return "String";
+        }
+
+        final TypeName unboxedType = objectType.isBoxedPrimitive() ? objectType.unbox() : objectType;
+        if( unboxedType.equals( TypeName.INT ) || unboxedType.equals( TypeName.BOOLEAN ) ) {
+            return "Int";
+        } else if( unboxedType.equals( TypeName.SHORT ) ) {
+            return "Short";
+        } else if( unboxedType.equals( TypeName.LONG ) ) {
+            return "Long";
+        } else if( unboxedType.equals( TypeName.DOUBLE ) ) {
+            return "Double";
+        } else if( unboxedType.equals( TypeName.FLOAT ) ) {
+            return "Float";
+        } else if( "byte[]".equals(objectType.toString()) ) {
+            return "Blob";
+        } else {
+            return "Int";
         }
     }
 

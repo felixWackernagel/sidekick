@@ -43,9 +43,9 @@ public class ContractGenerator {
         columnConstants(classBuilder, contractFields);
         projection(classBuilder, contractFields);
         contentUri(classBuilder, tableDefinition.getTableAuthority());
-        insert(classBuilder, contractFields);
-        update(classBuilder);
-        delete(classBuilder);
+        //insert(classBuilder, contractFields);
+        //update(classBuilder);
+        //delete(classBuilder);
 
         generatedContract = classBuilder.build();
     }

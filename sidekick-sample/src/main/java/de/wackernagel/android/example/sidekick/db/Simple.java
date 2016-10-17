@@ -52,9 +52,6 @@ public class Simple {
     Float bFloat;
 
     @Column
-    Byte[] bByteArray;
-
-    @Column
     Byte bByte;
 
 }
