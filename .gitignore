@@ -15,7 +15,6 @@ out/
 
 # Gradle files
 .gradle/
-gradle/
 build/
 
 # Local configuration file (sdk path, etc)
@@ -39,3 +38,6 @@ captures/
 
 # Mac
 .DS_Store/
+
+# Ubuntu
+*~
