@@ -22,15 +22,10 @@ public class DeviceActivity extends AppCompatActivity {
     }
 
     private void setDeviceInfo(final TextView textView) {
-        textView.setText(
-                "Device:"
-                + "\n\twidth=" + DeviceUtils.getWidth(this) + "px"
-                + "\n\theight=" + DeviceUtils.getHeight(this) + "px"
-                + "\n\thas tablet size? " + DeviceUtils.isTablet(this)
-                + "\n\tis landscape mode? " + DeviceUtils.isLandscape(this)
-                + "\nInternet:"
-                + "\n\tonline? " + NetworkUtils.isOnline(this)
-                + "\n\tmobile? " + NetworkUtils.isOnlineMobile(this)
-                + "\n\twifi? " + NetworkUtils.isOnlineWifi(this));
+        textView.setText( getString( R.string.device_states,
+                DeviceUtils.getWidth(this), DeviceUtils.getHeight(this),
+                DeviceUtils.isTablet(this), DeviceUtils.isLandscape(this),
+                NetworkUtils.isOnline(this), NetworkUtils.isOnlineMobile(this),
+                NetworkUtils.isOnlineWifi(this) ) );
     }
 }

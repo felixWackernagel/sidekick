@@ -7,6 +7,6 @@ public enum ConflictClause {
     ABORT,
     FAIL,
     IGNORE,
-    REPLACE;
+    REPLACE
 
 }

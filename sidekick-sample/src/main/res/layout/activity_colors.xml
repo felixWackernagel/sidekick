@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Primary Text Color"
+            android:text="@string/color_primary"
             android:textColor="@color/sidekick_text_primary"
             android:textSize="20sp"/>
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Secondary Text Color"
+            android:text="@string/color_secondary"
             android:textColor="@color/sidekick_text_secondary"
             android:textSize="20sp"/>
 
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Error Text Color"
+            android:text="@string/color_error"
             android:textColor="@color/sidekick_text_error"
             android:textSize="20sp"/>
 
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Hint Text Color"
+            android:text="@string/color_hint"
             android:textColor="@color/sidekick_text_hint"
             android:textSize="20sp"/>
 
@@ -52,14 +52,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Disabled Text Color"
+            android:text="@string/color_disabled"
             android:textColor="@color/sidekick_text_disabled"
             android:textSize="20sp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Divider Color"
+            android:text="@string/color_divider"
             android:textColor="@color/sidekick_divider"
             android:textSize="20sp"/>
 
@@ -72,7 +72,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Icon Color"
+            android:text="@string/color_icon"
             android:textColor="@color/sidekick_icon"
             android:textSize="20sp"/>
 

@@ -34,22 +34,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
-                android:text="reveal"/>
+                android:layout_marginEnd="16dp"
+                android:text="@string/reveal_reveal"/>
 
             <Button
                 android:id="@+id/buttonRed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
                 android:background="@color/sidekick_text_error"
-                android:text="Red"/>
+                android:text="@string/reveal_red"/>
 
             <Button
                 android:id="@+id/buttonGray"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/sidekick_icon"
-                android:text="Gray"/>
+                android:text="@string/reveal_gray"/>
 
         </LinearLayout>
 

@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tinting can be used to change the color of drawables like icons."
+            android:text="@string/tint_description"
             android:layout_marginBottom="16dp"/>
 
         <ImageView
@@ -27,16 +27,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@null"/>
 
         <TextView
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@mipmap/ic_launcher"
+            android:drawableStart="@mipmap/ic_launcher"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            android:text="left compound drawable"
+            android:text="@string/tint_compound"
             android:layout_marginBottom="16dp"/>
 
         <LinearLayout
@@ -49,8 +51,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_gravity="center_vertical"
-                android:text="Reset"/>
+                android:text="@string/tint_reset"/>
 
             <View
                 android:id="@+id/red"
@@ -58,6 +61,7 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@color/sidekick_text_error"/>
 
             <View
@@ -66,6 +70,7 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@android:color/black"/>
 
         </LinearLayout>

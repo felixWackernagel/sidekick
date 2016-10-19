@@ -20,20 +20,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Apply ColorFilters to an ImageView to manipulate its image."/>
+            android:text="@string/color_filter_description"/>
 
         <ImageView
             android:id="@+id/image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@null"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Brightness"/>
+            android:text="@string/color_filter_brightness"/>
 
         <SeekBar
             android:id="@+id/brightness"
@@ -45,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Contrast"/>
+            android:text="@string/color_filter_contrast"/>
 
         <SeekBar
             android:id="@+id/contrast"
@@ -57,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Saturation"/>
+            android:text="@string/color_filter_saturation"/>
 
         <SeekBar
             android:id="@+id/saturation"
@@ -69,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Hue"/>
+            android:text="@string/color_filter_hue"/>
 
         <SeekBar
             android:id="@+id/hue"
@@ -81,7 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onResetClicked"
-            android:text="Reset"/>
+            android:text="@string/color_filter_reset"/>
 
     </LinearLayout>
 </ScrollView>

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:text="Scale the ImageView with 5 in build ratios from material design guideline. Depending on the aspect (width or height as calculation base) looks the scaling different. Use width on 16:9, 3:2, 4:3 and height on 3:4, 2:3. 1:1 uses the smaller site."/>
+        android:text="@string/aspect_ratio_description"/>
 
     <de.wackernagel.android.sidekick.widgets.AspectRatioImageView
         android:id="@+id/image"
@@ -30,6 +30,7 @@
         <Spinner
             android:id="@+id/spinner"
             android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

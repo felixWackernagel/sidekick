@@ -200,7 +200,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
      * A RecycleView Adapter which holds 'ArticleModel's and uses DiffUtil to calculate changes in updates.
      */
     public static class ArticleAdapter extends RecyclerView.Adapter<ArticleHolder> {
-        private ArrayList<ArticleModel> items;
+        ArrayList<ArticleModel> items;
         private AsyncTask<ArticleModel, Void, DiffUtil.DiffResult> itemSwapTask;
 
         public ArticleAdapter() {

@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteCursor;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
+@SuppressWarnings( "ALL" )
 public class CursorCompat {
     
     public static final int FIELD_TYPE_NULL = 0;

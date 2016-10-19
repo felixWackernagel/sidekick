@@ -12,6 +12,8 @@
         android:textColor="@color/sidekick_text_primary"
         android:textSize="16sp"
         android:paddingLeft="@dimen/sidekick_keyline1"
-        android:paddingRight="@dimen/sidekick_keyline3"/>
+        android:paddingStart="@dimen/sidekick_keyline1"
+        android:paddingRight="@dimen/sidekick_keyline3"
+        android:paddingEnd="@dimen/sidekick_keyline3"/>
 
 </FrameLayout>

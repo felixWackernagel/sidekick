@@ -2,13 +2,70 @@
     <string name="app_name">Sidekick Showcase</string>
     <string name="tooltip_from_resource">Tooltip from resource</string>
 
+    <string name="aspect_ratio_description">Scale the ImageView with 5 in build ratios from material design guideline. Depending on the aspect (width or height as calculation base) looks the scaling different. Use width on 16:9, 3:2, 4:3 and height on 3:4, 2:3. 1:1 uses the smaller site.</string>
+
     <string name="reveal_view_revealing">start reveal</string>
     <string name="reveal_view_revealed">revealed</string>
     <string name="reveal_view_unrevealing">start unreveal</string>
     <string name="reveal_view_unrevealed">unrevealed</string>
+    <string name="reveal_reveal">reveal</string>
+    <string name="reveal_red">Red</string>
+    <string name="reveal_gray">Gray</string>
 
     <string name="photo_canceled">User canceled operation</string>
     <string name="photo_failed">Operation failed</string>
     <string name="photo_path">Photo path %1$s</string>
     <string name="photo_enabled">Photo features enabled? %1$b</string>
+
+    <string name="device_states">Device:\n\twidth=%1$dpx\n\theight=%2$dpx\n\thas tablet size? %3$b
+                \n\tis landscape mode? %4$b\nInternet:\n\tonline? %5$b\n\tmobile? %6$b
+                \n\twifi? %7$b</string>
+
+    <string name="color_filter_description">Apply ColorFilters to an ImageView to manipulate its image.</string>
+    <string name="color_filter_brightness">Brightness</string>
+    <string name="color_filter_contrast">Contrast</string>
+    <string name="color_filter_saturation">Saturation</string>
+    <string name="color_filter_hue">Hue</string>
+    <string name="color_filter_reset">Reset</string>
+
+    <string name="color_primary">Primary Text Color</string>
+    <string name="color_secondary">Secondary Text Color</string>
+    <string name="color_error">Error Text Color</string>
+    <string name="color_hint">Hint Text Color</string>
+    <string name="color_disabled">Disabled Text Color</string>
+    <string name="color_divider">Divider Color</string>
+    <string name="color_icon">Icon Color</string>
+
+    <string name="indicator_description">Use the IndicatorView to show a number of unselected drawables and one or less selected drawable. You can animate the state change which use a crossfade animation + a scale animation if the width or height is different. The indicators always centered vertical and horizontal.</string>
+    <string name="indicator_back">Back</string>
+    <string name="indicator_next">Next</string>
+    <string name="indicator_animation">Enable Animation</string>
+    <string name="indicator_plus">+</string>
+    <string name="indicator_minus">-</string>
+    <string name="indicator_toggle">Toggle Indicator</string>
+
+    <string name="photo_take">Take Photo</string>
+    <string name="photo_pick">Pick Photo</string>
+    <string name="photo_delete">Delete Photo</string>
+
+    <string name="provider_title">Title &#8230;</string>
+    <string name="provider_save">Save</string>
+
+    <string name="tint_description">Tinting can be used to change the color of drawables like icons.</string>
+    <string name="tint_compound">left compound drawable</string>
+    <string name="tint_reset">Reset</string>
+
+    <string name="tooltip_description">Show a tooltip on a long click for short descriptions.</string>
+    <string name="tooltip_long">Click me long</string>
+
+    <string name="text_description">Supports the Roboto Font before Android 4.1</string>
+    <string name="text_black">Roboto Black</string>
+    <string name="text_bold">Roboto Bold</string>
+    <string name="text_italic">Roboto Italic</string>
+    <string name="text_light">Roboto Light</string>
+    <string name="text_medium">Roboto Medium</string>
+    <string name="text_regular">Roboto Regular</string>
+    <string name="text_thin">Roboto Thin</string>
+    <string name="text_thin_code">Roboto Thin set from code</string>
+
 </resources>

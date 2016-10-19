@@ -12,19 +12,21 @@
 
     <TextView
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Use the IndicatorView to show a number of unselected drawables and one or less selected drawable. You can animate the state change which use a crossfade animation + a scale animation if the width or height is different. The indicators always centered vertical and horizontal."/>
+        android:text="@string/indicator_description"/>
 
     <Button
         android:id="@+id/button"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back"
+        android:text="@string/indicator_back"
         android:theme="@style/FlatButton"
         android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"/>
 
     <Button
@@ -32,17 +34,20 @@
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:text="@string/indicator_next"
         android:theme="@style/FlatButton"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
 
     <de.wackernagel.android.sidekick.widgets.IndicatorView
         android:id="@+id/indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/button"
+        android:layout_toEndOf="@id/button"
         android:layout_toLeftOf="@id/button2"
+        android:layout_toStartOf="@id/button2"
         android:layout_centerVertical="true"
         app:count="5"
         app:selectedIndex="2"
@@ -54,34 +59,40 @@
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable Animation"
+        android:text="@string/indicator_animation"
         android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"/>
 
     <Button
         android:id="@+id/button4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="+"
+        android:text="@string/indicator_plus"
         android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_toRightOf="@+id/button3"
+        android:layout_toEndOf="@+id/button3"
         android:layout_alignParentBottom="true"/>
 
     <Button
         android:id="@+id/button5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="-"
+        android:text="@string/indicator_minus"
         android:layout_toRightOf="@+id/button4"
+        android:layout_toEndOf="@+id/button4"
         android:layout_alignParentBottom="true"/>
 
     <Button
         android:id="@+id/button6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Toggle Indicator"
+        android:text="@string/indicator_toggle"
         android:layout_above="@+id/button3"
-        android:layout_alignParentLeft="true"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
 
 </RelativeLayout>

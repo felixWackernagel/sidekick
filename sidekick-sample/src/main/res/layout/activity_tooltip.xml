@@ -12,14 +12,14 @@
 
     <TextView
         android:layout_gravity="top|start"
-        android:text="Show a tooltip on a long click for short descriptions."
+        android:text="@string/tooltip_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/text"
-        android:text="Click me long"
-        android:contentDescription="Tooltip from contentDescription"
+        android:text="@string/tooltip_long"
+        android:contentDescription="@null"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
@@ -29,8 +29,8 @@
 
     <TextView
         android:id="@+id/text1"
-        android:text="or click me long"
-        android:contentDescription="Tooltip from contentDescription"
+        android:text="@string/tooltip_long"
+        android:contentDescription="@null"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
@@ -42,11 +42,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_launcher"
-        android:layout_gravity="bottom|end"/>
+        android:layout_gravity="bottom|end"
+        android:contentDescription="@null"/>
 
     <Button
         android:id="@+id/button"
-        android:text="Click me long"
+        android:text="@string/tooltip_long"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"/>
