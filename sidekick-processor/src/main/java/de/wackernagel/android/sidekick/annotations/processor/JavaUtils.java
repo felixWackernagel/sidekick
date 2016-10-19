@@ -89,7 +89,7 @@ public class JavaUtils {
     public static Set<Element> getAnnotatedFields(final TypeElement clazz, final Class<? extends Annotation> annotation, final Elements elements,  final Types types, final Messager log) {
         final Set<Element> annotatedFields = new LinkedHashSet<>();
         for( Element element : clazz.getEnclosedElements() ) {
-            if( element.getKind() == ElementKind.FIELD && element.getAnnotation( annotation ) != null ) {
+            if( element.getKind() == ElementKind.FIELD /*&& element.getAnnotation( annotation ) != null*/ ) {
                 annotatedFields.add( element );
             }
         }

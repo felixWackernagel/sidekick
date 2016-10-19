@@ -416,7 +416,7 @@ public class ColumnDefinition extends Definition {
         if( primaryKey ) {
             return "Long";
         } else if( isContractObjectType() ) {
-            return "Int";
+            return "Long";
         } else if( String.class.getName().equals( objectType.toString() ) ) {
             return "String";
         }

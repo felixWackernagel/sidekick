@@ -21,7 +21,7 @@ cache:
     - $HOME/.gradle/wrapper
 
 script:
-   - ./gradlew clean assembleDebug test
+   - ./gradlew clean assembleDebug test lint
 
 after_script:
   # print lint results details

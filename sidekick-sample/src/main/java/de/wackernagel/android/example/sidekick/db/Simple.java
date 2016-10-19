@@ -53,5 +53,4 @@ public class Simple {
 
     @Column
     Byte bByte;
-
 }
