@@ -98,7 +98,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         }
     }
 
-    private void update( @NonNull final ArticleModel article ) {
+    void update( @NonNull final ArticleModel article ) {
         final ContentValues values = new ContentValues( 1 );
         values.put( ArticleContract.COLUMN_TITLE, article.getTitle() + " (changed)" );
         queryHandler.startUpdate( 0, null, ContentUris.withAppendedId( ArticleContract.CONTENT_URI, article.getId() ), values, null, null );
