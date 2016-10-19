@@ -230,11 +230,11 @@ public class ColumnDefinition extends Definition {
      * @return objectType of a collection type which might be instantiable.
      */
     public TypeName getInstantiableCollectionType() {
-        if( JavaUtils.isListType( origin, elements, types) && origin.asType().toString().startsWith( List.class.getTypeName() ) ) {
+        if( JavaUtils.isListType( origin, elements, types) && origin.asType().toString().startsWith( List.class.getName() ) ) {
             return ParameterizedTypeName.get(
                     ClassName.get(ArrayList.class),
                     collectionElementModelType);
-        } else if( JavaUtils.isSetType(origin, elements, types) && origin.asType().toString().startsWith( Set.class.getTypeName() ) ) {
+        } else if( JavaUtils.isSetType(origin, elements, types) && origin.asType().toString().startsWith( Set.class.getName() ) ) {
             return ParameterizedTypeName.get(
                     ClassName.get(LinkedHashSet.class),
                     collectionElementModelType);
