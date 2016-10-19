@@ -1,13 +1,29 @@
 language: android
+sudo: false
 jdk: oraclejdk8
 android:
   components:
-    - tools # to get the new `repository-11.xml`
-    - tools # see https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
     - platform-tools
+    - tools
     - build-tools-24.0.3
     - android-24
     - extra-android-m2repository
+    - extra-android-m2repository
+    - extra-android-support
+
+cache:
+  directories:
+    # gradle version from gradle-wrapper.properties
+    - $HOME/.gradle/caches/2.8
+    - $HOME/.gradle/caches/jars-1
+    - $HOME/.gradle/daemon
+    - $HOME/.gradle/native
+    - $HOME/.gradle/wrapper
 
 script:
    - ./gradlew build connectedCheck
+
+after_script:
+  # print lint results details
+  - for f in app/build/outputs/lint-results.html; do pandoc $f -t plain; done
+  - for f in data/build/outputs/lint-results.html; do pandoc $f -t plain; done
