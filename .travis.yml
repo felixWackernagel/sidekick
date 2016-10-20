@@ -24,3 +24,8 @@ cache:
 
 script:
    - ./gradlew clean assembleDebug test lint
+
+after_failure:
+  - echo "Dumping lint report out to console so it can be reviewed"
+  - echo "---sidekick"
+  - "cat /home/travis/build/felixWackernagel/sidekick/sidekick/build/lint-report.html"
