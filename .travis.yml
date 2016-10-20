@@ -2,7 +2,8 @@ language: android
 
 sudo: false
 
-jdk: oraclejdk8
+jdk: 
+  - oraclejdk8
 
 android:
   components:
@@ -26,6 +27,4 @@ script:
    - ./gradlew clean assembleDebug test lint
 
 after_failure:
-  - echo "Dumping lint report out to console so it can be reviewed"
-  - echo "---sidekick"
-  - "cat /home/travis/build/felixWackernagel/sidekick/sidekick/build/lint-report.html"
+  - "cat $TRAVIS_BUILD_DIR/sidekick/build/lint-report.html"
