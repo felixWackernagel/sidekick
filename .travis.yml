@@ -27,6 +27,7 @@ cache:
 script:
    - ./gradlew clean assembleDebug test lint
 
-after_failure:
+after_script:
   - cat /home/travis/build/felixWackernagel/sidekick/sidekick/build/lint-report.html
+  - cat /home/travis/build/felixWackernagel/sidekick/sidekick-sample/build/lint-report.html
   - echo $TRAVIS_BUILD_DIR
