@@ -23,6 +23,7 @@ import javax.lang.model.element.Modifier;
 
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
@@ -47,8 +48,53 @@ public class ModelGenerator {
         toString(classBuilder, columnDefinitions, tableDefinition.getObjectType(false, true));
         equals(classBuilder, columnDefinitions, tableDefinition);
         hashCode(classBuilder, columnDefinitions);
+        builder(classBuilder, tableDefinition, columnDefinitions);
 
         generatedModel = classBuilder.build();
+    }
+
+    private void builder(TypeSpec.Builder classBuilder, TableDefinition tableDefinition, Set<ColumnDefinition> columnDefinitions) {
+        final ClassName builderName = ClassName.get( tableDefinition.getPackageName(), "Builder" );
+        final ClassName contentValues = ClassName.get( "android.content", "ContentValues" );
+        final ClassName contract = ClassName.get( tableDefinition.getPackageName(), tableDefinition.getClassName() + "Contract" );
+
+        TypeSpec.Builder builderClass = TypeSpec.classBuilder(builderName)
+                .addModifiers(PUBLIC, STATIC)
+                .addField(contentValues, "values", PRIVATE, FINAL)
+                .addMethod(MethodSpec.constructorBuilder()
+                        .addStatement("this.values = new $T()", contentValues)
+                        .addModifiers(PUBLIC)
+                        .build());
+
+        for( ColumnDefinition column : columnDefinitions ) {
+            if( column.isPrimaryKey() || column.isCollectionType() ) {
+                continue;
+            }
+            final String memberName = column.getFieldName() + (column.isContractObjectType() ? "Id" : "");
+            final String methodName = Character.toTitleCase(memberName.charAt(0)) + memberName.substring( 1 );
+            final TypeName type = column.isContractObjectType() ? TypeName.LONG : column.getObjectType();
+            final ParameterSpec.Builder param = ParameterSpec.builder(type, memberName, FINAL);
+            if( ( column.isObjectTypeNotPrimitive() && !column.isContractObjectType() ) || column.isString() ) {
+                if( column.isNotNull() ) {
+                    param.addAnnotation(nonNull);
+                } else {
+                    param.addAnnotation(nullable);
+                }
+            }
+            builderClass.addMethod(MethodSpec.methodBuilder("set" + methodName)
+                    .returns(TypeName.VOID)
+                    .addModifiers(PUBLIC)
+                    .addParameter(param.build())
+                    .addStatement("values.put( $T.$N, $N )", contract, column.getConstantFieldName(), memberName)
+                    .build());
+        }
+        builderClass.addMethod(MethodSpec.methodBuilder("build")
+                .returns(contentValues)
+                .addAnnotation(nonNull)
+                .addStatement("return values", contentValues)
+                .addModifiers(PUBLIC)
+                .build());
+        classBuilder.addType( builderClass.build() );
     }
 
     private void objectCreator(TypeSpec.Builder classBuilder, TableDefinition tableDefinition, Set<ColumnDefinition> columnDefinitions) {

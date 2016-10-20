@@ -2,18 +2,15 @@ package de.wackernagel.android.example.sidekick.db;
 
 import java.util.List;
 
-import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 
 @Contract( authority = Constants.AUTHORITY )
 public class Order extends Base {
 
-    @Column
     String name;
 
     @ForeignKey( onUpdate = ForeignKey.Action.CASCADE )
-    @Column
     List<OrderItem> items;
 
 }
