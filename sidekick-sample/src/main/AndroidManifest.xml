@@ -31,7 +31,7 @@
 
         <provider
             android:authorities="de.wackernagel.android.example.sidekick"
-            android:name=".provider.SimpleProvider"
+            android:name=".provider.ArticleProvider"
             android:exported="false"/>
     </application>
 

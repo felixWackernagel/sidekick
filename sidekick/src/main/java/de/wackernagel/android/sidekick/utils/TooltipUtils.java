@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -47,10 +46,6 @@ public class TooltipUtils {
      * @param tooltipText for tooltip text
      */
     public static void createFor( @NonNull final View view, @NonNull final CharSequence tooltipText) {
-        if( TextUtils.isEmpty(tooltipText) ) {
-            throw new IllegalArgumentException( "Tooltip text is empty" );
-        }
-
         view.setOnLongClickListener( new View.OnLongClickListener() {
             @SuppressLint( "RtlHardcoded" )
             @Override

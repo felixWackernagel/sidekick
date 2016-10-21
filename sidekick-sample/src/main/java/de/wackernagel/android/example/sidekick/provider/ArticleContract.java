@@ -27,7 +27,7 @@ public class ArticleContract extends TableContract {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL( "CREATE TABLE IF NOT EXISTS " + TABLE + "(" +
                 COLUMN_ID + " INTEGER CONSTRAINT " + COLUMN_ID + "_pk PRIMARY KEY AUTOINCREMENT," +
-                COLUMN_TITLE + " TEXT" +
+                COLUMN_TITLE + " TEXT CONSTRAINT " + COLUMN_TITLE + "_unique UNIQUE" +
                 ");" );
     }
 

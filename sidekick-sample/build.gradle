@@ -35,5 +35,10 @@ dependencies {
     compile project(':sidekick-annotations')
     apt project(':sidekick-processor')
 
+    // junit tests
     testCompile 'junit:junit:4.12'
+
+    // instrumentation tests
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'com.android.support:support-annotations:24.2.1'
 }

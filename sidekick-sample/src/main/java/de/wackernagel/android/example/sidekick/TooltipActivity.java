@@ -12,7 +12,7 @@ public class TooltipActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tooltip);
 
-        TooltipUtils.createFor(findViewById(R.id.text));
+        TooltipUtils.createFor( findViewById(R.id.text) );
 
         TooltipUtils.createFor( findViewById(R.id.text1) );
 
