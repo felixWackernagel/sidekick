@@ -48,10 +48,10 @@ script:
    - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
-   - pandoc builder/build/reports/tests/index.html -t plain | sed -n '/^Failed tests/,/default-package/p'
+   - pandoc $TRAVIS_BUILD_DIR/sidekick/build/reports/tests/index.html -t plain | sed -n '/^Failed tests/,/default-package/p'
 
 after_script:
   #- cat $TRAVIS_BUILD_DIR/sidekick/build/lint-report.html
   #- cat $TRAVIS_BUILD_DIR/sidekick-sample/build/lint-report.html
-  - for f in app/build/outputs/lint-results.html; do pandoc $f -t plain; done
-  - for f in data/build/outputs/lint-results.html; do pandoc $f -t plain; done
+  - for f in $TRAVIS_BUILD_DIR/sidekick/build/outputs/lint-results.html; do pandoc $f -t plain; done
+  - for f in $TRAVIS_BUILD_DIR/sidekick-sample/build/outputs/lint-results.html; do pandoc $f -t plain; done
