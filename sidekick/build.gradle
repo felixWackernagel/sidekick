@@ -28,7 +28,7 @@ android {
 
     lintOptions {
         htmlReport true
-        htmlOutput file("build/lint-report.html")
+        htmlOutput file("build/outputs/lint-results.html")
         abortOnError true
         warningsAsErrors false
     }

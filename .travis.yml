@@ -3,6 +3,10 @@ sudo: false
 jdk: 
   - oraclejdk8
 
+env:
+  matrix:
+    - ANDROID_TARGET=android-18 ANDROID_ABI=armeabi-v7a
+
 android:
   components:
     - tools
@@ -14,7 +18,7 @@ android:
     - extra-android-support
     - extra
     - addon
-    - sys-img-armeabi-v7a-android-24
+    - sys-img-armeabi-v7a-android-18
 
 cache:
   directories:
@@ -25,15 +29,29 @@ cache:
     - $HOME/.gradle/native
     - $HOME/.gradle/wrapper
 
+addons:
+  apt_packages:
+    - pandoc
+  artifacts:
+    paths:
+      - $(git ls-files -o | grep build/outputs | tr "\n" ":")
+
 before_script:
-  - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
-  - emulator -avd test -noskin -noaudio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
+  - echo no | android create avd --force --name test --target $ANDROID_TARGET --abi $ANDROID_ABI
+  - emulator -avd test -no-skin -no-audio -no-window &
 
 script:
-   - ./gradlew clean assembleDebug test connectedAndroidTest lint
+   - ./gradlew check -PdisablePreDex --continue --stacktrace
+   - android-wait-for-emulator
+   - adb devices
+   - adb shell input keyevent 82 &
+   - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
+
+after_failure:
+   - pandoc builder/build/reports/tests/index.html -t plain | sed -n '/^Failed tests/,/default-package/p'
 
 after_script:
-  - cat $TRAVIS_BUILD_DIR/sidekick/build/lint-report.html
-  - cat $TRAVIS_BUILD_DIR/sidekick-sample/build/lint-report.html
+  #- cat $TRAVIS_BUILD_DIR/sidekick/build/lint-report.html
+  #- cat $TRAVIS_BUILD_DIR/sidekick-sample/build/lint-report.html
+  - for f in app/build/outputs/lint-results.html; do pandoc $f -t plain; done
+  - for f in data/build/outputs/lint-results.html; do pandoc $f -t plain; done
