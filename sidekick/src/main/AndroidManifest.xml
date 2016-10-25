@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest package="de.wackernagel.android.sidekick"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -7,6 +9,6 @@
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
-    <application />
+    <application tools:ignore="GoogleAppIndexingWarning"/>
 
 </manifest>
