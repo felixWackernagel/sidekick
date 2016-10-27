@@ -1,13 +1,9 @@
 package de.wackernagel.android.sidekick.annotations.processor;
 
-import javax.annotation.processing.Messager;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
-
 /**
  * A TableDefinition contains information about the model and SQLite table class.
  */
-public class TableDefinition extends Definition {
+public class TableDefinition {
 
     private final String packageName;
     private final String className;
@@ -15,8 +11,7 @@ public class TableDefinition extends Definition {
 
     private boolean manyToManyRelation = false;
 
-    public TableDefinition( final Types types, final Elements elements, final Messager log, final String packageName, final String className, final String authority ) {
-        super(types, elements, log);
+    public TableDefinition( final String packageName, final String className, final String authority ) {
         this.packageName = packageName;
         this.className = className;
         this.authority = authority;
@@ -54,7 +49,7 @@ public class TableDefinition extends Definition {
      * @return name of sqlite table
      */
     public String getTableName() {
-        return formatNameForSQL(className);
+        return BaseDefinition.formatNameForSQL(className);
     }
 
     /**

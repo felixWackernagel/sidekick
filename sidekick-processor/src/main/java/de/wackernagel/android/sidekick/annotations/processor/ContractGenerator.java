@@ -23,6 +23,8 @@ import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
 
+import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
+
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
@@ -134,7 +136,7 @@ public class ContractGenerator {
             if( column.isForeignKey() ) {
                 String parentTable = column.getObjectType().toString();
                 parentTable = parentTable.substring( parentTable.lastIndexOf( '.' ) + 1, parentTable.lastIndexOf( "Model" ) );
-                parentTable = Definition.formatNameForSQL( parentTable );
+                parentTable = BaseDefinition.formatNameForSQL(parentTable);
 
                 sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_fk REFERENCES ").add(parentTable ).add("(_id)");
 

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
@@ -25,8 +26,12 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
-import de.wackernagel.android.sidekick.annotations.Column;
 import de.wackernagel.android.sidekick.annotations.Contract;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.ContractCollectionColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.ContractColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimaryColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveColumnDefinition;
 
 import static javax.tools.Diagnostic.Kind.NOTE;
 
@@ -35,14 +40,17 @@ public class SidekickProcessor extends AbstractProcessor {
 
     private Types typeUtils;
     private Elements elementUtils;
-    private Messager log;
+    private Messager logger;
+
+    private final Map<TableDefinition, Set<ColumnDefinition>> toGenerate = new HashMap<>();
+    private final Map<TableDefinition, Set<ColumnDefinition>> relations = new HashMap<>();
 
     @Override
-    public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        elementUtils = processingEnv.getElementUtils();
-        typeUtils = processingEnv.getTypeUtils();
-        log = processingEnv.getMessager();
+    public synchronized void init(ProcessingEnvironment environment) {
+        super.init(environment);
+        elementUtils = environment.getElementUtils();
+        typeUtils = environment.getTypeUtils();
+        logger = environment.getMessager();
     }
 
     @Override
@@ -57,26 +65,23 @@ public class SidekickProcessor extends AbstractProcessor {
         return SourceVersion.latestSupported();
     }
 
-    private final Map<TableDefinition, Set<ColumnDefinition>> toGenerate = new HashMap<>();
-    private final Map<TableDefinition, Set<ColumnDefinition>> relations = new HashMap<>();
-
     @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        log.printMessage( NOTE, "Sidekick Annotation Processor" );
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment environment) {
+        if( annotations.isEmpty() ) {
+            return true;
+        }
+        logger.printMessage(NOTE, "Process Sidekick Annotations (" + asString(annotations) + ")");
 
         // collect data
-        for( Element annotatedElement : roundEnv.getElementsAnnotatedWith(Contract.class) ) {
+        for( Element annotatedElement : environment.getElementsAnnotatedWith(Contract.class) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
             final TableDefinition tableDefinition = new TableDefinition(
-                    typeUtils,
-                    elementUtils,
-                    log,
                     JavaUtils.getPackageName(elementUtils, annotatedClass),
                     annotatedClass.getSimpleName().toString(),
                     annotatedClass.getAnnotation(Contract.class).authority() );
 
-            final Set<Element> fields = JavaUtils.getAnnotatedFields(annotatedClass, Column.class, elementUtils, typeUtils, log);
-            final Set<ColumnDefinition> columnDefinitions = filterFields(fields);
+            final Set<Element> fields = JavaUtils.getMemberFields(annotatedClass, elementUtils, typeUtils);
+            final Set<ColumnDefinition> columnDefinitions = convertToDefinitions(fields);
             toGenerate.put(tableDefinition, columnDefinitions);
         }
 
@@ -84,9 +89,9 @@ public class SidekickProcessor extends AbstractProcessor {
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             for( ColumnDefinition columnDefinition : entry.getValue() ) {
                 if( columnDefinition.isCollectionType() ) {
-                    if( !isOneManyRelation(columnDefinition.getCollectionElementModelType(), entry.getKey().getObjectType( true, true )) ) {
+                    if( !isOneManyRelation(columnDefinition.getCollectionElementObjectType(), entry.getKey().getObjectType(true, true)) ) {
                         final String tableOne = entry.getKey().getClassName();
-                        final String tableTwo = JavaUtils.getSimpleName( columnDefinition.getCollectionElementType() );
+                        final String tableTwo = JavaUtils.getSimpleName( columnDefinition.getOriginCollectionElementObjectType() );
                         final TableDefinition tableDefinition = getOrCreateTableRelation(
                                 tableOne, tableTwo, entry.getKey().getPackageName(), entry.getKey().getTableAuthority()
                         );
@@ -99,15 +104,15 @@ public class SidekickProcessor extends AbstractProcessor {
                         }
 
                         // primary key
-                        columnDefinitions.add( ColumnDefinition.primaryField( typeUtils, elementUtils, log ) );
+                        columnDefinitions.add( new PrimaryColumnDefinition() );
 
                         // table one reference
-                        columnDefinitions.add( ColumnDefinition.contractField(
-                                null, ClassName.bestGuess(entry.getKey().getObjectType(true, false)), typeUtils, elementUtils, log ) );
+                        columnDefinitions.add( new ContractColumnDefinition(
+                                ClassName.bestGuess(entry.getKey().getObjectType(true, false))) );
 
                         // table two reference
-                        columnDefinitions.add( ColumnDefinition.contractField(
-                                null, columnDefinition.getCollectionElementType(), typeUtils, elementUtils, log));
+                        columnDefinitions.add( new ContractColumnDefinition(
+                                columnDefinition.getOriginCollectionElementObjectType()));
 
                         tableDefinition.setManyToManyRelation( true );
                         relations.put(tableDefinition, columnDefinitions);
@@ -132,7 +137,7 @@ public class SidekickProcessor extends AbstractProcessor {
 
             final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions );
             if( generatedContractClass.writeClass( tableDefinition.getPackageName(), processingEnv.getFiler() ) ) {
-                log.printMessage(NOTE, "Contract for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated." );
+                logger.printMessage(NOTE, "Contract for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated.");
             }
 
             // skip auto generated many-many relation models
@@ -142,17 +147,16 @@ public class SidekickProcessor extends AbstractProcessor {
 
             final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
             if( generatedModelClass.writeClass(tableDefinition.getPackageName(), processingEnv.getFiler()) ) {
-                log.printMessage(NOTE, "Model for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated." );
+                logger.printMessage(NOTE, "Model for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated.");
             }
         }
+
+        // all Contract annotations processed
         return true;
     }
 
     private TableDefinition getOrCreateTableRelation( String tableOne, String tableTwo, String packageName, String tableAuthority ) {
         final TableDefinition tableDefinition = new TableDefinition(
-                typeUtils,
-                elementUtils,
-                log,
                 packageName,
                 tableOne.concat( tableTwo ).concat("Relation"),
                 tableAuthority );
@@ -162,9 +166,6 @@ public class SidekickProcessor extends AbstractProcessor {
         }
 
         final TableDefinition tableAlternativeDefinition = new TableDefinition(
-                typeUtils,
-                elementUtils,
-                log,
                 packageName,
                 tableTwo.concat( tableOne ).concat("Relation"),
                 tableAuthority );
@@ -189,37 +190,45 @@ public class SidekickProcessor extends AbstractProcessor {
         return false;
     }
 
-    private Set<ColumnDefinition> filterFields( Set<Element> fields ) {
+    private Set<ColumnDefinition> convertToDefinitions(Set<Element> fields) {
         final Set<ColumnDefinition> annotatedFields = new LinkedHashSet<>();
-        annotatedFields.add( ColumnDefinition.primaryField( typeUtils, elementUtils, log ) );
+        // TODO find long id in fields to add it to constructor
+        annotatedFields.add( new PrimaryColumnDefinition() );
 
         for( Element field : fields ) {
             final TypeName type = JavaUtils.getType( field.asType() );
-            if( JavaUtils.isPrimitiveOfContentProvider( type ) ) {
+            if( JavaUtils.isPrimitiveOfContentProvider(type) ) {
                 // boolean, byte, double, float, int, long, short, String, byte[], Boolean, Byte, Double, Float, Integer, Long, Short
-                annotatedFields.add( ColumnDefinition.primitiveField( field, type, typeUtils, elementUtils, log ) );
+                annotatedFields.add( new PrimitiveColumnDefinition( field, type ) );
             } else if( JavaUtils.isCollectionType(field, elementUtils, typeUtils) ) {
                 // Collection
                 final Set<TypeMirror> generics = JavaUtils.getGenericTypes(field);
                 if( generics.isEmpty() ) {
-                    log.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD of type " + type.toString() + " because no generic type found." );
+                    logger.printMessage(Diagnostic.Kind.NOTE, "Skip FIELD of type " + type.toString() + " because no generic type found.");
                     continue;
                 }
                 final Element collectionElementType = typeUtils.asElement( generics.iterator().next() );
                 if( collectionElementType.getAnnotation( Contract.class ) != null ) {
                     // Set<@Contract>, List<@Contract>
-                    annotatedFields.add( ColumnDefinition.collectionContractField(field, ParameterizedTypeName.get(field.asType()), typeUtils, elementUtils, log));
+                    annotatedFields.add( new ContractCollectionColumnDefinition(field, ParameterizedTypeName.get(field.asType()), typeUtils, elementUtils));
                 } else {
                     // TODO Collection<Primitive>
                 }
             } else if( field.asType() instanceof DeclaredType && typeUtils.asElement( field.asType() ).getAnnotation( Contract.class ) != null ) {
                 // Class with @Contract()
-                annotatedFields.add( ColumnDefinition.contractField(field, type, typeUtils, elementUtils, log) );
+                annotatedFields.add( new ContractColumnDefinition(field, type) );
             } else {
-                log.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString() );
+                logger.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString());
             }
         }
         return annotatedFields;
     }
 
+    private static String asString( Set<? extends TypeElement> typeElements ) {
+        final StringJoiner joiner = new StringJoiner( "," );
+        for( TypeElement typeElement : typeElements ) {
+            joiner.add(typeElement.getSimpleName().toString());
+        }
+        return joiner.toString();
+    }
 }

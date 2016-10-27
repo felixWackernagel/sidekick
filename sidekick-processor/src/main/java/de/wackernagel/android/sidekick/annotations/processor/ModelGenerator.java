@@ -21,6 +21,8 @@ import java.util.Set;
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 
+import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
+
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -54,9 +56,9 @@ public class ModelGenerator {
     }
 
     private void builder(TypeSpec.Builder classBuilder, TableDefinition tableDefinition, Set<ColumnDefinition> columnDefinitions) {
-        final ClassName builderName = ClassName.get( tableDefinition.getPackageName(), "Builder" );
+        final ClassName builderName = ClassName.get(tableDefinition.getPackageName(), "Builder");
         final ClassName contentValues = ClassName.get( "android.content", "ContentValues" );
-        final ClassName contract = ClassName.get( tableDefinition.getPackageName(), tableDefinition.getClassName() + "Contract" );
+        final ClassName contract = ClassName.get(tableDefinition.getPackageName(), tableDefinition.getClassName() + "Contract");
 
         TypeSpec.Builder builderClass = TypeSpec.classBuilder(builderName)
                 .addModifiers(PUBLIC, STATIC)
@@ -74,7 +76,7 @@ public class ModelGenerator {
             final String methodName = Character.toTitleCase(memberName.charAt(0)) + memberName.substring( 1 );
             final TypeName type = column.isContractObjectType() ? TypeName.LONG : column.getObjectType();
             final ParameterSpec.Builder param = ParameterSpec.builder(type, memberName, FINAL);
-            if( ( column.isObjectTypeNotPrimitive() && !column.isContractObjectType() ) || column.isString() ) {
+            if( column.isObjectTypeNotPrimitive() ) {
                 if( column.isNotNull() ) {
                     param.addAnnotation(nonNull);
                 } else {
@@ -94,7 +96,7 @@ public class ModelGenerator {
                 .addStatement("return values", contentValues)
                 .addModifiers(PUBLIC)
                 .build());
-        classBuilder.addType( builderClass.build() );
+        classBuilder.addType(builderClass.build());
     }
 
     private void objectCreator(TypeSpec.Builder classBuilder, TableDefinition tableDefinition, Set<ColumnDefinition> columnDefinitions) {
@@ -223,7 +225,10 @@ public class ModelGenerator {
                     .returns(columnDefinition.isContractObjectType() ? TypeName.LONG : columnDefinition.getObjectType())
                     .addStatement("return $N", memberName );
 
-            if( ( columnDefinition.isObjectTypeNotPrimitive() && !columnDefinition.isContractObjectType() ) || columnDefinition.isString() ) {
+            if( columnDefinition.isCollectionType() ) {
+                // collections have no setter and were init. in constructor
+                getMethod.addAnnotation(nonNull);
+            } else if( columnDefinition.isObjectTypeNotPrimitive() ) {
                 if( columnDefinition.isNotNull() ) {
                     getMethod.addAnnotation(nonNull);
                 } else {
@@ -250,7 +255,7 @@ public class ModelGenerator {
                     memberName,
                     Modifier.FINAL );
 
-            if( ( columnDefinition.isObjectTypeNotPrimitive() && !columnDefinition.isContractObjectType() ) || columnDefinition.isString() ) {
+            if( columnDefinition.isObjectTypeNotPrimitive() ) {
                 if( columnDefinition.isNotNull() ) {
                     parameter.addAnnotation( nonNull );
                 } else {
@@ -266,14 +271,10 @@ public class ModelGenerator {
 
     private static void memberField( final TypeSpec.Builder classBuilder, final Set<ColumnDefinition> fields) {
         for( ColumnDefinition column : fields ) {
-            final FieldSpec.Builder fieldBuilder = FieldSpec.builder(
+            classBuilder.addField( FieldSpec.builder(
                     column.isContractObjectType() ? TypeName.LONG : column.getObjectType(),
                     column.getFieldName() + (column.isContractObjectType() ? "Id" : "" ),
-                    Modifier.PRIVATE);
-            if( column.isFinal() ) {
-                fieldBuilder.addModifiers(Modifier.FINAL);
-            }
-            classBuilder.addField(fieldBuilder.build());
+                    Modifier.PRIVATE, FINAL).build());
         }
     }
 

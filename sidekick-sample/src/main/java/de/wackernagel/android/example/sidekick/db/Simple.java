@@ -5,7 +5,6 @@ import de.wackernagel.android.sidekick.annotations.Contract;
 
 @Contract( authority = Constants.AUTHORITY )
 public class Simple {
-
     @Column
     short aShort;
 
@@ -53,5 +52,4 @@ public class Simple {
 
     @Column
     Byte bByte;
-
 }

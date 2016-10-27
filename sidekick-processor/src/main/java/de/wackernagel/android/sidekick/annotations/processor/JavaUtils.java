@@ -3,14 +3,12 @@ package de.wackernagel.android.sidekick.annotations.processor;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
@@ -86,21 +84,30 @@ public class JavaUtils {
                         typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
     }
 
-    public static Set<Element> getAnnotatedFields(final TypeElement clazz, final Class<? extends Annotation> annotation, final Elements elements,  final Types types, final Messager log) {
-        final Set<Element> annotatedFields = new LinkedHashSet<>();
+    /**
+     * @param clazz to inspect
+     * @param elements utils
+     * @param types utils
+     * @return list of all member field of class and his inheriting classes
+     */
+    public static Set<Element> getMemberFields(final TypeElement clazz, final Elements elements, final Types types) {
+        final Set<Element> memberFields = new LinkedHashSet<>();
         for( Element element : clazz.getEnclosedElements() ) {
-            if( element.getKind() == ElementKind.FIELD /*&& element.getAnnotation( annotation ) != null*/ ) {
-                annotatedFields.add( element );
+            if( element.getKind() == ElementKind.FIELD ) {
+                memberFields.add(element);
             }
         }
-        if( types.isSameType(elements.getTypeElement(Object.class.getName()).asType(), clazz.getSuperclass() ) ) {
-            return annotatedFields;
+
+        final TypeMirror objectClass = elements.getTypeElement( Object.class.getName() ).asType();
+        if( types.isSameType( objectClass, clazz.getSuperclass() ) ) {
+            return memberFields;
         } else {
-            final Set<Element> inheritingFields = getAnnotatedFields( elements.getTypeElement( clazz.getSuperclass().toString() ), annotation, elements, types, log );
-            if( !inheritingFields.isEmpty() ) {
-                annotatedFields.addAll( inheritingFields );
+            final TypeElement superClass = elements.getTypeElement( clazz.getSuperclass().toString() );
+            final Set<Element> superClassMemberFields = getMemberFields( superClass, elements, types);
+            if( !superClassMemberFields.isEmpty() ) {
+                memberFields.addAll(superClassMemberFields);
             }
-            return annotatedFields;
+            return memberFields;
         }
     }
 
