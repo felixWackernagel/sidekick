@@ -179,7 +179,7 @@ public class SidekickProcessor extends AbstractProcessor {
 
     private boolean isOneManyRelation(final TypeName tableModelType, final String columnModelType) {
         for( final Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
-            if( entry.getKey().getObjectType( true, true ).equals( tableModelType.toString() ) ) {
+            if( entry.getKey().getObjectType( true, true ).equals(tableModelType.toString()) ) {
                 for( ColumnDefinition columnDefinition : entry.getValue() ) {
                     if( columnDefinition.getObjectType().toString().equals( columnModelType ) ) {
                         return true;
@@ -192,8 +192,9 @@ public class SidekickProcessor extends AbstractProcessor {
 
     private Set<ColumnDefinition> convertToDefinitions(Set<Element> fields) {
         final Set<ColumnDefinition> annotatedFields = new LinkedHashSet<>();
-        // TODO find long id in fields to add it to constructor
-        annotatedFields.add( new PrimaryColumnDefinition() );
+
+        final Element idField = findElement( TypeName.LONG, "id", fields );
+        annotatedFields.add( new PrimaryColumnDefinition( idField ) );
 
         for( Element field : fields ) {
             final TypeName type = JavaUtils.getType( field.asType() );
@@ -222,6 +223,24 @@ public class SidekickProcessor extends AbstractProcessor {
             }
         }
         return annotatedFields;
+    }
+
+    private Element findElement( final TypeName type, final String fieldName, final Set<Element> fields ) {
+        if( type == null || fieldName == null || fieldName.length() == 0 || fields.isEmpty() ) {
+            return null;
+        }
+        Element field = null;
+        for( Element fieldElement : fields ) {
+            if( fieldElement.getSimpleName().toString().equals( fieldName ) &&
+                    JavaUtils.getType( fieldElement.asType() ).equals( type ) ) {
+                field = fieldElement;
+                break;
+            }
+        }
+        if( field != null ) {
+            fields.remove( field );
+        }
+        return field;
     }
 
     private static String asString( Set<? extends TypeElement> typeElements ) {

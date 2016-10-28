@@ -2,6 +2,8 @@ package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
 import com.squareup.javapoet.TypeName;
 
+import javax.lang.model.element.Element;
+
 import de.wackernagel.android.sidekick.annotations.Unique;
 import de.wackernagel.android.sidekick.annotations.processor.BaseDefinition;
 
@@ -10,8 +12,19 @@ public class PrimaryColumnDefinition extends BaseDefinition {
     private final String fieldName = "id";
     private final TypeName objectType = TypeName.LONG;
 
+    /**
+     * Constructor for Many-To-Many Relations.
+     */
     public PrimaryColumnDefinition() {
-        super(null);
+        this(null);
+    }
+
+    /**
+     * Constructor for already defined member field (long id)
+     * @param origin java member field
+     */
+    public PrimaryColumnDefinition( final Element origin ) {
+        super(origin);
     }
 
     @Override
