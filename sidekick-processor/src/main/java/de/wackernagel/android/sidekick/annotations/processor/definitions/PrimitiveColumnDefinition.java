@@ -4,7 +4,6 @@ import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 
-import de.wackernagel.android.sidekick.annotations.processor.BaseDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.JavaUtils;
 
 /**
@@ -19,10 +18,20 @@ public class PrimitiveColumnDefinition extends BaseDefinition {
     private final String constantFieldName;
     private final TypeName objectType;
 
-    public PrimitiveColumnDefinition( Element element, TypeName type) {
+    public PrimitiveColumnDefinition( TypeName type, String javaFieldName ) {
+        this( null, type, javaFieldName );
+    }
+
+    public PrimitiveColumnDefinition( Element element, TypeName type ) {
+        this( element, type, null );
+    }
+
+    private PrimitiveColumnDefinition( Element element, TypeName type, String javaFieldName ) {
         super(element);
         objectType = type;
-        fieldName = element != null ? element.getSimpleName().toString() : JavaUtils.toVariableCase(JavaUtils.getSimpleName(type));
+        fieldName = javaFieldName != null ? javaFieldName :
+            element != null ? element.getSimpleName().toString() :
+                JavaUtils.toVariableCase(JavaUtils.getSimpleName(type));
         columnName = formatNameForSQL(fieldName);
         constantFieldName = "COLUMN" + ( columnName.startsWith( "_" ) ? "" : "_" ) + columnName.toUpperCase();
     }

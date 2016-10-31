@@ -5,7 +5,6 @@ import com.squareup.javapoet.TypeName;
 import javax.lang.model.element.Element;
 
 import de.wackernagel.android.sidekick.annotations.Unique;
-import de.wackernagel.android.sidekick.annotations.processor.BaseDefinition;
 
 public class PrimaryColumnDefinition extends BaseDefinition {
 

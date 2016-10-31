@@ -1,4 +1,4 @@
-package de.wackernagel.android.sidekick.annotations.processor;
+package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
 import com.squareup.javapoet.TypeName;
 
@@ -8,7 +8,6 @@ import de.wackernagel.android.sidekick.annotations.Default;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
-import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
 
 public abstract class BaseDefinition implements ColumnDefinition {
 

@@ -5,7 +5,6 @@ import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 
-import de.wackernagel.android.sidekick.annotations.processor.BaseDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.JavaUtils;
 
 /**

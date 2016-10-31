@@ -39,7 +39,7 @@ android {
 dependencies {
     compile project(':sidekick')
     compile project(':sidekick-processor')
-    apt project(':sidekick-processor')
+    // apt project(':sidekick-processor')
 
     // junit tests
     testCompile 'junit:junit:4.12'

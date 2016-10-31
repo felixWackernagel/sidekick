@@ -1,4 +1,4 @@
-package de.wackernagel.android.sidekick.annotations.processor;
+package de.wackernagel.android.sidekick.annotations.processor.generators;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -26,7 +26,8 @@ import de.wackernagel.android.sidekick.annotations.ConflictClause;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
-import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.*;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition;
 
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -37,7 +38,7 @@ public class ContractGenerator {
     private final TypeSpec generatedContract;
     private final Messager logger;
 
-    public ContractGenerator(final TableDefinition tableDefinition, final Set<ColumnDefinition> fields, final Messager logger) {
+    public ContractGenerator(final de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition tableDefinition, final Set<ColumnDefinition> fields, final Messager logger) {
         this.logger = logger;
 
         final TypeSpec.Builder classBuilder = TypeSpec.classBuilder( tableDefinition.getClassName() + "Contract")
@@ -64,7 +65,7 @@ public class ContractGenerator {
         return contractFields;
     }
 
-    private void extend( final TypeSpec.Builder classBuilder, final TableDefinition tableDefinition, final Set<ColumnDefinition> fields) {
+    private void extend( final TypeSpec.Builder classBuilder, final de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition tableDefinition, final Set<ColumnDefinition> fields) {
         classBuilder.superclass(ClassName.get("de.wackernagel.android.sidekick.frameworks.contentproviderprocessor.contract", "TableContract"));
 
         classBuilder.addMethod(
@@ -157,7 +158,7 @@ public class ContractGenerator {
             if( column.isForeignKey() ) {
                 String parentTable = column.getObjectType().toString();
                 parentTable = parentTable.substring( parentTable.lastIndexOf( '.' ) + 1, parentTable.lastIndexOf( "Model" ) );
-                parentTable = BaseDefinition.formatNameForSQL(parentTable);
+                parentTable = de.wackernagel.android.sidekick.annotations.processor.definitions.BaseDefinition.formatNameForSQL(parentTable);
 
                 sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_fk REFERENCES ").add(parentTable ).add("(_id)");
 
@@ -222,22 +223,18 @@ public class ContractGenerator {
     }
 
     private void tableConstant( final TypeSpec.Builder classBuilder, final String name) {
-        classBuilder.addField(constant(String.class, "TABLE", name).addJavadoc("SQLite table name\n").build());
+        classBuilder.addField(constant(String.class, "TABLE", name).build());
     }
 
     private static void columnConstants( final TypeSpec.Builder classBuilder, final Set<ColumnDefinition> columnDefinitions) {
-        boolean first = true;
         for( ColumnDefinition columnDefinition : columnDefinitions) {
             if( columnDefinition.isPrimaryKey() ) {
                 continue;
             }
 
-            final FieldSpec.Builder field = constant(String.class, columnDefinition.getConstantFieldName(), columnDefinition.getColumnName());
-            if( first ) {
-                field.addJavadoc( "SQLite column names\n" );
-                first = false;
-            }
-            classBuilder.addField( field.build() );
+            classBuilder.addField(
+                    constant(String.class, columnDefinition.getConstantFieldName(), columnDefinition.getColumnName())
+                    .build() );
         }
     }
 
@@ -255,7 +252,6 @@ public class ContractGenerator {
                     FieldSpec.builder(String[].class, "PROJECTION")
                             .addModifiers(PUBLIC, STATIC, FINAL)
                             .initializer(value.build())
-                            .addJavadoc("ContentProvider helper\n")
                             .build());
         }
     }

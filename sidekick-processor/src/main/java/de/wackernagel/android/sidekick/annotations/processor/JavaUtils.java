@@ -40,26 +40,6 @@ public class JavaUtils {
         }
     }
 
-    public static String getSimpleName( final TypeName classType ) {
-        if( classType == null ) {
-            return null;
-        }
-
-        final String name = classType.toString();
-        final int index = name.lastIndexOf( '.' );
-        if( index >= 0 ) {
-            return name.substring( index + 1 );
-        }
-        return name;
-    }
-
-    public static String toVariableCase( final String name ) {
-        if( name == null || name.length() == 0 ) {
-            return name;
-        }
-        return Character.toLowerCase( name.charAt( 0 ) ) + name.substring( 1 );
-    }
-
     public static boolean isCollectionType( final Element field, final Elements elementUtils, final Types typeUtils ) {
         return typeUtils.isAssignable(  // a is subtype of b
                 field.asType(), // i.e. List<?>
@@ -143,5 +123,48 @@ public class JavaUtils {
             Byte.class.getName()
         );
         return primitives.contains( type );
+    }
+
+    /* FORMATTING ************************************************************** */
+
+    public static String getSimpleName( final TypeName classType ) {
+        if( classType == null ) {
+            return null;
+        }
+
+        final String fullyClassName = classType.toString();
+
+        final int index = fullyClassName.lastIndexOf('.');
+        if( index >= 0 ) {
+            return fullyClassName.substring( index + 1 );
+        }
+        return fullyClassName;
+    }
+
+    public static String toVariableCase( final String str ) {
+        if( str == null || str.length() == 0 ) {
+            return str;
+        }
+        final String firstLetter = Character.toString(
+                Character.toLowerCase( str.charAt( 0 ) ) );
+
+        if( str.length() > 1 ) {
+            return firstLetter.concat( str.substring( 1 ) );
+        }
+        return firstLetter;
+    }
+
+    public static String toTitleCase( final String str ) {
+        if( str == null || str.length() == 0 ) {
+            return  str;
+        }
+        final String firstLetter = Character.toString(
+                Character.toTitleCase(
+                        str.charAt( 0 ) ) );
+
+        if( str.length() > 1 ) {
+            return firstLetter.concat( str.substring( 1 ) );
+        }
+        return firstLetter;
     }
 }

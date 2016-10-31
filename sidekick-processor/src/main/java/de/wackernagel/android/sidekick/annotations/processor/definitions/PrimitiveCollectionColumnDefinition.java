@@ -17,20 +17,22 @@ import javax.lang.model.util.Types;
 
 import de.wackernagel.android.sidekick.annotations.processor.JavaUtils;
 
-public class ContractCollectionColumnDefinition extends BaseDefinition {
+public class PrimitiveCollectionColumnDefinition extends BaseDefinition {
 
     private final String fieldName;
     private final String columnName;
     private final String constantFieldName;
 
-    private final TypeName originCollectionElementObjectType;
     private final TypeName collectionElementObjectType;
     private final TypeName collectionObjectType;
 
     private final Types types;
     private final Elements elements;
 
-    public ContractCollectionColumnDefinition(Element element, final TypeName type, Types types, Elements elements) {
+    /**
+     * @param element element (nullable)
+     */
+    public PrimitiveCollectionColumnDefinition(final Element element, final TypeName type, final Types types, Elements elements) {
         super(element);
         this.types = types;
         this.elements = elements;
@@ -40,27 +42,10 @@ public class ContractCollectionColumnDefinition extends BaseDefinition {
         constantFieldName = "COLUMN" + (columnName.startsWith("_") ? "" : "_") + columnName.toUpperCase();
 
         final String originElementObjectType = JavaUtils.getGenericTypes(origin).iterator().next().toString();
-        originCollectionElementObjectType = ClassName.bestGuess( originElementObjectType );
-        collectionElementObjectType = ClassName.bestGuess(originElementObjectType.concat( "Model" ) );
+        collectionElementObjectType = ClassName.bestGuess(originElementObjectType);
         collectionObjectType = ParameterizedTypeName.get(
-                ClassName.get(( TypeElement ) (( DeclaredType ) origin.asType()).asElement()),
+                ClassName.get((TypeElement) ((DeclaredType) origin.asType()).asElement()),
                 collectionElementObjectType);
-    }
-
-    /**
-     * Collections stand for m-n- or m-one-relation.
-     * The SQLite type is on the one-relation type or in a extra m-n table defined.
-     *
-     * @return always true
-     */
-    @Override
-    public boolean skipSQLite() {
-        return true;
-    }
-
-    @Override
-    public String getSQLiteType() {
-        throw new UnsupportedOperationException( "ContractCollection: No sqlite type needed for " + collectionObjectType.toString() );
     }
 
     @Override
@@ -79,17 +64,22 @@ public class ContractCollectionColumnDefinition extends BaseDefinition {
     }
 
     @Override
-    public boolean isObjectTypeNotPrimitive() {
-        return true;
-    }
-
-    @Override
     public TypeName getObjectType() {
         return collectionObjectType;
     }
 
     @Override
-    public boolean isCollectionType() {
+    public TypeName getCollectionElementObjectType() {
+        return collectionElementObjectType;
+    }
+
+    @Override
+    public TypeName getOriginCollectionElementObjectType() {
+        return collectionElementObjectType;
+    }
+
+    @Override
+    public boolean isObjectTypeNotPrimitive() {
         return true;
     }
 
@@ -112,18 +102,8 @@ public class ContractCollectionColumnDefinition extends BaseDefinition {
     }
 
     @Override
-    public TypeName getOriginCollectionElementObjectType() {
-        return originCollectionElementObjectType;
-    }
-
-    @Override
-    public TypeName getCollectionElementObjectType() {
-        return collectionElementObjectType;
-    }
-
-    @Override
-    public String getCursorMethod() {
-        throw new UnsupportedOperationException( "ContractCollection: unknown mapping from cursor to " + collectionObjectType.toString() );
+    public boolean isCollectionType() {
+        return true;
     }
 
     @Override
@@ -131,16 +111,31 @@ public class ContractCollectionColumnDefinition extends BaseDefinition {
         return true;
     }
 
+    @Override
+    public boolean skipSQLite() {
+        return true;
+    }
+
+    @Override
+    public String getSQLiteType() {
+        throw new UnsupportedOperationException( "ContractCollection: No sqlite type needed for " + collectionObjectType.toString() );
+    }
+
+    @Override
+    public String getCursorMethod() {
+        throw new UnsupportedOperationException( "ContractCollection: unknown mapping from cursor to " + collectionObjectType.toString() );
+    }
+
     /********************************************************************/
 
     @Override
     public boolean equals(Object o) {
-        if( this == o ) return true;
-        if( o == null || getClass() != o.getClass() ) return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ContractCollectionColumnDefinition that = ( ContractCollectionColumnDefinition ) o;
+        PrimitiveCollectionColumnDefinition that = (PrimitiveCollectionColumnDefinition) o;
 
-        if( !fieldName.equals(that.fieldName) ) return false;
+        if (!fieldName.equals(that.fieldName)) return false;
         return collectionObjectType.equals(that.collectionObjectType);
 
     }

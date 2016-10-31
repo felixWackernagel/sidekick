@@ -1,4 +1,4 @@
-package de.wackernagel.android.sidekick.annotations.processor;
+package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
 /**
  * A TableDefinition contains information about the model and SQLite table class.
@@ -49,7 +49,7 @@ public class TableDefinition {
      * @return name of sqlite table
      */
     public String getTableName() {
-        return BaseDefinition.formatNameForSQL(className);
+        return de.wackernagel.android.sidekick.annotations.processor.definitions.BaseDefinition.formatNameForSQL(className);
     }
 
     /**
