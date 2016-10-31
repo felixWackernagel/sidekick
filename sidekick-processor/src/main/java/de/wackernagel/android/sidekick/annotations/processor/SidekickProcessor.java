@@ -135,7 +135,7 @@ public class SidekickProcessor extends AbstractProcessor {
             final TableDefinition tableDefinition = entry.getKey();
             final Set<ColumnDefinition> columnDefinitions = entry.getValue();
 
-            final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions );
+            final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions, logger );
             if( generatedContractClass.writeClass( tableDefinition.getPackageName(), processingEnv.getFiler() ) ) {
                 logger.printMessage(NOTE, "Contract for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated.");
             }

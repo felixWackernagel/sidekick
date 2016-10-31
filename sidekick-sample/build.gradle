@@ -38,7 +38,7 @@ android {
 
 dependencies {
     compile project(':sidekick')
-    compile project(':sidekick-annotations')
+    compile project(':sidekick-processor')
     apt project(':sidekick-processor')
 
     // junit tests

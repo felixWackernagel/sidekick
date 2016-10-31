@@ -4,9 +4,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static de.wackernagel.android.sidekick.annotations.ConflictClause.NONE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.CLASS;
-import static de.wackernagel.android.sidekick.annotations.ConflictClause.NONE;
 
 /**
  * A marker interface to make a SQLite columns UNIQUE inside a {@link Contract} annotated class.
@@ -17,5 +17,7 @@ import static de.wackernagel.android.sidekick.annotations.ConflictClause.NONE;
 public @interface Unique {
 
     ConflictClause onConflict() default NONE;
+
+    int group() default -1;
 
 }
