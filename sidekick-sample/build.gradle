@@ -33,6 +33,8 @@ android {
         htmlOutput file("build/outputs/lint-results.html")
         abortOnError true
         warningsAsErrors false
+	disable 'InvalidPackage'
+
     }
 
     packagingOptions {
