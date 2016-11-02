@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="de.wackernagel.android.sidekickshowcase.TooltipActivity">
+    tools:context="de.wackernagel.android.example.sidekick.TooltipActivity">
 
     <TextView
         android:layout_gravity="top|start"

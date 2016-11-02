@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:tools="http://schemas.android.com/tools"
-     tools:context="de.wackernagel.android.sidekickshowcase.MainActivity">
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                   xmlns:tools="http://schemas.android.com/tools"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   tools:context="de.wackernagel.android.example.sidekick.MainActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -14,27 +16,29 @@
         android:layout_height="1dp"
         android:layout_gravity="bottom"
         android:layout_marginBottom="56dp"
-        android:background="@color/sidekick_divider" />
+        android:background="@color/sidekick_divider"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"
         android:layout_height="56dp"
-        android:padding="4dp"
+        android:layout_gravity="bottom"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="4dp">
+
         <EditText
             android:id="@+id/input"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
             android:hint="@string/provider_title"/>
+
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.2"
-            android:text="@string/provider_save"
-            android:onClick="insert"/>
+            android:onClick="insert"
+            android:text="@string/provider_save"/>
     </LinearLayout>
 
-</merge>
+</android.support.design.widget.CoordinatorLayout>

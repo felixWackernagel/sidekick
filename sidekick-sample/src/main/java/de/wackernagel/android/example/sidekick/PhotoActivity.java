@@ -14,15 +14,15 @@ import de.wackernagel.android.sidekick.frameworks.media.MediaResult;
 import de.wackernagel.android.sidekick.frameworks.media.MediaUtils;
 
 public class PhotoActivity extends AppCompatActivity {
-    private static MediaConfig config = new MediaConfig( "Sidekick-Showcase" );
+    static MediaConfig config = new MediaConfig( "Sidekick-Showcase" );
 
     private TextView text;
     private ImageView image;
     private Button takePhoto;
     private Button pickPhoto;
-    private Button deletePhoto;
+    Button deletePhoto;
 
-    private MediaResult lastResult;
+    MediaResult lastResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class PhotoActivity extends AppCompatActivity {
         }
     }
 
-    private void clear() {
+    void clear() {
         image.setImageBitmap( null );
         lastResult = null;
         text.setText("");

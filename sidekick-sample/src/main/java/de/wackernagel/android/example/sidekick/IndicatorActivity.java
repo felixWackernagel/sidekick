@@ -9,8 +9,8 @@ import de.wackernagel.android.sidekick.widgets.IndicatorView;
 
 public class IndicatorActivity extends AppCompatActivity {
 
-    private boolean circle = true;
-    private boolean animate = false;
+    boolean circle = true;
+    boolean animate = false;
     private static final long DURATION = 500;
 
     @Override
@@ -25,7 +25,7 @@ public class IndicatorActivity extends AppCompatActivity {
             public void onClick(View v) {
                 indicatorView.setSelectedIndex(
                         Math.max(0, indicatorView.getSelectedIndex() - 1),
-                        animate ? DURATION : 0l );
+                        animate ? DURATION : 0L );
             }
         });
         final Button next = ( Button ) findViewById(R.id.button2);
@@ -34,7 +34,7 @@ public class IndicatorActivity extends AppCompatActivity {
             public void onClick(View v) {
                 indicatorView.setSelectedIndex(
                         Math.min(indicatorView.getCount() - 1, indicatorView.getSelectedIndex() + 1),
-                        animate ? DURATION : 0l );
+                        animate ? DURATION : 0L );
             }
         });
 

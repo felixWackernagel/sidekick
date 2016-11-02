@@ -43,10 +43,14 @@ public class MainActivity extends AppCompatActivity {
         private ArrayList<String> names = new ArrayList<>();
         private ArrayList<Class<?>> activities = new ArrayList<>();
 
-        public void addItem( String name, Class<?> activity ) {
+        void addItem( String name, Class<?> activity ) {
             names.add( name );
             activities.add( activity );
             notifyDataSetChanged();
+        }
+
+        Class<?> getItem( int position ) {
+            return activities.get( position );
         }
 
         @Override
@@ -55,12 +59,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(SimpleViewHolder holder, final int position) {
+        public void onBindViewHolder(SimpleViewHolder holder, int position) {
+            final int adaptPos = holder.getAdapterPosition();
             holder.text.setText( names.get( position ) );
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    v.getContext().startActivity(new Intent(v.getContext(), activities.get(position)));
+                    v.getContext().startActivity(new Intent(v.getContext(), getItem(adaptPos)));
                 }
             });
         }
@@ -74,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     public static class SimpleViewHolder extends RecyclerView.ViewHolder {
         TextView text;
 
-        public SimpleViewHolder(View itemView) {
+        SimpleViewHolder(View itemView) {
             super(itemView);
             text = ( TextView ) itemView.findViewById(R.id.text);
         }

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fillViewport="true"
-    tools:context="de.wackernagel.android.sidekickshowcase.TintingActivity">
+    tools:context="de.wackernagel.android.example.sidekick.TintingActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

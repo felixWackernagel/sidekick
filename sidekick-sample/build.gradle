@@ -37,6 +37,7 @@ android {
 dependencies {
     compile project(':sidekick')
     compile project(':sidekick-annotations')
+    compile 'com.android.support:design:24.2.1'
 
     // include processor with apt to indicate that this lib is excluded from apk
     apt project(':sidekick-processor')

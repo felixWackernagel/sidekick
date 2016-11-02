@@ -61,7 +61,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this));
         recyclerView.setAdapter(adapter);
-        recyclerView.getItemAnimator().setAddDuration( 1000l );
+        recyclerView.getItemAnimator().setAddDuration( 1000L );
 
         queryHandler = new CallbackAsyncQueryHandler( getContentResolver() );
         queryHandler.setCallback( this );
@@ -145,7 +145,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         private final List<ArticleModel> oldList;
         private final List<ArticleModel> newList;
 
-        public ArticleDiffCallback( final List<ArticleModel> oldList, final List<ArticleModel> newList) {
+        ArticleDiffCallback(final List<ArticleModel> oldList, final List<ArticleModel> newList) {
             this.oldList = oldList;
             this.newList = newList;
         }
@@ -190,7 +190,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
     public static class ArticleHolder extends RecyclerView.ViewHolder {
         public final TextView title;
 
-        public ArticleHolder(View itemView) {
+        ArticleHolder(View itemView) {
             super(itemView);
             title = (TextView) itemView.findViewById( R.id.text );
         }
@@ -203,17 +203,17 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         ArrayList<ArticleModel> items;
         private AsyncTask<ArticleModel, Void, DiffUtil.DiffResult> itemSwapTask;
 
-        public ArticleAdapter() {
+        ArticleAdapter() {
             this.items = new ArrayList<>();
             setHasStableIds( true );
         }
 
         @NonNull
-        public ArrayList<ArticleModel> getItems() {
+        ArrayList<ArticleModel> getItems() {
             return items;
         }
 
-        public void swapItems( @NonNull final ArrayList<ArticleModel> newItems ) {
+        void swapItems( @NonNull final ArrayList<ArticleModel> newItems ) {
             if( itemSwapTask != null && itemSwapTask.getStatus() != AsyncTask.Status.FINISHED ) {
                 itemSwapTask.cancel( true );
             }
@@ -233,7 +233,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
             }.execute( newItems.toArray(new ArticleModel[ newItems.size() ] ) );
         }
 
-        public void clearItems() {
+        void clearItems() {
             int size = items.size();
             items.clear();
             notifyItemRangeRemoved(0, size);
@@ -297,7 +297,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
         private final Drawable mDivider;
         private final int mHeight;
 
-        public DividerItemDecoration( final Context context ) {
+        DividerItemDecoration( final Context context ) {
             mDivider = new ColorDrawable(ContextCompat.getColor( context, R.color.sidekick_divider ) );
             mHeight = DeviceUtils.dpToPx(1f, context);
         }
