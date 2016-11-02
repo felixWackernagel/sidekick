@@ -1,1 +1,1 @@
-include ':sidekick', ':sidekick-processor', ':sidekick-sample'
+include ':sidekick', ':sidekick-processor', ':sidekick-sample', ':sidekick-annotations'

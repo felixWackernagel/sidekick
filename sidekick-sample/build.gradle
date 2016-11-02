@@ -11,10 +11,7 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        generatedDensities = []
     }
 
     aaptOptions {
@@ -33,19 +30,16 @@ android {
         htmlOutput file("build/outputs/lint-results.html")
         abortOnError true
         warningsAsErrors false
-	disable 'InvalidPackage'
-
-    }
-
-    packagingOptions {
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
+	    disable 'IconMissingDensityFolder'
     }
 }
 
 dependencies {
     compile project(':sidekick')
-    compile project(':sidekick-processor')
-    // apt project(':sidekick-processor')
+    compile project(':sidekick-annotations')
+
+    // include processor with apt to indicate that this lib is excluded from apk
+    apt project(':sidekick-processor')
 
     // junit tests
     testCompile 'junit:junit:4.12'

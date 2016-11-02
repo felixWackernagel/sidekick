@@ -23,7 +23,7 @@ android:
 cache:
   directories:
     # gradle version from gradle-wrapper.properties
-    - $HOME/.gradle/caches/2.8
+    - $HOME/.gradle/caches/2.14.1
     - $HOME/.gradle/caches/jars-1
     - $HOME/.gradle/daemon
     - $HOME/.gradle/native

@@ -8,13 +8,15 @@ public class TableDefinition {
     private final String packageName;
     private final String className;
     private final String authority;
+    private final boolean model;
 
     private boolean manyToManyRelation = false;
 
-    public TableDefinition( final String packageName, final String className, final String authority ) {
+    public TableDefinition( final String packageName, final String className, final String authority, final boolean model ) {
         this.packageName = packageName;
         this.className = className;
         this.authority = authority;
+        this.model = model;
     }
 
     /**
@@ -49,7 +51,11 @@ public class TableDefinition {
      * @return name of sqlite table
      */
     public String getTableName() {
-        return de.wackernagel.android.sidekick.annotations.processor.definitions.BaseDefinition.formatNameForSQL(className);
+        return BaseDefinition.formatNameForSQL(className);
+    }
+
+    public boolean generateModel() {
+        return model;
     }
 
     /**

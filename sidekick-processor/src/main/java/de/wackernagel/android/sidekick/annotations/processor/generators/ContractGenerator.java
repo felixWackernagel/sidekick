@@ -160,6 +160,7 @@ public class ContractGenerator {
                 parentTable = parentTable.substring( parentTable.lastIndexOf( '.' ) + 1, parentTable.lastIndexOf( "Model" ) );
                 parentTable = de.wackernagel.android.sidekick.annotations.processor.definitions.BaseDefinition.formatNameForSQL(parentTable);
 
+                // TODO reference parent table and id as constants
                 sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_fk REFERENCES ").add(parentTable ).add("(_id)");
 
                 final ForeignKey foreignKey = column.foreignKey();
