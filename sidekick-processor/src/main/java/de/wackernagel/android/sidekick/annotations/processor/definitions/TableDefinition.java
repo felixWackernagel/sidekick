@@ -10,8 +10,6 @@ public class TableDefinition {
     private final String authority;
     private final boolean model;
 
-    private boolean manyToManyRelation = false;
-
     public TableDefinition( final String packageName, final String className, final String authority, final boolean model ) {
         this.packageName = packageName;
         this.className = className;
@@ -63,14 +61,6 @@ public class TableDefinition {
      */
     public String getTableAuthority() {
         return authority;
-    }
-
-    public boolean isManyToManyRelation() {
-        return manyToManyRelation;
-    }
-
-    public void setManyToManyRelation(boolean manyToManyRelation) {
-        this.manyToManyRelation = manyToManyRelation;
     }
 
     @Override

@@ -6,8 +6,7 @@ import de.wackernagel.android.sidekick.annotations.Contract;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 
 @Contract( authority = Constants.AUTHORITY )
-public class Order extends Base {
-
+class Order extends Base {
     String name;
 
     @ForeignKey( onUpdate = ForeignKey.Action.CASCADE )

@@ -122,19 +122,13 @@ public class SidekickProcessor extends AbstractProcessor {
 
             final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions, logger );
             if( generatedContractClass.writeClass( tableDefinition.getPackageName(), processingEnv.getFiler() ) ) {
-                logger.printMessage(NOTE, "Contract for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated.");
-            }
-
-            // TODO add many-to-many relation builder pattern
-            // skip auto generated many-many relation models
-            if( tableDefinition.isManyToManyRelation() && columnDefinitions.size() == 3 ) {
-                continue;
+                logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + "Contract generated.");
             }
 
             if( tableDefinition.generateModel() ) {
                 final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
                 if( generatedModelClass.writeClass(tableDefinition.getPackageName(), processingEnv.getFiler()) ) {
-                    logger.printMessage(NOTE, "Model for " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + " generated.");
+                    logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + "Model generated.");
                 }
             }
         }
@@ -167,7 +161,6 @@ public class SidekickProcessor extends AbstractProcessor {
         columns.add(new ContractColumnDefinition(
                         columnDefinition.getOriginCollectionElementObjectType())
         );
-        manyManyTableRelation.setManyToManyRelation(true);
         relations.put(manyManyTableRelation, columns);
     }
 
@@ -194,7 +187,7 @@ public class SidekickProcessor extends AbstractProcessor {
         // position in list
         columns.add(new PrimitiveColumnDefinition(
                         TypeName.INT,
-                        "order") {
+                        "position") {
                         @Override
                         public Unique unique() {
                             return parentAndOrder;
