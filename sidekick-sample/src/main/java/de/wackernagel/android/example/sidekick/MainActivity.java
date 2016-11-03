@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         final RecyclerView recyclerView = ( RecyclerView ) findViewById(R.id.recyclerView);
         if( recyclerView != null ) {
-            recyclerView.setLayoutManager( new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false ) );
+            recyclerView.setLayoutManager( new LinearLayoutManager(this) );
             recyclerView.setAdapter( adapter );
         }
     }

@@ -28,17 +28,17 @@ public class RevealViewActivity extends AppCompatActivity {
                     case CircularRevealView.STATE_REVEALED:
                         text.setText(R.string.reveal_view_revealed);
                         break;
-                    case CircularRevealView.STATE_UNREVEAL_STARTED:
+                    case CircularRevealView.STATE_CONCEAL_STARTED:
                         text.setText(R.string.reveal_view_unrevealing);
                         break;
-                    case CircularRevealView.STATE_UNREVEALED:
+                    case CircularRevealView.STATE_CONCEALED:
                         text.setText(R.string.reveal_view_unrevealed);
                         break;
                 }
             }
         });
 
-        text.setText( revealViw.getState() == CircularRevealView.STATE_REVEALED ? "revealed" : "unrevealed");
+        text.setText( revealViw.getState() == CircularRevealView.STATE_REVEALED ? "revealed" : "concealed");
 
         final Button visibility = (Button) findViewById(R.id.button);
         visibility.setOnClickListener(new View.OnClickListener() {
@@ -46,14 +46,14 @@ public class RevealViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int[] startLocation = new int[2];
                 revealViw.getLocationInWindow(startLocation);
-                if (revealViw.getState() == CircularRevealView.STATE_UNREVEALED) {
+                if (revealViw.getState() == CircularRevealView.STATE_CONCEALED ) {
                     visibility.setText(R.string.reveal_view_unrevealed);
-                    revealViw.enterReveal(startLocation);
+                    revealViw.reveal(startLocation);
                 } else {
                     visibility.setText(R.string.reveal_view_revealed);
                     startLocation[0] += revealViw.getWidth();
                     startLocation[1] += revealViw.getHeight();
-                    revealViw.exitReveal(startLocation);
+                    revealViw.conceal(startLocation);
                 }
             }
         });

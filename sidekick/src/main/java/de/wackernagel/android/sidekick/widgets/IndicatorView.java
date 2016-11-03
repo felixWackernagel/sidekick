@@ -401,11 +401,11 @@ public class IndicatorView extends View {
 
         int selectedIndex;
 
-        private SavedState( final Parcelable superState ) {
+        SavedState( final Parcelable superState ) {
             super( superState );
         }
 
-        private SavedState( final Parcel in ) {
+        SavedState( final Parcel in ) {
             super( in );
             selectedIndex = in.readInt();
         }

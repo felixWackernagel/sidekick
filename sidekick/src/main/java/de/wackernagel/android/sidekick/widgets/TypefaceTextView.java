@@ -38,42 +38,32 @@ public class TypefaceTextView extends TextView {
             return;
         }
 
-        Typeface typeface;
-        int typefaceIndex = 5;
-
         if( attrs != null ) {
             final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TypefaceTextView, defStyleAttr, defStyleRes);
-            typefaceIndex = a.getInt( R.styleable.TypefaceTextView_typeface, 5 );
+            setTypeface( resolveTypeface( context, a.getInt( R.styleable.TypefaceTextView_typeface, 5 ) ) );
             a.recycle();
+        } else {
+            setTypeface( TypefaceUtils.getRobotoRegular(context) );
         }
+    }
 
+    private static Typeface resolveTypeface( Context context, int typefaceIndex ) {
         switch( typefaceIndex ) {
             case 0:
-                typeface = TypefaceUtils.getRobotoBlack( context );
-                break;
+                return TypefaceUtils.getRobotoBlack( context );
             case 1:
-                typeface = TypefaceUtils.getRobotoBold(context);
-                break;
+                return TypefaceUtils.getRobotoBold(context);
             case 2:
-                typeface = TypefaceUtils.getRobotoItalic(context);
-                break;
+                return TypefaceUtils.getRobotoItalic(context);
             case 3:
-                typeface = TypefaceUtils.getRobotoLight(context);
-                break;
+               return TypefaceUtils.getRobotoLight(context);
             case 4:
-                typeface = TypefaceUtils.getRobotoMedium(context);
-                break;
-            case 5:
-                typeface = TypefaceUtils.getRobotoRegular(context);
-                break;
+                return TypefaceUtils.getRobotoMedium(context);
             case 6:
-                typeface = TypefaceUtils.getRobotoThin(context);
-                break;
+                return TypefaceUtils.getRobotoThin(context);
+            case 5:
             default:
-                typeface = TypefaceUtils.getRobotoRegular(context);
-                break;
+                return TypefaceUtils.getRobotoRegular(context);
         }
-
-        setTypeface( typeface );
     }
 }

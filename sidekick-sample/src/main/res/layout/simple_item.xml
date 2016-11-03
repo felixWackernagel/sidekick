@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/text"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/sidekick_toolbarSize"
-    android:gravity="center_vertical"
-    android:textColor="@color/sidekick_text_primary"
-    android:textSize="16sp"
-    android:foreground="?attr/selectableItemBackground"
-    android:paddingLeft="@dimen/sidekick_keyline1"
-    android:paddingStart="@dimen/sidekick_keyline1"
-    android:paddingRight="@dimen/sidekick_keyline3"
-    android:paddingEnd="@dimen/sidekick_keyline3"/>
+    android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sidekick_toolbarSize"
+        android:gravity="center_vertical"
+        android:paddingEnd="@dimen/sidekick_keyline3"
+        android:paddingLeft="@dimen/sidekick_keyline1"
+        android:paddingRight="@dimen/sidekick_keyline3"
+        android:paddingStart="@dimen/sidekick_keyline1"
+        android:textColor="@color/sidekick_text_primary"
+        android:textSize="16sp"/>
+
+</FrameLayout>

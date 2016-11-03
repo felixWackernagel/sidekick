@@ -29,12 +29,12 @@ import de.wackernagel.android.sidekick.R;
 
 public class CircularRevealView extends View {
 
-    public static final int STATE_UNREVEALED = 0;
+    public static final int STATE_CONCEALED = 0;
     public static final int STATE_REVEAL_STARTED = 1;
-    public static final int STATE_UNREVEAL_STARTED = 2;
+    public static final int STATE_CONCEAL_STARTED = 2;
     public static final int STATE_REVEALED = 3;
 
-    @IntDef({STATE_UNREVEALED, STATE_REVEAL_STARTED, STATE_UNREVEAL_STARTED, STATE_REVEALED})
+    @IntDef({STATE_CONCEALED, STATE_REVEAL_STARTED, STATE_CONCEAL_STARTED, STATE_REVEALED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface State {}
 
@@ -44,7 +44,7 @@ public class CircularRevealView extends View {
 
     private int animationState = ANIMATION_NONE;
     private long animationStartTimeMillis;
-    private long animationDuration = 400l;
+    private long animationDuration = 400L;
     private Interpolator interpolator = new AccelerateInterpolator();
 
     private int state;
@@ -81,12 +81,12 @@ public class CircularRevealView extends View {
         circlePaint.setStyle(Paint.Style.FILL);
         circlePaint.setColor(Color.WHITE);
 
-        state = STATE_UNREVEALED;
+        state = STATE_CONCEALED;
 
         if( attrs != null ) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircularRevealView, defStyleAttr, defStyleRes);
-            circlePaint.setColor( a.getColor( R.styleable.CircularRevealView_backgroundColor, Color.WHITE ) );
-            state = a.getInt( R.styleable.CircularRevealView_state, STATE_UNREVEALED );
+            circlePaint.setColor( a.getColor( R.styleable.CircularRevealView_color, Color.WHITE ) );
+            state = a.getInt( R.styleable.CircularRevealView_state, STATE_CONCEALED);
             a.recycle();
         }
     }
@@ -131,7 +131,7 @@ public class CircularRevealView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if( state == STATE_UNREVEALED ) {
+        if( state == STATE_CONCEALED ) {
             return;
         }
         if( state == STATE_REVEALED ) {
@@ -170,26 +170,26 @@ public class CircularRevealView extends View {
             if( state == STATE_REVEAL_STARTED ) {
                 changeState(STATE_REVEALED );
             } else {
-                changeState(STATE_UNREVEALED);
+                changeState(STATE_CONCEALED);
             }
         } else {
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
-    public void enterReveal( @Size(2) final int[] startPoint ) {
+    public void reveal(@Size(2) @NonNull final int[] from ) {
         changeState(STATE_REVEAL_STARTED);
         animationState = ANIMATION_STARTING;
-        circleX = startPoint[0];
-        circleY = startPoint[1];
+        circleX = from[0];
+        circleY = from[1];
         ViewCompat.postInvalidateOnAnimation( this );
     }
 
-    public void exitReveal( @Size(2) final int[] endPoint ) {
-        changeState( STATE_UNREVEAL_STARTED );
+    public void conceal(@Size(2) @NonNull final int[] to ) {
+        changeState(STATE_CONCEAL_STARTED);
         animationState = ANIMATION_STARTING;
-        circleX = endPoint[0];
-        circleY = endPoint[1];
+        circleX = to[0];
+        circleY = to[1];
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
@@ -198,8 +198,8 @@ public class CircularRevealView extends View {
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
-    public void setUnrevealed() {
-        changeState(STATE_UNREVEALED);
+    public void setConcealed() {
+        changeState(STATE_CONCEALED);
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
@@ -228,7 +228,7 @@ public class CircularRevealView extends View {
     }
 
     /**
-     * Implement interface to get notified on state changes (STATE_UNREVEALED, STATE_REVEAL_STARTED, STATE_REVEALED, STATE_UNREVEAL_STARTED).
+     * Implement interface to get notified on state changes (STATE_CONCEALED, STATE_REVEAL_STARTED, STATE_REVEALED, STATE_CONCEAL_STARTED).
      */
     public interface OnStateChangeListener {
         void onStateChange(@State int state);
@@ -266,11 +266,11 @@ public class CircularRevealView extends View {
         int state;
         int color;
 
-        private SavedState( final Parcelable superState ) {
+        SavedState( final Parcelable superState ) {
             super( superState );
         }
 
-        private SavedState( final Parcel in ) {
+        SavedState( final Parcel in ) {
             super( in );
             state = in.readInt();
             color = in.readInt();

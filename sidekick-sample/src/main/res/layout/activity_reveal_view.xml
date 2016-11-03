@@ -20,8 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:saveEnabled="true"
-            app:backgroundColor="@color/sidekick_text_error"
-            app:state="unrevealed"/>
+            app:color="@color/sidekick_text_error"
+            app:state="concealed"/>
 
         <LinearLayout
             android:layout_width="match_parent"

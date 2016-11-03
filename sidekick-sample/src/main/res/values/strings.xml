@@ -6,8 +6,8 @@
 
     <string name="reveal_view_revealing">start reveal</string>
     <string name="reveal_view_revealed">revealed</string>
-    <string name="reveal_view_unrevealing">start unreveal</string>
-    <string name="reveal_view_unrevealed">unrevealed</string>
+    <string name="reveal_view_unrevealing">start conceal</string>
+    <string name="reveal_view_unrevealed">concealed</string>
     <string name="reveal_reveal">reveal</string>
     <string name="reveal_red">Red</string>
     <string name="reveal_gray">Gray</string>

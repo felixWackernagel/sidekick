@@ -75,7 +75,7 @@ public class ForegroundRelativeLayout extends RelativeLayout {
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable( @NonNull Drawable who) {
         return super.verifyDrawable(who) || (who == foregroundDrawable);
     }
 
