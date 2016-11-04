@@ -4,19 +4,19 @@ import android.database.Cursor;
 
 import de.wackernagel.android.sidekick.frameworks.objectcursor.ObjectCreator;
 
-public class ArticleModel implements ObjectCreator<ArticleModel> {
+public class ArticleModel {
 
-    public static final ArticleModel FACTORY = new ArticleModel();
+    public static final ObjectCreator<ArticleModel> FACTORY = new ObjectCreator<ArticleModel>() {
+        @Override
+        public ArticleModel createFromCursor(Cursor cursor) {
+            return new ArticleModel( cursor.getLong(0), cursor.getString(1) );
+        }
+    };
 
     private final long id;
     private final String title;
 
-    private ArticleModel() {
-        this.id = 0;
-        this.title = "";
-    }
-
-    public ArticleModel( final long id, final String title) {
+    ArticleModel( final long id, final String title) {
         this.id = id;
         this.title = title;
     }
@@ -53,8 +53,4 @@ public class ArticleModel implements ObjectCreator<ArticleModel> {
         return result;
     }
 
-    @Override
-    public ArticleModel createFromCursor(Cursor c) {
-        return new ArticleModel( c.getLong(0), c.getString(1) );
-    }
 }

@@ -11,6 +11,9 @@ import de.wackernagel.android.sidekick.compats.CursorCompat;
 
 public class LogUtils {
 
+    private LogUtils() {
+    }
+
     public static String toString( @Nullable final Bundle bundle ) {
         final StringBuilder builder = new StringBuilder();
         builder.append( "Bundle:\n" );
@@ -56,19 +59,19 @@ public class LogUtils {
                     }
                     builder.append( "[" ).append( row ).append( ":" ).append( column ).append( "] (" ).append( cursor.getColumnName( column ) ).append( "/" );
                     switch ( columnType ) {
-                        case Cursor.FIELD_TYPE_FLOAT:
+                        case CursorCompat.FIELD_TYPE_FLOAT:
                             builder.append( "float) " ).append(cursor.getFloat(column));
                             break;
-                        case Cursor.FIELD_TYPE_INTEGER:
+                        case CursorCompat.FIELD_TYPE_INTEGER:
                             builder.append( "integer) " ).append(cursor.getInt(column));
                             break;
-                        case Cursor.FIELD_TYPE_STRING:
+                        case CursorCompat.FIELD_TYPE_STRING:
                             builder.append( "string) " ).append(cursor.getString(column));
                             break;
-                        case Cursor.FIELD_TYPE_NULL:
+                        case CursorCompat.FIELD_TYPE_NULL:
                             builder.append("null)");
                             break;
-                        case Cursor.FIELD_TYPE_BLOB:
+                        case CursorCompat.FIELD_TYPE_BLOB:
                             builder.append( "blob) " ).append( new String( cursor.getBlob( column) ) );
                             break;
                         default:

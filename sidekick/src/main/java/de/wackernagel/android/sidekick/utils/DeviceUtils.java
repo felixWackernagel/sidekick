@@ -10,6 +10,9 @@ import de.wackernagel.android.sidekick.R;
 
 public class DeviceUtils {
 
+    private DeviceUtils() {
+    }
+
     /**
      * @param context of device
      * @return screen width in pixels

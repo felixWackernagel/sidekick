@@ -13,6 +13,9 @@ import java.util.Set;
 
 public class PreferenceUtils {
 
+    private PreferenceUtils() {
+    }
+
     public static String getString(@NonNull final Context context, @NonNull final String key, final String fallback) {
         return getString(PreferenceManager.getDefaultSharedPreferences(context), key, fallback);
     }

@@ -7,6 +7,9 @@ import android.support.annotation.NonNull;
 
 public class NetworkUtils {
 
+    private NetworkUtils() {
+    }
+
     public static boolean isOnline( @NonNull final Context context ) {
         final ConnectivityManager connectionManager =  (ConnectivityManager) context.getSystemService( Context.CONNECTIVITY_SERVICE );
         final NetworkInfo networkInfo = connectionManager.getActiveNetworkInfo();

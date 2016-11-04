@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 public class TintUtils {
 
+    private TintUtils() {
+    }
+
     /**
      * Tint all compound drawables with the given color.
      * Do nothing when textView is null.

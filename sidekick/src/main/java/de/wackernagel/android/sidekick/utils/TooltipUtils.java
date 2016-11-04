@@ -46,63 +46,7 @@ public class TooltipUtils {
      * @param tooltipText for tooltip text
      */
     public static void createFor( @NonNull final View view, @NonNull final CharSequence tooltipText) {
-        view.setOnLongClickListener( new View.OnLongClickListener() {
-            @SuppressLint( "RtlHardcoded" )
-            @Override
-            public boolean onLongClick( View tooltipAnchorView ) {
-                final Toast tooltip = Toast.makeText(tooltipAnchorView.getContext(), tooltipText, Toast.LENGTH_SHORT);
-
-                // measure final tooltip size
-                final DisplayMetrics metrics = tooltipAnchorView.getResources().getDisplayMetrics();
-                tooltip.getView().measure(
-                        View.MeasureSpec.makeMeasureSpec(metrics.widthPixels, View.MeasureSpec.UNSPECIFIED),
-                        View.MeasureSpec.makeMeasureSpec(metrics.heightPixels, View.MeasureSpec.UNSPECIFIED) );
-                final int tooltipWidth = tooltip.getView().getMeasuredWidth();
-                final int tooltipHeight = tooltip.getView().getMeasuredHeight();
-                final int tooltipHalfWidth = tooltipWidth / 2;
-
-                // collect anchor and screen coordinates
-                final int[] anchorPosition = new int[2];
-                tooltipAnchorView.getLocationOnScreen(anchorPosition);
-                final int anchorWidth = tooltipAnchorView.getWidth();
-                final int anchorHeight = tooltipAnchorView.getHeight();
-                final int anchorX = anchorPosition[0];
-                final int anchorY = anchorPosition[1];
-                final int anchorCenterY = anchorY + anchorHeight / 2;
-                final int anchorCenterX = anchorX + anchorWidth / 2;
-
-                final Rect displayScreen = new Rect();
-                tooltipAnchorView.getWindowVisibleDisplayFrame(displayScreen);
-
-                // layout the tooltip
-                int tooltipY;
-                int tooltipX;
-
-                if( anchorCenterY + tooltipHeight > displayScreen.height() ) {
-                    // above anchor
-                    tooltipY = anchorY - tooltipHeight - ( anchorHeight / 2 );
-                } else {
-                    // below anchor
-                    tooltipY = anchorCenterY;
-                }
-
-                if( anchorCenterX - tooltipHalfWidth < 0 ) {
-                    // left align on anchor
-                    tooltipX = anchorX;
-                } else if( anchorCenterX + tooltipHalfWidth > displayScreen.width() ) {
-                    // right align on anchor
-                    tooltipX = anchorX + anchorWidth - tooltipWidth;
-                } else {
-                    // center horizontal
-                    tooltipX = anchorCenterX - tooltipHalfWidth;
-                }
-
-                tooltip.setGravity(Gravity.TOP | Gravity.LEFT, tooltipX, tooltipY );
-                tooltip.show();
-
-                return true;
-            }
-        } );
+        view.setOnLongClickListener( new ShowTooltipLongClickListener( tooltipText ) );
     }
 
     /**
@@ -110,5 +54,71 @@ public class TooltipUtils {
      */
     public static void removeFrom( @NonNull final View view ) {
         view.setOnLongClickListener( null );
+    }
+
+    private static class ShowTooltipLongClickListener implements View.OnLongClickListener {
+
+        private final CharSequence tooltipText;
+
+        ShowTooltipLongClickListener( final CharSequence tooltipText ) {
+            this.tooltipText = tooltipText;
+        }
+
+        @SuppressLint( "RtlHardcoded" )
+        @Override
+        public boolean onLongClick( View tooltipAnchorView ) {
+            final Toast tooltip = Toast.makeText(tooltipAnchorView.getContext(), tooltipText, Toast.LENGTH_SHORT);
+
+            // measure final tooltip size
+            final DisplayMetrics metrics = tooltipAnchorView.getResources().getDisplayMetrics();
+            tooltip.getView().measure(
+                    View.MeasureSpec.makeMeasureSpec(metrics.widthPixels, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(metrics.heightPixels, View.MeasureSpec.UNSPECIFIED) );
+            final int tooltipWidth = tooltip.getView().getMeasuredWidth();
+            final int tooltipHeight = tooltip.getView().getMeasuredHeight();
+            final int tooltipHalfWidth = tooltipWidth / 2;
+
+            // collect anchor and screen coordinates
+            final int[] anchorPosition = new int[2];
+            tooltipAnchorView.getLocationOnScreen(anchorPosition);
+            final int anchorWidth = tooltipAnchorView.getWidth();
+            final int anchorHeight = tooltipAnchorView.getHeight();
+            final int anchorX = anchorPosition[0];
+            final int anchorY = anchorPosition[1];
+            final int anchorCenterY = anchorY + anchorHeight / 2;
+            final int anchorCenterX = anchorX + anchorWidth / 2;
+
+            final Rect displayScreen = new Rect();
+            tooltipAnchorView.getWindowVisibleDisplayFrame(displayScreen);
+
+            // layout the tooltip
+            int tooltipY;
+            int tooltipX;
+
+            if( anchorCenterY + tooltipHeight > displayScreen.height() ) {
+                // above anchor
+                tooltipY = anchorY - tooltipHeight - ( anchorHeight / 2 );
+            } else {
+                // below anchor
+                tooltipY = anchorCenterY;
+            }
+
+            if( anchorCenterX - tooltipHalfWidth < 0 ) {
+                // left align on anchor
+                tooltipX = anchorX;
+            } else if( anchorCenterX + tooltipHalfWidth > displayScreen.width() ) {
+                // right align on anchor
+                tooltipX = anchorX + anchorWidth - tooltipWidth;
+            } else {
+                // center horizontal
+                tooltipX = anchorCenterX - tooltipHalfWidth;
+            }
+
+            tooltip.setGravity(Gravity.TOP | Gravity.LEFT, tooltipX, tooltipY );
+            tooltip.show();
+
+            return true;
+        }
+
     }
 }

@@ -18,9 +18,11 @@ package de.wackernagel.android.sidekick.frameworks.objectcursor;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.ContentResolverCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v4.os.OperationCanceledException;
 
@@ -29,16 +31,28 @@ import android.support.v4.os.OperationCanceledException;
  * CursorLoader is not parameterized, and we want to parameterize over the underlying cursor type.
  * @param <T>
  */
-public abstract class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
+public class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
     private final ForceLoadContentObserver mObserver;
     private final ObjectCreator<T> mFactory;
     private ObjectCursor<T> mCursor;
     private CancellationSignal mCancellationSignal;
 
-    public ObjectCursorLoader( @NonNull final Context context, @NonNull final ObjectCreator<T> factory) {
+    private final Uri mUri;
+    private final String[] mProjection;
+    private final String mSelection;
+    private final String[] mSelectionArgs;
+    private final String mSortOrder;
+
+    public ObjectCursorLoader(@NonNull final Context context, @NonNull final Uri uri, @NonNull final ObjectCreator<T> factory,
+                              @Nullable final String[] projection, @Nullable final String selection, @Nullable final String[] selectionArgs, @Nullable final String sortOrder) {
         super(context);
         mObserver = new ForceLoadContentObserver();
         mFactory = factory;
+        mUri = uri;
+        mProjection = projection;
+        mSelection = selection;
+        mSelectionArgs = selectionArgs;
+        mSortOrder = sortOrder;
     }
 
     @Override
@@ -56,7 +70,7 @@ public abstract class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor
                 inner.getCount();
                 inner.registerContentObserver(mObserver);
 
-                final ObjectCursor<T> cursor = createObjectCursor(inner);
+                final ObjectCursor<T> cursor = new ObjectCursor<>(inner, mFactory);
                 cursor.fillCache();
                 return cursor;
             }
@@ -74,10 +88,15 @@ public abstract class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor
     }
 
     @Nullable
-    public abstract Cursor loadCursorInBackground();
-
-	protected ObjectCursor<T> createObjectCursor(Cursor inner) {
-        return new ObjectCursor<>(inner, mFactory);
+    public Cursor loadCursorInBackground() {
+        return ContentResolverCompat.query(
+                getContext().getContentResolver(),
+                mUri,
+                mProjection,
+                mSelection,
+                mSelectionArgs,
+                mSortOrder,
+                getCancellationSignal());
     }
 
     @Override
@@ -158,5 +177,4 @@ public abstract class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor
         }
         mCursor = null;
     }
-
 }

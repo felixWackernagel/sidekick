@@ -8,6 +8,9 @@ import android.support.annotation.Nullable;
 
 public class ApplicationUtils {
 
+    private ApplicationUtils() {
+    }
+
     /**
      * @param context of application
      * @return VersionName from manifest or null

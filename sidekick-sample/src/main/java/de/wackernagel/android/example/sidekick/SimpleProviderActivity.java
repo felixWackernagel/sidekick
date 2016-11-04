@@ -36,8 +36,9 @@ import de.wackernagel.android.example.sidekick.provider.ArticleContract;
 import de.wackernagel.android.example.sidekick.provider.ArticleModel;
 import de.wackernagel.android.example.sidekick.provider.CallbackAsyncQueryHandler;
 import de.wackernagel.android.sidekick.frameworks.objectcursor.ObjectCursor;
-import de.wackernagel.android.sidekick.frameworks.objectcursor.SimpleObjectCursorLoader;
+import de.wackernagel.android.sidekick.frameworks.objectcursor.ObjectCursorLoader;
 import de.wackernagel.android.sidekick.utils.DeviceUtils;
+import de.wackernagel.android.sidekick.utils.SparseArrayUtils;
 
 public class SimpleProviderActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ObjectCursor<ArticleModel>>, CallbackAsyncQueryHandler.Callback {
 
@@ -115,7 +116,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
          * The loader is responsible to fetch the data again by observing the uri.
          * The ContentProvider notifies each observer about data changes by insert, update and delete operations.
          */
-        return new SimpleObjectCursorLoader<>(
+        return new ObjectCursorLoader<>(
                 this,
                 ArticleContract.CONTENT_URI,
                 ArticleModel.FACTORY,
@@ -129,7 +130,7 @@ public class SimpleProviderActivity extends AppCompatActivity implements LoaderM
     @Override
     public void onLoadFinished(Loader<ObjectCursor<ArticleModel>> loader, ObjectCursor<ArticleModel> objectCursor) {
         if( objectCursor != null ) {
-            adapter.swapItems( objectCursor.getObjectList() );
+            adapter.swapItems( SparseArrayUtils.asList( objectCursor.getObjects() ) );
         }
     }
 

@@ -16,6 +16,9 @@ public class TypefaceUtils {
 
     private final static SparseArray<Typeface> mTypefaces = new SparseArray<>( 6 );
 
+    private TypefaceUtils() {
+    }
+
     public static Typeface getRobotoThin( Context context ) {
     	return getTypeface( context, ROBOTO_THIN );
     }

@@ -18,11 +18,8 @@ package de.wackernagel.android.sidekick.frameworks.objectcursor;
 
 import android.database.Cursor;
 import android.database.CursorWrapper;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.util.SparseArrayCompat;
-
-import java.util.ArrayList;
 
 /**
  * A cursor-backed type that can return an object for each row of the cursor. This class is most
@@ -30,30 +27,23 @@ import java.util.ArrayList;
  * 1. The cursor is returned in conjuction with an AsyncTaskLoader and created off the UI thread.
  * 2. A single row in the cursor specifies everything for an object.
  */
-public class ObjectCursor <T> extends CursorWrapper {
-    private final SparseArrayCompat<T> mCache;
-    private final ObjectCreator<T> mFactory;
-    private final Cursor mCursor;
+public class ObjectCursor<T> extends CursorWrapper {
+    private final Cursor wrappedCursor;
+    private final SparseArrayCompat<T> objectCache;
+    private final ObjectCreator<T> objectFactory;
     private boolean cacheFilled = false;
 
     /**
      * Creates a new object cursor.
-     * @param cursor the underlying cursor this wraps.
-     * @param factory to create the object from cursor.
+     *
+     * @param cursor to wrap.
+     * @param factory creates the object from cursor.
      */
     public ObjectCursor( @NonNull final Cursor cursor, @NonNull final ObjectCreator<T> factory) {
         super(cursor);
-        mCache = new SparseArrayCompat<>(cursor.getCount());
-        mCursor = cursor;
-        mFactory = factory;
-    }
-
-	public Cursor getWrappedCursorCompat() {
-    	if( Build.VERSION.SDK_INT >= 11 ) {
-    		return super.getWrappedCursor();
-    	} else {
-    		return mCursor;
-    	}
+        wrappedCursor = cursor;
+        objectCache = new SparseArrayCompat<>(cursor.getCount());
+        objectFactory = factory;
     }
 
     /**
@@ -64,16 +54,19 @@ public class ObjectCursor <T> extends CursorWrapper {
      * @return a model
      */
     public final T getObject() {
-        final Cursor c = mCursor;
-        final int currentPosition = c.getPosition();
+        final Cursor cursor = wrappedCursor;
+        final SparseArrayCompat<T> cache = objectCache;
+        final int currentPosition = cursor.getPosition();
+
         // The cache contains this object, return it.
-        final T prev = mCache.get(currentPosition);
-        if (prev != null) {
+        final T prev = cache.get( currentPosition );
+        if( prev != null ) {
             return prev;
         }
+
         // Get the object at the current position and add it to the cache.
-        final T object = mFactory.createFromCursor(c);
-        mCache.put(currentPosition, object);
+        final T object = objectFactory.createFromCursor(cursor);
+        cache.put(currentPosition, object);
         return object;
     }
 
@@ -82,20 +75,7 @@ public class ObjectCursor <T> extends CursorWrapper {
         if( !cacheFilled ) {
             fillCache();
         }
-        return mCache;
-    }
-
-    @NonNull
-    public final ArrayList<T> getObjectList() {
-        if( !cacheFilled ) {
-            fillCache();
-        }
-        final int cacheSize = mCache.size();
-    	final ArrayList<T> models = new ArrayList<>( cacheSize );
-    	for( int index = 0; index < cacheSize; index++ ) {
-    		models.add( mCache.get( index ) );
-    	}
-    	return models;
+        return objectCache;
     }
 
     /**
@@ -103,20 +83,20 @@ public class ObjectCursor <T> extends CursorWrapper {
      * #getObject()} will return the cached objects as far as the underlying cursor does not change.
      */
     final void fillCache() {
-        final Cursor c = mCursor;
+        final Cursor cursor = wrappedCursor;
         cacheFilled = true;
-        if( !c.moveToFirst() ) {
+        if( !cursor.moveToFirst() ) {
             return;
         }
         do {
             getObject(); // get or cache model
-        } while (c.moveToNext());
+        } while (cursor.moveToNext());
     }
 
     @Override
     public void close() {
         super.close();
-        mCache.clear();
+        objectCache.clear();
     }
 
 }
