@@ -102,7 +102,7 @@ public class ContractGenerator {
 
     private CodeBlock createTableStatement(final TableDefinition table, final Set<ColumnDefinition> fields) {
         final CodeBlock.Builder sql = CodeBlock.builder();
-        sql.add("db.execSQL( \"CREATE TABLE IF NOT EXISTS \" + $L + $S\n", "TABLE", " (");
+        sql.add("db.execSQL( \"CREATE TABLE IF NOT EXISTS " + escape( table.getTableName() ) + " (\"\n");
 
         final Map<Integer, Set<ColumnDefinition>> uniqueness = new HashMap<>();
         Iterator<ColumnDefinition> iterator = fields.iterator();
@@ -112,15 +112,15 @@ public class ContractGenerator {
                 continue;
             }
 
-            sql.add( "\t+ $L + \" " + column.getSQLiteType(), column.getConstantFieldName() );
+            sql.add( "\t + \"" + escape( column.getColumnName() ) + " " + column.getSQLiteType() );
 
             if( column.isPrimaryKey() ) {
-                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_pk PRIMARY KEY AUTOINCREMENT");
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_pk' PRIMARY KEY AUTOINCREMENT");
             }
 
             final NotNull notNull = column.notNull();
             if( notNull != null ) {
-                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_not_null NOT NULL");
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_not_null' NOT NULL");
                 if( notNull.onConflict() != ConflictClause.NONE ) {
                     sql.add( " ON CONFLICT ").add(notNull.onConflict().toString() );
                 }
@@ -129,7 +129,7 @@ public class ContractGenerator {
             final Unique unique = column.unique();
             if( unique != null ) {
                 if( unique.group() < 0 ) {
-                    sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_unique UNIQUE");
+                    sql.add(" CONSTRAINT '" + column.getColumnName() + "_unique' UNIQUE");
                     if( unique.onConflict() != ConflictClause.NONE ) {
                         sql.add( " ON CONFLICT ").add(unique.onConflict().toString() );
                     }
@@ -148,23 +148,18 @@ public class ContractGenerator {
 
             final String defaultValue = column.defaultValue();
             if( defaultValue != null && defaultValue.length() > 0 ) {
-                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_default DEFAULT ").add(defaultValue);
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_default' DEFAULT ").add(defaultValue);
             }
 
             if (column.isBoolean() ) {
-                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_check_boolean CHECK (\" + " + column.getConstantFieldName() + " + \" IN ( 0, 1 ) )");
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_check_boolean' CHECK(" + escape( column.getColumnName() ) + " IN ( 0, 1 ) )");
             }
 
             if( column.isForeignKey() ) {
-                String parentTable = column.getObjectType().toString();
-                parentTable = parentTable.substring( parentTable.lastIndexOf( '.' ) + 1, parentTable.lastIndexOf( "Model" ) );
-                parentTable = parentTable.concat( "Contract" );
+                String parentTable = BaseDefinition.formatNameForSQL( column.getObjectType() );
 
-                sql.add(" CONSTRAINT \" + " + column.getConstantFieldName() + " + \"_fk REFERENCES ")
-                        .add( "\" + ").add( "$T", ClassName.bestGuess( parentTable ) ).add( ".TABLE" ).add( " + \"" )
-                        .add( ".(" )
-                        .add( "\" + ").add( "$T", ClassName.bestGuess( parentTable ) ).add( ".COLUMN_ID" ).add( " + \"" )
-                        .add( ")" );
+
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_fk' REFERENCES " + escape( parentTable ) + ".('_id')" );
 
                 final ForeignKey foreignKey = column.foreignKey();
                 if( foreignKey != null && foreignKey.onDelete() != ForeignKey.Action.NONE ) {
@@ -184,22 +179,22 @@ public class ContractGenerator {
         int last = uniqueness.size() - 1;
         int index = 0;
         for( Set<ColumnDefinition> groupElements : uniqueness.values() ) {
-            sql.add("\t+ \"CONSTRAINT ");
+            sql.add("\t + \"CONSTRAINT '");
             int j = 0;
             for( ColumnDefinition column : groupElements ) {
                 if( j > 0 ) {
                     sql.add( "_" );
                 }
-                sql.add( "\" + " ).add( column.getConstantFieldName() ).add( " + \"" );
+                sql.add( column.getColumnName() );
                 j++;
             }
-            sql.add( "_unique UNIQUE(" );
+            sql.add( "_unique' UNIQUE(" );
             int k = 0;
             for( ColumnDefinition column : groupElements ) {
                 if( k > 0 ) {
                     sql.add( "," );
                 }
-                sql.add( "\" + " ).add( column.getConstantFieldName() ).add( " + \"" );
+                sql.add( escape( column.getColumnName() ) );
                 k++;
             }
             sql.add(")");
@@ -222,7 +217,7 @@ public class ContractGenerator {
             index++;
         }
 
-        sql.add( "\t+ $S );\n", ");" );
+        sql.add( "\t + $S );\n", ");" );
         return sql.build();
     }
 
@@ -282,7 +277,7 @@ public class ContractGenerator {
     }
 
     public static String escape( final String value ) {
-        final String quotation = "\"";
+        final String quotation = "'";
         return quotation.concat( value ).concat( quotation );
     }
 

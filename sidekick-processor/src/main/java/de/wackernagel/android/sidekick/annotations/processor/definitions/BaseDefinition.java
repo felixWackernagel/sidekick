@@ -130,4 +130,16 @@ public abstract class BaseDefinition implements ColumnDefinition {
         }
         return sb.toString().toLowerCase();
     }
+
+    public static String formatNameForSQL( final TypeName clss ) {
+        String fullyName = clss.toString();
+        int lastDot = fullyName.lastIndexOf( '.' );
+        if( lastDot >= 0 ) {
+            fullyName = fullyName.substring( lastDot + 1 );
+        }
+        if( fullyName.endsWith( "Model" ) ) {
+            fullyName = fullyName.substring( 0, fullyName.length() - 5 );
+        }
+        return formatNameForSQL( fullyName );
+    }
 }
