@@ -1,18 +1,59 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
-version = '0.1.0'
+ext {
+    PUBLISH_GROUP_ID = 'de.wackernagel.android'
+    PUBLISH_ARTIFACT_ID = 'sidekick-annotations'
+    PUBLISH_VERSION = '0.1.0'
+}
 
-//create a single Jar with all dependencies
-task fatJar(type: Jar) {
+def groupId = project.PUBLISH_GROUP_ID
+def artifactId = project.PUBLISH_ARTIFACT_ID
+def version = project.PUBLISH_VERSION
+def localReleaseDest = "${buildDir}/release/${version}"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task javaJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
-                'Implementation-Version': version,
-                'Main-Class': 'com.mkyong.DateUtils'
+        attributes 'Version': version
     }
-    baseName = project.name + '-all'
+    baseName = project.name
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.groupId = groupId
+        pom.artifactId = artifactId
+        pom.version = version
+
+        // Add other pom properties here if you want (developer details / licenses)
+        repository(url: "file://${localReleaseDest}")
+    }
+}
+
+task zipRelease(type: Zip) {
+    from "${buildDir}/release/${version}"
+    destinationDir buildDir
+    archiveName "release-${version}.zip"
+}
+
+task generateRelease << {
+    println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+}
+
+generateRelease.dependsOn( uploadArchives )
+generateRelease.dependsOn( zipRelease )
