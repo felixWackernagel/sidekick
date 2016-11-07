@@ -62,7 +62,7 @@ public class RevealViewActivity extends AppCompatActivity {
         red.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                revealViw.setColorResource(R.color.sidekick_text_error);
+                revealViw.setCircularColorResource(R.color.sidekick_text_error);
             }
         });
 
@@ -70,7 +70,7 @@ public class RevealViewActivity extends AppCompatActivity {
         gray.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                revealViw.setColorResource(R.color.sidekick_icon);
+                revealViw.setCircularColorResource(R.color.sidekick_icon);
             }
         });
     }

@@ -38,7 +38,7 @@
     </declare-styleable>
 
     <declare-styleable name="CircularRevealView">
-        <attr name="color" format="color" />
+        <attr name="circularColor" format="color" />
         <attr name="state">
             <enum name="concealed" value="0" />
             <enum name="revealed" value="3" />

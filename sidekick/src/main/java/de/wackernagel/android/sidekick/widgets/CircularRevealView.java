@@ -85,26 +85,26 @@ public class CircularRevealView extends View {
 
         if( attrs != null ) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircularRevealView, defStyleAttr, defStyleRes);
-            circlePaint.setColor( a.getColor( R.styleable.CircularRevealView_color, Color.WHITE ) );
+            circlePaint.setColor( a.getColor( R.styleable.CircularRevealView_circularColor, Color.WHITE ) );
             state = a.getInt( R.styleable.CircularRevealView_state, STATE_CONCEALED);
             a.recycle();
         }
     }
 
     @ColorInt
-    public int getColor() {
+    public int getCircularColor() {
         return circlePaint.getColor();
     }
 
-    public void setColor( @ColorInt int color ) {
+    public void setCircularColor(@ColorInt int color ) {
         if( color != circlePaint.getColor() ) {
             circlePaint.setColor(color);
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
-    public void setColorResource( @ColorRes int resId ) {
-        setColor( ContextCompat.getColor(getContext(), resId) );
+    public void setCircularColorResource(@ColorRes int resId ) {
+        setCircularColor( ContextCompat.getColor(getContext(), resId) );
     }
 
     public Interpolator getInterpolator() {
