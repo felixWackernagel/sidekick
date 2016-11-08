@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -7,4 +8,54 @@ dependencies {
     compile project(':sidekick-annotations')
     compile 'com.squareup:javapoet:1.7.0'
     compile 'com.google.auto.service:auto-service:1.0-rc2'
+}
+
+ext {
+    PUBLISH_GROUP_ID = 'de.wackernagel.android'
+    PUBLISH_ARTIFACT_ID = 'sidekick-processor'
+    PUBLISH_VERSION = '0.1.0'
+}
+
+def groupId = project.PUBLISH_GROUP_ID
+def artifactId = project.PUBLISH_ARTIFACT_ID
+def version = project.PUBLISH_VERSION
+def localReleaseDest = "${buildDir}/release/${version}"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.groupId = groupId
+        pom.artifactId = artifactId
+        pom.version = version
+
+        // Add other pom properties here if you want (developer details / licenses)
+        repository(url: "file://${localReleaseDest}")
+    }
+}
+
+task zipRelease(type: Zip) {
+    from localReleaseDest
+    destinationDir buildDir
+    archiveName "release-${version}.zip"
+}
+
+task generateRelease << {
+    println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+}
+
+generateRelease.dependsOn( uploadArchives )
+generateRelease.dependsOn( zipRelease )
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }

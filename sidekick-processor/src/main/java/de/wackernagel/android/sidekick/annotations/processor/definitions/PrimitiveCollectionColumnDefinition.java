@@ -30,7 +30,10 @@ public class PrimitiveCollectionColumnDefinition extends BaseDefinition {
     private final Elements elements;
 
     /**
-     * @param element element (nullable)
+     * @param element of definition (can be null)
+     * @param type of collection
+     * @param types util class
+     * @param elements util class
      */
     public PrimitiveCollectionColumnDefinition(final Element element, final TypeName type, final Types types, Elements elements) {
         super(element);

@@ -32,6 +32,8 @@ public class TableDefinition {
     }
 
     /**
+     * @param withPackage prefix package to object type name
+     * @param withModel suffix model to object type name
      * @return fully name of generating class with package, class and model suffix
      */
     public String getObjectType( boolean withPackage, boolean withModel ) {

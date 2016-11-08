@@ -25,15 +25,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-task javaJar(type: Jar) {
-    manifest {
-        attributes 'Version': version
-    }
-    baseName = project.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
 uploadArchives {
     repositories.mavenDeployer {
         pom.groupId = groupId
@@ -46,7 +37,7 @@ uploadArchives {
 }
 
 task zipRelease(type: Zip) {
-    from "${buildDir}/release/${version}"
+    from localReleaseDest
     destinationDir buildDir
     archiveName "release-${version}.zip"
 }
@@ -57,3 +48,8 @@ task generateRelease << {
 
 generateRelease.dependsOn( uploadArchives )
 generateRelease.dependsOn( zipRelease )
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}

@@ -116,7 +116,8 @@ public abstract class BaseDefinition implements ColumnDefinition {
     /* ** HELPER ************************************************************************* */
 
     /**
-     * Format names like 'orderItem' to 'order_item'.
+     * @param originName to format
+     * @return names like 'order_item' from 'orderItem'.
      */
     public static String formatNameForSQL( final String originName ) {
         final StringBuilder sb = new StringBuilder(originName);
@@ -131,6 +132,10 @@ public abstract class BaseDefinition implements ColumnDefinition {
         return sb.toString().toLowerCase();
     }
 
+    /**
+     * @param clss to format
+     * @return class name formated for sql
+     */
     public static String formatNameForSQL( final TypeName clss ) {
         String fullyName = clss.toString();
         int lastDot = fullyName.lastIndexOf( '.' );

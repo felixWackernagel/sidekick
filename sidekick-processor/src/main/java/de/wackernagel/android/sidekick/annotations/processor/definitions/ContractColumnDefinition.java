@@ -7,20 +7,6 @@ import javax.lang.model.element.Element;
 
 import de.wackernagel.android.sidekick.annotations.processor.JavaUtils;
 
-/**
- * Represents a class reference with @Contract annotation.
- * The Java type is className + Model
- * The SQLite type is long as a foreign key
- *
- * Contract
- * class Order <- Contract
- * - OrderItem item <- ContractColumn
- *
- * Contract
- * class OrderItem <- Contract
- *
- * Order has a relation to OrderItem.
- */
 public class ContractColumnDefinition extends BaseDefinition {
 
     private final TypeName objectType;
@@ -30,6 +16,8 @@ public class ContractColumnDefinition extends BaseDefinition {
 
     /**
      * Used for many to many relation
+     *
+     * @param type of referencing table
      */
     public ContractColumnDefinition(TypeName type) {
         this( null, type );
@@ -37,6 +25,9 @@ public class ContractColumnDefinition extends BaseDefinition {
 
     /**
      * Used for one to one / one to many relation
+     *
+     * @param element of definition
+     * @param type of referencing table
      */
     public ContractColumnDefinition(Element element, TypeName type) {
         super(element);
