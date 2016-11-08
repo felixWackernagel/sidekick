@@ -159,7 +159,7 @@ public class ContractGenerator {
                 String parentTable = BaseDefinition.formatNameForSQL( column.getObjectType() );
 
 
-                sql.add(" CONSTRAINT '" + column.getColumnName() + "_fk' REFERENCES " + escape( parentTable ) + ".('_id')" );
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_fk' REFERENCES " + escape( parentTable ) + "('_id')" );
 
                 final ForeignKey foreignKey = column.foreignKey();
                 if( foreignKey != null && foreignKey.onDelete() != ForeignKey.Action.NONE ) {
