@@ -23,6 +23,7 @@ import javax.lang.model.element.Modifier;
 
 import de.wackernagel.android.sidekick.annotations.processor.definitions.*;
 
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -59,6 +60,7 @@ public class ModelGenerator {
         final ClassName builderName = ClassName.get(tableDefinition.getPackageName(), "Builder");
         final ClassName contentValues = ClassName.get( "android.content", "ContentValues" );
         final ClassName contract = ClassName.get(tableDefinition.getPackageName(), tableDefinition.getClassName() + "Contract");
+        final ClassName innerClass = ClassName.get(tableDefinition.getPackageName(), tableDefinition.getObjectType(false, true), "Builder");
 
         TypeSpec.Builder builderClass = TypeSpec.classBuilder(builderName)
                 .addModifiers(PUBLIC, STATIC)
@@ -66,12 +68,38 @@ public class ModelGenerator {
                 .addMethod(MethodSpec.constructorBuilder()
                         .addStatement("this.values = new $T()", contentValues)
                         .addModifiers(PUBLIC)
+                        .build())
+                .addMethod(MethodSpec.constructorBuilder()
+                        .addParameter( ParameterSpec.builder(contentValues, "values", FINAL)
+                            .addAnnotation(nonNull)
+                            .build())
+                        .addStatement("this.values = values")
+                        .addModifiers(PUBLIC)
                         .build());
 
         for( ColumnDefinition column : columnDefinitions ) {
             if( column.isPrimaryKey() || column.isCollectionType() ) {
                 continue;
             }
+
+            if( column.isContractObjectType() ) {
+                MethodSpec.Builder method = MethodSpec.methodBuilder("set" + Character.toTitleCase(column.getFieldName().charAt(0)) + column.getFieldName().substring( 1 ))
+                        .returns(TypeName.VOID)
+                        .addModifiers(PUBLIC)
+                        .addParameter( ParameterSpec.builder(column.getObjectType(), column.getFieldName(), FINAL)
+                                .addAnnotation( column.isNotNull() ? nonNull : nullable )
+                                .build() )
+                        .returns( innerClass );
+                        if( column.isNotNull() ) {
+                            method.addStatement("values.put( $T.$N, $N.getId() )", contract, column.getConstantFieldName(), column.getFieldName());
+                        } else {
+                            method.addStatement("values.put( $T.$N, ($N != null) ? $N.getId() : null )", contract, column.getConstantFieldName(), column.getFieldName(),column.getFieldName());
+                        }
+                        method.addStatement("return this");
+
+                builderClass.addMethod( method.build() );
+            }
+
             final String memberName = column.getFieldName() + (column.isContractObjectType() ? "Id" : "");
             final String methodName = Character.toTitleCase(memberName.charAt(0)) + memberName.substring( 1 );
             final TypeName type = column.isContractObjectType() ? TypeName.LONG : column.getObjectType();
@@ -83,14 +111,16 @@ public class ModelGenerator {
                     param.addAnnotation(nullable);
                 }
             }
-            builderClass.addMethod(MethodSpec.methodBuilder("set" + methodName)
+            builderClass.addMethod(methodBuilder("set" + methodName)
                     .returns(TypeName.VOID)
                     .addModifiers(PUBLIC)
                     .addParameter(param.build())
+                    .returns( innerClass )
                     .addStatement("values.put( $T.$N, $N )", contract, column.getConstantFieldName(), memberName)
+                    .addStatement("return this")
                     .build());
         }
-        builderClass.addMethod(MethodSpec.methodBuilder("build")
+        builderClass.addMethod(methodBuilder("build")
                 .returns(contentValues)
                 .addAnnotation(nonNull)
                 .addStatement("return values", contentValues)
@@ -100,7 +130,7 @@ public class ModelGenerator {
     }
 
     private void objectCreator(TypeSpec.Builder classBuilder, de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition tableDefinition, Set<ColumnDefinition> columnDefinitions) {
-        final MethodSpec.Builder createFromCursor = MethodSpec.methodBuilder( "createFromCursor" )
+        final MethodSpec.Builder createFromCursor = methodBuilder( "createFromCursor" )
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns( ClassName.get(tableDefinition.getPackageName(), tableDefinition.getObjectType(false, true)))
@@ -143,7 +173,7 @@ public class ModelGenerator {
     }
 
     private void hashCode( final TypeSpec.Builder classBuilder, final Set<ColumnDefinition> columns ) {
-        final MethodSpec.Builder method = MethodSpec.methodBuilder("hashCode")
+        final MethodSpec.Builder method = methodBuilder("hashCode")
                 .addAnnotation(Override.class)
                 .returns(int.class)
                 .addModifiers(Modifier.PUBLIC);
@@ -163,7 +193,7 @@ public class ModelGenerator {
     }
 
     private static void equals( final TypeSpec.Builder classBuilder, final Set<ColumnDefinition> columns, final de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition table ) {
-        final MethodSpec.Builder method = MethodSpec.methodBuilder("equals")
+        final MethodSpec.Builder method = methodBuilder("equals")
                 .addParameter(Object.class, "obj")
                 .addAnnotation( Override.class )
                 .returns(boolean.class)
@@ -189,7 +219,7 @@ public class ModelGenerator {
     }
 
     private static void toString(final TypeSpec.Builder classBuilder, final Set<ColumnDefinition> fields, final String className) {
-        final MethodSpec.Builder method = MethodSpec.methodBuilder("toString")
+        final MethodSpec.Builder method = methodBuilder("toString")
                 .addAnnotation( Override.class )
                 .returns( String.class )
                 .addModifiers( Modifier.PUBLIC );
@@ -220,7 +250,7 @@ public class ModelGenerator {
             final String name = Character.toTitleCase( memberName.charAt( 0 ) ) + memberName.substring( 1 );
 
             final String prefix = columnDefinition.isBoolean() ? "is" : "get";
-            final MethodSpec.Builder getMethod = MethodSpec.methodBuilder( prefix + name)
+            final MethodSpec.Builder getMethod = methodBuilder( prefix + name)
                     .addModifiers(Modifier.PUBLIC)
                     .returns(columnDefinition.isContractObjectType() ? TypeName.LONG : columnDefinition.getObjectType())
                     .addStatement("return $N", memberName );
