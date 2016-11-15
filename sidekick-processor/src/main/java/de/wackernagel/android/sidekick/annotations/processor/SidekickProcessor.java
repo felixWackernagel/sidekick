@@ -6,6 +6,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.lang.annotation.Annotation;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -32,6 +33,7 @@ import de.wackernagel.android.sidekick.annotations.Unique;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.ContractCollectionColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.ContractColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.DateColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimaryColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveCollectionColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveColumnDefinition;
@@ -289,7 +291,9 @@ public class SidekickProcessor extends AbstractProcessor {
                 }
             } else if( field.asType() instanceof DeclaredType && typeUtils.asElement( field.asType() ).getAnnotation( Contract.class ) != null ) {
                 // Class with @Contract()
-                annotatedFields.add( new ContractColumnDefinition(field, type) );
+                annotatedFields.add(new ContractColumnDefinition(field, type));
+            } else if( type.toString().equals(Date.class.getName() ) ) {
+                annotatedFields.add(new DateColumnDefinition(field, type));
             } else {
                 logger.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString());
             }
