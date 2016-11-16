@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteCursor;
 import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -74,6 +75,17 @@ public class CursorCompat {
                 default:
                     throw new RuntimeException( "Unknown cursor type!" );
             }
+        }
+    }
+
+    /**
+     * Close the given cursor if its not closed and not null.
+     *
+     * @param cursor to close
+     */
+    public static void close(@Nullable final Cursor cursor) {
+        if( cursor != null && !cursor.isClosed() ) {
+            cursor.close();
         }
     }
 }
