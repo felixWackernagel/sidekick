@@ -1,6 +1,7 @@
 package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -80,6 +81,11 @@ public class ContractColumnDefinition extends BaseDefinition {
     @Override
     public String getCursorMethod() {
         return "Long";
+    }
+
+    @Override
+    public CodeBlock getCursorToObjectCodeLine(int index ) {
+        return CodeBlock.of( "cursor.get$L( $L )", getCursorMethod(), index );
     }
 
     /********************************************************************/

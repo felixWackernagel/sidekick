@@ -1,5 +1,6 @@
 package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -101,6 +102,13 @@ public class PrimitiveColumnDefinition extends BaseDefinition {
         } else {
             return "Int";
         }
+    }
+
+    @Override
+    public CodeBlock getCursorToObjectCodeLine( int index ) {
+        final String bool = isBoolean() ? "1 == " : "";
+        final String cast = isByte() ? "(byte) " : "";
+        return CodeBlock.of( "$L$Lcursor.get$L( $L )", cast, bool, getCursorMethod(), index );
     }
 
     /* ************************************************************* */

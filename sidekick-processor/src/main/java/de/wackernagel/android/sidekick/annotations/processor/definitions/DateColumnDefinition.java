@@ -1,5 +1,7 @@
 package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -54,6 +56,14 @@ public class DateColumnDefinition extends BaseDefinition {
     @Override
     public String getCursorMethod() {
         return "String";
+    }
+
+    @Override
+    public CodeBlock getCursorToObjectCodeLine(int index ) {
+        return CodeBlock.of( "$T.toDate( cursor.get$L( $L ) )",
+                ClassName.get( "de.wackernagel.android.sidekick.converters", "DateStringConverter" ),
+                getCursorMethod(),
+                index );
     }
 
 }

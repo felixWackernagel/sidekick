@@ -111,14 +111,24 @@ public class ModelGenerator {
                     param.addAnnotation(nullable);
                 }
             }
-            builderClass.addMethod(methodBuilder("set" + methodName)
+
+            final MethodSpec.Builder method = methodBuilder("set" + methodName)
                     .returns(TypeName.VOID)
                     .addModifiers(PUBLIC)
                     .addParameter(param.build())
-                    .returns( innerClass )
-                    .addStatement("values.put( $T.$N, $N )", contract, column.getConstantFieldName(), memberName)
-                    .addStatement("return this")
-                    .build());
+                    .returns( innerClass );
+            if( column instanceof DateColumnDefinition ) {
+                method.addStatement("values.put( $T.$N, $T.toString( $N ) )",
+                        contract,
+                        column.getConstantFieldName(),
+                        ClassName.get( "de.wackernagel.android.sidekick.converters", "DateStringConverter" ),
+                        memberName);
+            } else {
+                method.addStatement("values.put( $T.$N, $N )", contract, column.getConstantFieldName(), memberName);
+            }
+
+            method.addStatement("return this");
+            builderClass.addMethod( method.build() );
         }
         builderClass.addMethod(methodBuilder("build")
                 .returns(contentValues)
@@ -145,15 +155,8 @@ public class ModelGenerator {
 
             if( index > 0 )
                 impl.add( ",\n");
-            impl.add("\t");
-            if( column.isBoolean() )
-                impl.add( "1 == " );
-            if( column.isByte() ) {
-                impl.add("(byte) ");
-            }
-            impl.add("cursor.get");
-            impl.add(column.getCursorMethod());
-            impl.add("( " + index + " )");
+            impl.add( "\t" );
+            impl.add( column.getCursorToObjectCodeLine( index ) );
             index++;
         }
         impl.add("\n);\n");

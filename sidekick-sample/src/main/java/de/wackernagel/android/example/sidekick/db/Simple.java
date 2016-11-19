@@ -1,8 +1,9 @@
 package de.wackernagel.android.example.sidekick.db;
 
+import de.wackernagel.android.example.sidekick.provider.ArticleProvider;
 import de.wackernagel.android.sidekick.annotations.Contract;
 
-@Contract( authority = Constants.AUTHORITY )
+@Contract( authority = ArticleProvider.AUTHORITY )
 public class Simple {
     short aShort;
     long aLong;

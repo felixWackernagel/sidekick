@@ -1,6 +1,7 @@
 package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
@@ -121,12 +122,17 @@ public class PrimitiveCollectionColumnDefinition extends BaseDefinition {
 
     @Override
     public String getSQLiteType() {
-        throw new UnsupportedOperationException( "ContractCollection: No sqlite type needed for " + collectionObjectType.toString() );
+        throw new UnsupportedOperationException( "PrimitiveCollection: No sqlite type needed for " + collectionObjectType.toString() );
     }
 
     @Override
     public String getCursorMethod() {
-        throw new UnsupportedOperationException( "ContractCollection: unknown mapping from cursor to " + collectionObjectType.toString() );
+        throw new UnsupportedOperationException( "PrimitiveCollection: unknown mapping from cursor to " + collectionObjectType.toString() );
+    }
+
+    @Override
+    public CodeBlock getCursorToObjectCodeLine(int index ) {
+        throw new UnsupportedOperationException( "PrimitiveCollection: unknown mapping from cursor to " + collectionObjectType.toString() );
     }
 
     /********************************************************************/

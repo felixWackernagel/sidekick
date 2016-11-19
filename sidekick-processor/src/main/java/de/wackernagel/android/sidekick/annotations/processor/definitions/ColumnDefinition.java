@@ -1,5 +1,6 @@
 package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
@@ -31,5 +32,6 @@ public interface ColumnDefinition {
     Unique unique();
     boolean skipSQLite();
     String getCursorMethod();
+    CodeBlock getCursorToObjectCodeLine( int index );
 
 }

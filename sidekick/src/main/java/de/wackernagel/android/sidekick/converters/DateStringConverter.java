@@ -1,11 +1,14 @@
-package de.wackernagel.android.sidekick.utils;
+package de.wackernagel.android.sidekick.converters;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 public class DateStringConverter {
@@ -66,7 +69,7 @@ public class DateStringConverter {
         calendar.setTime( date );
         format.setLength( 0 );
         format.append( calendar.get( Calendar.YEAR ) ).append( "-" );
-        twoDigits( format, calendar.get( Calendar.MONTH ) - 1 );
+        twoDigits( format, calendar.get( Calendar.MONTH ) + 1 );
         format.append( "-");
         twoDigits( format, calendar.get( Calendar.DAY_OF_MONTH ) );
         format.append( " " );
@@ -90,5 +93,20 @@ public class DateStringConverter {
             format.append( 0 );
         }
         format.append(number);
+    }
+
+    public static Date convertDate( Date dateFrom, String fromTimeZone, String toTimeZone ) {
+        String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
+        SimpleDateFormat sdfFrom = new SimpleDateFormat (pattern);
+        sdfFrom.setTimeZone(TimeZone.getTimeZone(fromTimeZone));
+
+        SimpleDateFormat sdfTo = new SimpleDateFormat (pattern);
+        sdfTo.setTimeZone(TimeZone.getTimeZone(toTimeZone));
+
+        try {
+            return sdfFrom.parse(sdfTo.format(dateFrom));
+        } catch( ParseException e ) {
+            return null;
+        }
     }
 }

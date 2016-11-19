@@ -4,6 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import java.util.Date;
+
 import de.wackernagel.android.example.sidekick.db.TagModel;
 import de.wackernagel.android.sidekick.compats.ObjectsCompat;
 
@@ -18,8 +20,9 @@ public class ObjectsCompatTest {
         Assert.assertFalse(ObjectsCompat.equals(null, "hello"));
         Assert.assertTrue(ObjectsCompat.equals(null, null));
 
-        final TagModel tagA = new TagModel( 1, "A" );
-        final TagModel tagB = new TagModel( 2, "B" );
+        final Date now = new Date();
+        final TagModel tagA = new TagModel( 1, "A", now, now );
+        final TagModel tagB = new TagModel( 2, "B", now, now );
         Assert.assertTrue(ObjectsCompat.equals(tagA, tagA));
         Assert.assertFalse(ObjectsCompat.equals(tagA, tagB));
     }
