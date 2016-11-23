@@ -15,9 +15,4 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target( FIELD )
 public @interface Default {
     String value();
-
-    String NULL = "NULL";
-    String CURRENT_TIME = "CURRENT_TIME";
-    String CURRENT_DATE = "CURRENT_DATE";
-    String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
 }

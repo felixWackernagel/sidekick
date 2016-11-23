@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class DateStringConverter {
      * @return Date or null when timestamp format wasn't supported or null
      */
     @Nullable
-    public static Date toDate( @Nullable final String timestamp ) {
+    public static Date toDate(@Nullable final String timestamp) {
         if( !TextUtils.isEmpty( timestamp ) && TIMESTAMP.matcher( timestamp ).matches() ) {
             int year = Integer.valueOf( timestamp.substring(0, 4) );
             int month = Integer.valueOf( timestamp.substring(5, 7) );
@@ -61,7 +62,7 @@ public class DateStringConverter {
      * @return Date as String or null when date was null.
      */
     @Nullable
-    public static String toString( @Nullable final Date date ) {
+    public static String toString(@Nullable final Date date) {
         if( date == null ) {
             return null;
         }
@@ -88,23 +89,30 @@ public class DateStringConverter {
      * @param format builder
      * @param number to append
      */
-    private static void twoDigits(@NonNull  final StringBuilder format, final int number) {
+    private static void twoDigits(@NonNull final StringBuilder format, final int number) {
         if( number < 10 ) {
             format.append( 0 );
         }
         format.append(number);
     }
 
-    public static Date convertDate( Date dateFrom, String fromTimeZone, String toTimeZone ) {
-        String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
-        SimpleDateFormat sdfFrom = new SimpleDateFormat (pattern);
-        sdfFrom.setTimeZone(TimeZone.getTimeZone(fromTimeZone));
+    /**
+     * @param dateFrom source of conversion
+     * @param fromTimeZone source TimeZone
+     * @param toTimeZone target TimeZone
+     * @return converted Date or null
+     */
+    @Nullable
+    public static Date convertBetweenTimeZones(@NonNull final Date dateFrom, @NonNull final String fromTimeZone, @NonNull final String toTimeZone) {
+        final SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault() );
+        format.setTimeZone( TimeZone.getTimeZone( toTimeZone ) );
 
-        SimpleDateFormat sdfTo = new SimpleDateFormat (pattern);
-        sdfTo.setTimeZone(TimeZone.getTimeZone(toTimeZone));
+        final String toDate = format.format( dateFrom );
+
+        format.setTimeZone(TimeZone.getTimeZone(fromTimeZone));
 
         try {
-            return sdfFrom.parse(sdfTo.format(dateFrom));
+            return format.parse( toDate );
         } catch( ParseException e ) {
             return null;
         }
