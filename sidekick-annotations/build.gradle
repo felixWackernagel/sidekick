@@ -7,7 +7,7 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 ext {
     PUBLISH_GROUP_ID = 'de.wackernagel.android'
     PUBLISH_ARTIFACT_ID = 'sidekick-annotations'
-    PUBLISH_VERSION = '0.1.0'
+    PUBLISH_VERSION = '0.2.0'
 }
 
 def groupId = project.PUBLISH_GROUP_ID
