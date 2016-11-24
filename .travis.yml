@@ -38,14 +38,13 @@ addons:
 
 before_script:
   - echo no | android create avd --force --name test --target $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb devices
-  - adb shell input keyevent 82 &
-   
+  - emulator -avd test -no-skin -no-audio -no-window &   
 
 script:
-   - ./gradlew clean build check -PdisablePreDex --continue --stacktrace
+   - ./gradlew check -PdisablePreDex --continue --stacktrace
+   - android-wait-for-emulator
+   - adb devices &
+   - adb shell input keyevent 82 &
    - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
