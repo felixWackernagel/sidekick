@@ -11,7 +11,11 @@ This project is in the early stages of development but grows continuously to sup
 ```gradle
 dependencies {
     ...
-    compile 'de.wackernagel.android:sidekick:1.3.6'
+    compile 'de.wackernagel.android:sidekick:1.3.7'
+    
+    # Extensions
+    compile 'de.wackernagel.android:sidekick-annotations:0.2.0'
+    compile 'de.wackernagel.android:sidekick-processor:0.2.0'
 }
 ```
 
@@ -30,6 +34,8 @@ Check-out the [Wiki](../../wiki) pages for further examples and descriptions.
 * TypefaceUtils
 * PreferenceUtils
 * LogUtils
+* ObjectsCompat
+* CursorCompat
 
 ## Widgets
 
