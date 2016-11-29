@@ -5,28 +5,29 @@ jdk:
 
 env:
   matrix:
-    - ANDROID_TARGET=android-18 ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-24 ANDROID_ABI=armeabi-v7a
 
 android:
   components:
     - tools
     - tools
-    - platform-tools
+    #- platform-tools
     - build-tools-24.0.3
     - android-24
-    - extra-android-m2repository
-    - extra-android-support
+    #- extra-android-m2repository
+    #- extra-android-support
     - extra
     - addon
-    - sys-img-armeabi-v7a-android-18
+    - sys-img-armeabi-v7a-android-24
 
 cache:
   directories:
     # gradle version from gradle-wrapper.properties
-    - $HOME/.gradle/caches/2.14.1
-    - $HOME/.gradle/caches/jars-1
-    - $HOME/.gradle/daemon
-    - $HOME/.gradle/native
+    #- $HOME/.gradle/caches/2.14.1
+    #- $HOME/.gradle/caches/jars-1
+    - $HOME/.gradle/caches
+    #- $HOME/.gradle/daemon
+    #- $HOME/.gradle/native
     - $HOME/.gradle/wrapper
 
 addons:
@@ -38,14 +39,16 @@ addons:
 
 before_script:
   - echo no | android create avd --force --name test --target $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &   
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
 
 script:
    - ./gradlew check -PdisablePreDex --continue --stacktrace
-   - android-wait-for-emulator
-   - adb devices
-   - adb shell input keyevent 82 &
-   - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
+   #- android-wait-for-emulator
+   #- adb devices
+   #- adb shell input keyevent 82 &
+   - ./gradlew build connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
   - pandoc $TRAVIS_BUILD_DIR/sidekick-sample/build/reports/tests/release/index.html -t plain | sed -n '/^Failed tests/,/default-package/p'
