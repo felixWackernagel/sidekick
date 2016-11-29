@@ -5,7 +5,7 @@ jdk:
 
 env:
   matrix:
-    - ANDROID_TARGET=android-22 ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-18 ANDROID_ABI=armeabi-v7a
 
 android:
   components:
@@ -18,7 +18,7 @@ android:
     - extra-android-support
     - extra
     - addon
-    - sys-img-armeabi-v7a-android-22
+    - sys-img-armeabi-v7a-android-18
 
 cache:
   directories:
@@ -34,7 +34,7 @@ addons:
       - $(git ls-files -o | grep build/outputs | tr "\n" ":")
 
 before_script:
-  - echo no | android create avd --force --name test --target android-22 --abi armeabi-v7a
+  - echo no | android create avd --force --name test --target android-18 --abi armeabi-v7a
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
