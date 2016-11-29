@@ -11,11 +11,11 @@ android:
   components:
     - tools
     - tools
-    #- platform-tools
+    - platform-tools
     - build-tools-24.0.3
     - android-24
-    #- extra-android-m2repository
-    #- extra-android-support
+    - extra-android-m2repository
+    - extra-android-support
     - extra
     - addon
     - sys-img-armeabi-v7a-android-22
@@ -23,11 +23,7 @@ android:
 cache:
   directories:
     # gradle version from gradle-wrapper.properties
-    #- $HOME/.gradle/caches/2.14.1
-    #- $HOME/.gradle/caches/jars-1
     - $HOME/.gradle/caches
-    #- $HOME/.gradle/daemon
-    #- $HOME/.gradle/native
     - $HOME/.gradle/wrapper
 
 addons:
@@ -38,16 +34,13 @@ addons:
       - $(git ls-files -o | grep build/outputs | tr "\n" ":")
 
 before_script:
-  - echo no | android create avd --force --name test --target $ANDROID_TARGET --abi $ANDROID_ABI
+  - echo no | android create avd --force --name test --target android-22 --abi armeabi-v7a
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
 
 script:
    - ./gradlew check -PdisablePreDex --continue --stacktrace
-   #- android-wait-for-emulator
-   #- adb devices
-   #- adb shell input keyevent 82 &
    - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
