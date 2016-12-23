@@ -193,12 +193,12 @@ public class CircularRevealView extends View {
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
-    public void setRevealed() {
+    public void setStateRevealed() {
         changeState(STATE_REVEALED);
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
-    public void setConcealed() {
+    public void setStateConcealed() {
         changeState(STATE_CONCEALED);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -217,6 +217,14 @@ public class CircularRevealView extends View {
     @State
     public int getState() {
         return state;
+    }
+
+    public boolean isStateRevealed() {
+        return state == STATE_REVEALED;
+    }
+
+    public boolean isStateConcealed() {
+        return state == STATE_CONCEALED;
     }
 
     public OnStateChangeListener getOnStateChangeListener() {

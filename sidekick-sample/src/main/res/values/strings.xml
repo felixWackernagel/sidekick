@@ -9,6 +9,7 @@
     <string name="reveal_view_unrevealing">start conceal</string>
     <string name="reveal_view_unrevealed">concealed</string>
     <string name="reveal_reveal">reveal</string>
+    <string name="reveal_conceal">conceal</string>
     <string name="reveal_red">Red</string>
     <string name="reveal_gray">Gray</string>
 

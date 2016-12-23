@@ -9,69 +9,76 @@ import android.widget.TextView;
 import de.wackernagel.android.sidekick.widgets.CircularRevealView;
 
 public class RevealViewActivity extends AppCompatActivity {
+    protected TextView textView;
+    protected CircularRevealView revealView;
+    protected Button toggleButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reveal_view);
 
-        final TextView text = (TextView) findViewById(R.id.text);
+        textView = (TextView) findViewById(R.id.text);
+        revealView = (CircularRevealView) findViewById(R.id.circularReveal);
+        toggleButton = (Button) findViewById(R.id.button);
 
-        final CircularRevealView revealViw = (CircularRevealView) findViewById(R.id.circularReveal);
-        revealViw.setOnStateChangeListener(new CircularRevealView.OnStateChangeListener() {
+        revealView.setOnStateChangeListener(new CircularRevealView.OnStateChangeListener() {
             @Override
             public void onStateChange(int state) {
                 switch( state ) {
                     case CircularRevealView.STATE_REVEAL_STARTED:
-                        text.setText( R.string.reveal_view_revealing );
+                        textView.setText( R.string.reveal_view_revealing );
                         break;
                     case CircularRevealView.STATE_REVEALED:
-                        text.setText(R.string.reveal_view_revealed);
+                        textView.setText(R.string.reveal_view_revealed);
                         break;
                     case CircularRevealView.STATE_CONCEAL_STARTED:
-                        text.setText(R.string.reveal_view_unrevealing);
+                        textView.setText(R.string.reveal_view_unrevealing);
                         break;
                     case CircularRevealView.STATE_CONCEALED:
-                        text.setText(R.string.reveal_view_unrevealed);
+                        textView.setText(R.string.reveal_view_unrevealed);
                         break;
                 }
             }
         });
 
-        text.setText( revealViw.getState() == CircularRevealView.STATE_REVEALED ? "revealed" : "concealed");
-
-        final Button visibility = (Button) findViewById(R.id.button);
-        visibility.setOnClickListener(new View.OnClickListener() {
+        toggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int[] startLocation = new int[2];
-                revealViw.getLocationInWindow(startLocation);
-                if (revealViw.getState() == CircularRevealView.STATE_CONCEALED ) {
-                    visibility.setText(R.string.reveal_view_unrevealed);
-                    revealViw.reveal(startLocation);
+                if ( revealView.isStateConcealed() ) {
+                    revealView.getLocationInWindow(startLocation);
+                    toggleButton.setText(R.string.reveal_view_unrevealed);
+                    revealView.reveal(startLocation);
                 } else {
-                    visibility.setText(R.string.reveal_view_revealed);
-                    startLocation[0] += revealViw.getWidth();
-                    startLocation[1] += revealViw.getHeight();
-                    revealViw.conceal(startLocation);
+                    toggleButton.setText(R.string.reveal_view_revealed);
+                    startLocation[0] += revealView.getWidth();
+                    startLocation[1] += revealView.getHeight();
+                    revealView.conceal(startLocation);
                 }
             }
         });
 
-        final Button red= (Button) findViewById(R.id.buttonRed);
-        red.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.buttonRed).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                revealViw.setCircularColorResource(R.color.sidekick_text_error);
+                revealView.setCircularColorResource(R.color.sidekick_text_error);
             }
         });
 
-        final Button gray= (Button) findViewById(R.id.buttonGray);
-        gray.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.buttonGray).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                revealViw.setCircularColorResource(R.color.sidekick_icon);
+                revealView.setCircularColorResource(R.color.sidekick_icon);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        textView.setText(revealView.isStateRevealed() ? R.string.reveal_view_revealed : R.string.reveal_view_unrevealed);
+        toggleButton.setText(revealView.isStateConcealed() ?  R.string.reveal_reveal : R.string.reveal_conceal);
     }
 }
