@@ -126,6 +126,30 @@ public class ObjectsCompat {
         return IMPL.toString( o, nullDefault );
     }
 
+    /**
+     * Returns {@code true} if the provided reference is {@code null} otherwise
+     * returns {@code false}.
+     *
+     * @param object a reference to be checked against {@code null}
+     * @return {@code true} if the provided reference is {@code null} otherwise
+     * {@code false}
+     */
+    public static boolean isNull( Object object ) {
+        return IMPL.isNull( object );
+    }
+
+    /**
+     * Returns {@code true} if the provided reference is non-{@code null}
+     * otherwise returns {@code false}.
+     *
+     * @param object a reference to be checked against {@code null}
+     * @return {@code true} if the provided reference is non-{@code null}
+     * otherwise {@code false}
+     */
+    public static boolean nonNull( Object object ) {
+        return IMPL.nonNull( object );
+    }
+
     private interface ObjectsCompatImpl {
         <T> int compare(T a, T b, Comparator<? super T> c);
         boolean deepEquals(Object a, Object b);
@@ -136,6 +160,8 @@ public class ObjectsCompat {
         <T> T requireNonNull(T obj);
         String toString(Object o);
         String toString(Object o, String nullDefault);
+        boolean isNull( Object object );
+        boolean nonNull( Object object );
     }
 
     private static class BaseObjectsCompatImpl implements ObjectsCompatImpl {
@@ -213,6 +239,16 @@ public class ObjectsCompat {
         @Override
         public String toString(Object o, String nullDefault) {
             return o == null ? nullDefault : o.toString();
+        }
+
+        @Override
+        public boolean isNull(Object object) {
+            return object == null;
+        }
+
+        @Override
+        public boolean nonNull(Object object) {
+            return object != null;
         }
     }
 
