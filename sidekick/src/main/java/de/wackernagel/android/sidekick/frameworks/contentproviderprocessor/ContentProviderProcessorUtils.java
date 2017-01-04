@@ -12,89 +12,65 @@ import java.util.List;
 public class ContentProviderProcessorUtils {
 
 	public static Uri appendLimit( @NonNull final Uri uri, @NonNull final String limit ) {
-		if( uri == null ) {
-			throw new IllegalArgumentException( "Uri can't be null" );
-		}
-
 		return uri.buildUpon()
 				.appendQueryParameter( AbstractContentProviderProcessor.QUERY_PARAMETER_LIMIT, limit )
 				.build();
 	}
 
 	public static Uri appendGroupBy( @NonNull final Uri uri, @NonNull final String groupBy ) {
-		if( uri == null ) {
-			throw new IllegalArgumentException( "Uri can't be null" );
-		}
-		
 		return uri.buildUpon()
 				.appendQueryParameter( AbstractContentProviderProcessor.QUERY_PARAMETER_GROUP_BY, groupBy )
 				.build();
 	}
 	
 	public static Uri appendHaving( @NonNull final Uri uri, @NonNull final String having ) {
-		if( uri == null ) {
-			throw new IllegalArgumentException( "Uri can't be null" );
-		}
-		
 		return uri.buildUpon()
 				.appendQueryParameter( AbstractContentProviderProcessor.QUERY_PARAMETER_HAVING, having )
 				.build();
 	}
 
 	public static Uri appendDistinct( @NonNull final Uri uri ) {
-		if( uri == null ) {
-			throw new IllegalArgumentException( "Uri can't be null" );
-		}
-
 		return uri.buildUpon()
 				.appendQueryParameter( AbstractContentProviderProcessor.QUERY_PARAMETER_DISTINCT, "distinct" )
 				.build();
 	}
 
     /**
-     * @param table name of database table
+     * @param tableName name of database table
      * @param projection columns of database table
-     * @return a array in which each projection element has the table as prefix like "table.projectionElement"
+     * @return a array in which each projection element has the tableName as prefix like "tableName.projectionColumn"
      */
-    public static String[] joinProjection( @NonNull final String table, @NonNull final String[] projection ) {
+    public static String[] qualifiedProjection(@NonNull final String tableName, @NonNull final String[] projection) {
         final int size = projection.length;
         final String[] joinProjection = new String[ size ];
         for( int index = 0; index < size; index++ ) {
-            joinProjection[ index ] = table.concat( "." ).concat( projection[ index ] );
+            joinProjection[ index ] = tableName.concat( "." ).concat( projection[ index ] );
         }
         return joinProjection;
     }
 
     /**
-     * @param tablesWithProjection list of tables and columns
+     * @param tableProjections pairs of tableName and columns
      * @return a single array of all projections with the table name as prefix
      */
-	public static String[] joinProjections( @NonNull final List<Pair<String, String[]>> tablesWithProjection ) {
-		final StringBuilder result = new StringBuilder();
-        final String divider = "|";
-        final int tableCount = tablesWithProjection.size();
+	public static String[] qualifiedProjection(@NonNull final List<Pair<String, String[]>> tableProjections) {
+        int columns = 0;
+        final int tables = tableProjections.size();
+        for( int index = 0; index < tables; index++ )
+            columns += tableProjections.get( index ).second.length;
 
-        String table;
-        String[] projection;
-        int columnCount;
-
-		for( int i = 0; i < tableCount; i++ ) {
-
-			table = tablesWithProjection.get(i).first;
-			projection = tablesWithProjection.get(i).second;
-			columnCount = projection.length;
-
-            for( int j = 0; j < columnCount; j++ ) {
-                if( !(i == 0 && j == 0) ) {
-                    result.append( divider );
-                }
-				result.append( table ).append( "." ).append( projection[j]);
-			}
-		}
-		return result.toString().split( divider );
+        final String[] qualifiedProjection = new String[ columns ];
+        int currentIndex = 0;
+        for( int index = 0; index < tables; index++ ) {
+            final Pair<String, String[]> table = tableProjections.get( index );
+            final String[] qualifiedColumns = qualifiedProjection( table.first, table.second );
+            System.arraycopy( qualifiedColumns, 0, qualifiedProjection, currentIndex, qualifiedColumns.length );
+            currentIndex += qualifiedColumns.length;
+        }
+        return qualifiedProjection;
 	}
 
-	public static boolean existColumn( @NonNull final SQLiteDatabase db, @NonNull final String table,@NonNull final  String columnName ) {
+	public static boolean existColumn(@NonNull final SQLiteDatabase db, @NonNull final String table, @NonNull final String columnName) {
 		final Cursor cursor = db.rawQuery( "PRAGMA table_info(" + table + ")", null);
 		if( cursor != null && cursor.moveToFirst() ) {
 			do {
