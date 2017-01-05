@@ -4,6 +4,7 @@ import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 
+import de.wackernagel.android.sidekick.annotations.Check;
 import de.wackernagel.android.sidekick.annotations.Default;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
@@ -62,6 +63,11 @@ public abstract class BaseDefinition implements ColumnDefinition {
     @Override
     public ForeignKey foreignKey() {
         return origin != null ? origin.getAnnotation(ForeignKey.class) : null;
+    }
+
+    @Override
+    public Check check() {
+        return origin != null ? origin.getAnnotation(Check.class) : null;
     }
 
     /* ** TYPES ********************************************************************** */

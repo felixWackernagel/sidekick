@@ -22,11 +22,13 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.tools.Diagnostic;
 
+import de.wackernagel.android.sidekick.annotations.Check;
 import de.wackernagel.android.sidekick.annotations.ConflictClause;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
-import de.wackernagel.android.sidekick.annotations.processor.definitions.*;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.BaseDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition;
 
 import static javax.lang.model.element.Modifier.FINAL;
@@ -149,6 +151,11 @@ public class ContractGenerator {
             final String defaultValue = column.defaultValue();
             if( defaultValue != null && defaultValue.length() > 0 ) {
                 sql.add(" CONSTRAINT '" + column.getColumnName() + "_default' DEFAULT ").add(defaultValue);
+            }
+
+            final Check checkConstraint = column.check();
+            if( checkConstraint != null && checkConstraint.value().length() > 0 ) {
+                sql.add(" CONSTRAINT '" + column.getColumnName() + "_check' CHECK(" + checkConstraint.value() + ")");
             }
 
             if (column.isBoolean() ) {

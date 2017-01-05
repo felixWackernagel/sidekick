@@ -3,6 +3,7 @@ package de.wackernagel.android.sidekick.annotations.processor.definitions;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
+import de.wackernagel.android.sidekick.annotations.Check;
 import de.wackernagel.android.sidekick.annotations.ForeignKey;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 import de.wackernagel.android.sidekick.annotations.Unique;
@@ -30,6 +31,7 @@ public interface ColumnDefinition {
     boolean isForeignKey();
     ForeignKey foreignKey();
     Unique unique();
+    Check check();
     boolean skipSQLite();
     String getCursorMethod();
     CodeBlock getCursorToObjectCodeLine( int index );
