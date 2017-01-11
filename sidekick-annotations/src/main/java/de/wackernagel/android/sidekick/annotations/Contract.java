@@ -14,6 +14,4 @@ public @interface Contract {
 
     String authority();
 
-    boolean model() default true;
-
 }

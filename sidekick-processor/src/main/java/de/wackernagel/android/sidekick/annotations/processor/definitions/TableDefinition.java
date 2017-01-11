@@ -8,13 +8,11 @@ public class TableDefinition {
     private final String packageName;
     private final String className;
     private final String authority;
-    private final boolean model;
 
-    public TableDefinition( final String packageName, final String className, final String authority, final boolean model ) {
+    public TableDefinition( final String packageName, final String className, final String authority ) {
         this.packageName = packageName;
         this.className = className;
         this.authority = authority;
-        this.model = model;
     }
 
     /**
@@ -52,10 +50,6 @@ public class TableDefinition {
      */
     public String getTableName() {
         return BaseDefinition.formatNameForSQL(className);
-    }
-
-    public boolean generateModel() {
-        return model;
     }
 
     /**

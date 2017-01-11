@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Date;
 
-import de.wackernagel.android.example.sidekick.db.TagContract;
 import de.wackernagel.android.example.sidekick.db.TagModel;
 import de.wackernagel.android.example.sidekick.provider.ArticleContract;
 import de.wackernagel.android.example.sidekick.provider.ArticleProvider;
@@ -104,17 +103,17 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
 
     @Test
     public void testDate() {
-        Cursor cursor = getMockContentResolver().query(TagContract.CONTENT_URI, TagContract.PROJECTION, null, null, null);
+        Cursor cursor = getMockContentResolver().query(TagModel.Contract.CONTENT_URI, TagModel.Contract.PROJECTION, null, null, null);
         assertNotNull( cursor );
         assertEquals( 0, cursor.getCount() );
 
         final Date now = new Date();
-        final Uri insert = getMockContentResolver().insert( TagContract.CONTENT_URI,
+        final Uri insert = getMockContentResolver().insert( TagModel.Contract.CONTENT_URI,
             new TagModel.Builder().setName( "tag1" ).setCreated( now ).setChanged( now ).build() );
         assertNotNull( insert );
         assertEquals( 1, ContentUris.parseId( insert ) );
 
-        cursor = getMockContentResolver().query(TagContract.CONTENT_URI, TagContract.PROJECTION, null, null, null);
+        cursor = getMockContentResolver().query(TagModel.Contract.CONTENT_URI, TagModel.Contract.PROJECTION, null, null, null);
         assertNotNull( cursor );
         assertEquals( 1, cursor.getCount() );
         assertTrue( cursor.moveToFirst() );
@@ -129,16 +128,16 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
 
     @Test
     public void testDateDefault() {
-        Cursor cursor = getMockContentResolver().query(TagContract.CONTENT_URI, TagContract.PROJECTION, null, null, null);
+        Cursor cursor = getMockContentResolver().query(TagModel.Contract.CONTENT_URI, TagModel.Contract.PROJECTION, null, null, null);
         assertNotNull( cursor );
         assertEquals( 0, cursor.getCount() );
 
-        final Uri insert = getMockContentResolver().insert( TagContract.CONTENT_URI,
+        final Uri insert = getMockContentResolver().insert( TagModel.Contract.CONTENT_URI,
                 new TagModel.Builder().setName( "tag1" ).build() );
         assertNotNull( insert );
         assertEquals( 1, ContentUris.parseId( insert ) );
 
-        cursor = getMockContentResolver().query(TagContract.CONTENT_URI, TagContract.PROJECTION, null, null, null);
+        cursor = getMockContentResolver().query(TagModel.Contract.CONTENT_URI, TagModel.Contract.PROJECTION, null, null, null);
         assertNotNull( cursor );
         assertEquals( 1, cursor.getCount() );
         assertTrue( cursor.moveToFirst() );

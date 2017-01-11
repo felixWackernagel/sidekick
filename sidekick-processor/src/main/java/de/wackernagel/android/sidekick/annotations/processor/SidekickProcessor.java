@@ -38,7 +38,6 @@ import de.wackernagel.android.sidekick.annotations.processor.definitions.Primary
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveCollectionColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition;
-import de.wackernagel.android.sidekick.annotations.processor.generators.ContractGenerator;
 import de.wackernagel.android.sidekick.annotations.processor.generators.ModelGenerator;
 
 import static javax.tools.Diagnostic.Kind.NOTE;
@@ -84,11 +83,10 @@ public class SidekickProcessor extends AbstractProcessor {
         // collect data
         for( Element annotatedElement : environment.getElementsAnnotatedWith(Contract.class) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
-            final de.wackernagel.android.sidekick.annotations.processor.definitions.TableDefinition tableDefinition = new TableDefinition(
+            final TableDefinition tableDefinition = new TableDefinition(
                     JavaUtils.getPackageName(elementUtils, annotatedClass),
                     annotatedClass.getSimpleName().toString(),
-                    annotatedClass.getAnnotation(Contract.class).authority(),
-                    annotatedClass.getAnnotation(Contract.class).model() );
+                    annotatedClass.getAnnotation(Contract.class).authority() );
 
             final Set<Element> fields = JavaUtils.getMemberFields(annotatedClass, elementUtils, typeUtils);
             final Set<ColumnDefinition> columnDefinitions = convertToDefinitions(fields);
@@ -122,16 +120,9 @@ public class SidekickProcessor extends AbstractProcessor {
             final TableDefinition tableDefinition = entry.getKey();
             final Set<ColumnDefinition> columnDefinitions = entry.getValue();
 
-            final ContractGenerator generatedContractClass = new ContractGenerator( tableDefinition, columnDefinitions, logger );
-            if( generatedContractClass.writeClass( tableDefinition.getPackageName(), processingEnv.getFiler() ) ) {
-                logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + "Contract generated.");
-            }
-
-            if( tableDefinition.generateModel() ) {
-                final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
-                if( generatedModelClass.writeClass(tableDefinition.getPackageName(), processingEnv.getFiler()) ) {
-                    logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + "Model generated.");
-                }
+            final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
+            if( generatedModelClass.writeClass(tableDefinition.getPackageName(), processingEnv.getFiler()) ) {
+                logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + "Model generated.");
             }
         }
 
@@ -143,7 +134,7 @@ public class SidekickProcessor extends AbstractProcessor {
         final String tableOne = entry.getKey().getClassName();
         final String tableTwo = JavaUtils.getSimpleName(columnDefinition.getOriginCollectionElementObjectType());
         final TableDefinition manyManyTableRelation = getOrCreateTableRelation(
-                tableOne, tableTwo, entry.getKey().getPackageName(), entry.getKey().getTableAuthority(), entry.getKey().generateModel()
+                tableOne, tableTwo, entry.getKey().getPackageName(), entry.getKey().getTableAuthority()
         );
 
         Set<ColumnDefinition> columns;
@@ -170,8 +161,7 @@ public class SidekickProcessor extends AbstractProcessor {
         final TableDefinition oneManyPrimitiveRelation = new TableDefinition(
                 parentTable.getPackageName(),
                 parentTable.getClassName().concat(JavaUtils.toTitleCase(column.getFieldName())),
-                parentTable.getTableAuthority(),
-                parentTable.generateModel()
+                parentTable.getTableAuthority()
         );
         final Set<ColumnDefinition> columns = new LinkedHashSet<>();
         final Unique parentAndOrder = createUnique( 1, ConflictClause.NONE );
@@ -223,12 +213,11 @@ public class SidekickProcessor extends AbstractProcessor {
         };
     }
 
-    private TableDefinition getOrCreateTableRelation( String tableOne, String tableTwo, String packageName, String tableAuthority, boolean generateModel ) {
+    private TableDefinition getOrCreateTableRelation( String tableOne, String tableTwo, String packageName, String tableAuthority ) {
         final TableDefinition tableDefinition = new TableDefinition(
                 packageName,
                 tableOne.concat( tableTwo ).concat("Relation"),
-                tableAuthority,
-                generateModel );
+                tableAuthority );
 
         if( toGenerate.containsKey( tableDefinition ) || relations.containsKey( tableDefinition ) ) {
             return tableDefinition;
@@ -237,8 +226,7 @@ public class SidekickProcessor extends AbstractProcessor {
         final TableDefinition tableAlternativeDefinition = new TableDefinition(
                 packageName,
                 tableTwo.concat( tableOne ).concat("Relation"),
-                tableAuthority,
-                generateModel );
+                tableAuthority );
 
         if( toGenerate.containsKey( tableAlternativeDefinition ) || relations.containsKey( tableAlternativeDefinition ) ) {
             return tableAlternativeDefinition;
