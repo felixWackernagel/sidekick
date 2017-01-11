@@ -45,7 +45,8 @@ public class CircularRevealView extends View {
     private int animationState = ANIMATION_NONE;
     private long animationStartTimeMillis;
     private long animationDuration = 400L;
-    private Interpolator interpolator = new AccelerateInterpolator();
+    private long animationStartOffset = 0L;
+    private Interpolator animationInterpolator = new AccelerateInterpolator();
 
     private int state;
     private OnStateChangeListener stateChangeListener;
@@ -96,31 +97,40 @@ public class CircularRevealView extends View {
         return circlePaint.getColor();
     }
 
-    public void setCircularColor(@ColorInt int color ) {
+    public void setCircularColor( @ColorInt final int color ) {
         if( color != circlePaint.getColor() ) {
             circlePaint.setColor(color);
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
-    public void setCircularColorResource(@ColorRes int resId ) {
+    public void setCircularColorResource( @ColorRes final int resId ) {
         setCircularColor( ContextCompat.getColor(getContext(), resId) );
     }
 
-    public Interpolator getInterpolator() {
-        return interpolator;
+    @NonNull
+    public Interpolator getAnimationInterpolator() {
+        return animationInterpolator;
     }
 
-    public void setInterpolator(Interpolator interpolator) {
-        this.interpolator = interpolator;
+    public void setAnimationInterpolator( @NonNull final Interpolator interpolator) {
+        this.animationInterpolator = interpolator;
     }
 
     public long getAnimationDuration() {
         return animationDuration;
     }
 
-    public void setAnimationDuration(long animationDuration) {
+    public void setAnimationDuration( final long animationDuration) {
         this.animationDuration = animationDuration;
+    }
+
+    public long getAnimationStartOffset() {
+        return animationStartOffset;
+    }
+
+    public void setAnimationStartOffset( final long startOffset) {
+        this.animationStartOffset = Math.max( animationStartOffset, 0 );
     }
 
     @Override
@@ -151,12 +161,14 @@ public class CircularRevealView extends View {
 
             case ANIMATION_RUNNING:
                 if ( animationStartTimeMillis >= 0) {
-                    float normalized = Math.min( 1.0f, (float) (SystemClock.uptimeMillis() - animationStartTimeMillis) / animationDuration );
+                    float normalized = Math.min( 1.0f, ((float) (SystemClock.uptimeMillis() - (animationStartTimeMillis + animationStartOffset))) / (float) animationDuration );
                     animationDone = normalized >= 1.0f;
-                    if( state == STATE_REVEAL_STARTED ) {
-                        circleRadius = (int) ( interpolator.getInterpolation(normalized) * maxRadius );
-                    } else {
-                        circleRadius = (int) ( interpolator.getInterpolation(1.0f - normalized) * maxRadius );
+                    if( normalized >= 0.0f ) {
+                        if( state == STATE_REVEAL_STARTED ) {
+                            circleRadius = ( int ) (animationInterpolator.getInterpolation(normalized) * maxRadius);
+                        } else {
+                            circleRadius = ( int ) (animationInterpolator.getInterpolation(1.0f - normalized) * maxRadius);
+                        }
                     }
                 }
                 break;
@@ -227,11 +239,12 @@ public class CircularRevealView extends View {
         return state == STATE_CONCEALED;
     }
 
+    @Nullable
     public OnStateChangeListener getOnStateChangeListener() {
         return stateChangeListener;
     }
 
-    public void setOnStateChangeListener( OnStateChangeListener onStateChangeListener ) {
+    public void setOnStateChangeListener( @Nullable final OnStateChangeListener onStateChangeListener ) {
         this.stateChangeListener = onStateChangeListener;
     }
 

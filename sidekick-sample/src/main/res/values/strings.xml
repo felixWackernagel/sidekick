@@ -69,5 +69,6 @@
     <string name="text_thin">Roboto Thin</string>
     <string name="text_thin_code">Roboto Thin set from code</string>
     <string name="tooltip_text">I am a tooltip.</string>
+    <string name="reveal_view_delay">1 second start delay.</string>
 
 </resources>

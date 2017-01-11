@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import de.wackernagel.android.sidekick.widgets.CircularRevealView;
@@ -48,10 +50,10 @@ public class RevealViewActivity extends AppCompatActivity {
                 int[] startLocation = new int[2];
                 if ( revealView.isStateConcealed() ) {
                     revealView.getLocationInWindow(startLocation);
-                    toggleButton.setText(R.string.reveal_view_unrevealed);
+                    toggleButton.setText(R.string.reveal_conceal);
                     revealView.reveal(startLocation);
                 } else {
-                    toggleButton.setText(R.string.reveal_view_revealed);
+                    toggleButton.setText(R.string.reveal_reveal);
                     startLocation[0] += revealView.getWidth();
                     startLocation[1] += revealView.getHeight();
                     revealView.conceal(startLocation);
@@ -70,6 +72,13 @@ public class RevealViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 revealView.setCircularColorResource(R.color.sidekick_icon);
+            }
+        });
+
+        ( (CheckBox) findViewById(R.id.checkbox) ).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                revealView.setAnimationStartOffset( isChecked ? 1000L : 0 );
             }
         });
     }
