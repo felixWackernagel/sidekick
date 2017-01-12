@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import de.wackernagel.android.example.sidekick.db.TagModel;
@@ -108,8 +109,13 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
         assertEquals( 0, cursor.getCount() );
 
         final Date now = new Date();
-        final Uri insert = getMockContentResolver().insert( TagModel.Contract.CONTENT_URI,
-            TagModel.builder().setName( "tag1" ).setCreated( now ).setChanged( now ).build() );
+        final ContentValues values = TagModel.builder().setName( "tag1" ).setCreated( now ).setChanged( now ).build();
+        final String nowAsString = new SimpleDateFormat( "yyyy'-'MM'-'dd HH':'mm':'ss'.'SSS" ).format( now );
+        assertEquals( "ContentValues name", "tag1", values.getAsString( TagModel.Contract.COLUMN_NAME ) );
+        assertEquals( "ContentValues created",nowAsString, values.getAsString( TagModel.Contract.COLUMN_CREATED ) );
+        assertEquals( "ContentValues changed", nowAsString, values.getAsString( TagModel.Contract.COLUMN_CHANGED ) );
+
+        final Uri insert = getMockContentResolver().insert( TagModel.Contract.CONTENT_URI, values );
         assertNotNull( insert );
         assertEquals( 1, ContentUris.parseId( insert ) );
 
