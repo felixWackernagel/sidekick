@@ -1,5 +1,7 @@
 package de.wackernagel.android.example.sidekick.db;
 
+import java.util.Date;
+
 import de.wackernagel.android.example.sidekick.provider.ArticleProvider;
 import de.wackernagel.android.sidekick.annotations.Contract;
 
@@ -21,4 +23,5 @@ public class Simple {
     Boolean bBoolean;
     Float bFloat;
     Byte bByte;
+    Date aDate;
 }
