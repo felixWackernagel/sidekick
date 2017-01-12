@@ -126,8 +126,14 @@ public class ModelGenerator {
                 method.addStatement("values.put( $T.$N, $T.toString( $N ) )",
                         contract,
                         column.getConstantFieldName(),
-                        ClassName.get( "de.wackernagel.android.sidekick.converters", "DateStringConverter" ),
+                        ClassName.get("de.wackernagel.android.sidekick.converters", "DateConverter"),
                         memberName);
+            } else if( column instanceof IntArrayColumnDefinition ) {
+                    method.addStatement("values.put( $T.$N, $T.toByteArray( $N ) )",
+                            contract,
+                            column.getConstantFieldName(),
+                            ClassName.get( "de.wackernagel.android.sidekick.converters", "IntArrayConverter" ),
+                            memberName);
             } else {
                 method.addStatement("values.put( $T.$N, $N )", contract, column.getConstantFieldName(), memberName);
             }

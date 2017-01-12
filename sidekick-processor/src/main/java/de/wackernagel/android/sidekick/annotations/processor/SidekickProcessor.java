@@ -34,6 +34,7 @@ import de.wackernagel.android.sidekick.annotations.processor.definitions.ColumnD
 import de.wackernagel.android.sidekick.annotations.processor.definitions.ContractCollectionColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.ContractColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.DateColumnDefinition;
+import de.wackernagel.android.sidekick.annotations.processor.definitions.IntArrayColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimaryColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveCollectionColumnDefinition;
 import de.wackernagel.android.sidekick.annotations.processor.definitions.PrimitiveColumnDefinition;
@@ -282,6 +283,8 @@ public class SidekickProcessor extends AbstractProcessor {
                 annotatedFields.add(new ContractColumnDefinition(field, type));
             } else if( type.toString().equals(Date.class.getName() ) ) {
                 annotatedFields.add(new DateColumnDefinition(field, type));
+            } else if( type.toString().equals("int[]") ) {
+                annotatedFields.add(new IntArrayColumnDefinition(field, type));
             } else {
                 logger.printMessage(Diagnostic.Kind.NOTE, "Skip unsupported FIELD of type " + type.toString());
             }

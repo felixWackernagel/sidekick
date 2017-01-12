@@ -22,7 +22,7 @@ import javax.lang.model.util.Types;
 
 public class JavaUtils {
 
-    public static String getPackageName( final Elements elementUtils, final TypeElement clazz ) {
+    static String getPackageName( final Elements elementUtils, final TypeElement clazz ) {
         final PackageElement pkg = elementUtils.getPackageOf( clazz );
         if (pkg.isUnnamed()) {
             return "";
@@ -30,7 +30,7 @@ public class JavaUtils {
         return pkg.getQualifiedName().toString();
     }
 
-    public static TypeName getType( TypeMirror field ) {
+    static TypeName getType( TypeMirror field ) {
         if( field instanceof PrimitiveType || field instanceof ArrayType ) {
             return TypeName.get( field );
         } else if( field instanceof DeclaredType ) {
@@ -40,7 +40,7 @@ public class JavaUtils {
         }
     }
 
-    public static boolean isCollectionType( final Element field, final Elements elementUtils, final Types typeUtils ) {
+    static boolean isCollectionType( final Element field, final Elements elementUtils, final Types typeUtils ) {
         return typeUtils.isAssignable(  // a is subtype of b
                 field.asType(), // i.e. List<?>
                 typeUtils.getDeclaredType( // Collection<?>
@@ -70,7 +70,7 @@ public class JavaUtils {
      * @param types utils
      * @return list of all member field of class and his inheriting classes
      */
-    public static Set<Element> getMemberFields(final TypeElement clazz, final Elements elements, final Types types) {
+    static Set<Element> getMemberFields(final TypeElement clazz, final Elements elements, final Types types) {
         final Set<Element> memberFields = new LinkedHashSet<>();
         for( Element element : clazz.getEnclosedElements() ) {
             if( element.getKind() == ElementKind.FIELD ) {
@@ -101,7 +101,7 @@ public class JavaUtils {
         return annotatedFields;
     }
 
-    public static boolean isPrimitiveOfContentProvider( final TypeName typeName ) {
+    static boolean isPrimitiveOfContentProvider( final TypeName typeName ) {
         final String type = typeName.toString();
         final List<String> primitives = Arrays.asList(
             short.class.getName(),
@@ -154,7 +154,7 @@ public class JavaUtils {
         return firstLetter;
     }
 
-    public static String toTitleCase( final String str ) {
+    static String toTitleCase( final String str ) {
         if( str == null || str.length() == 0 ) {
             return  str;
         }

@@ -8,14 +8,14 @@ import javax.lang.model.element.Element;
 
 import de.wackernagel.android.sidekick.annotations.processor.JavaUtils;
 
-public class DateColumnDefinition extends BaseDefinition {
+public class IntArrayColumnDefinition extends BaseDefinition {
 
     private final TypeName objectType;
     private final String fieldName;
     private final String columnName;
     private final String constantFieldName;
 
-    public DateColumnDefinition(Element element, TypeName type) {
+    public IntArrayColumnDefinition(Element element, TypeName type) {
         super(element);
         objectType = type;
         fieldName = element != null ? element.getSimpleName().toString() : JavaUtils.toVariableCase(JavaUtils.getSimpleName(type));
@@ -45,7 +45,7 @@ public class DateColumnDefinition extends BaseDefinition {
 
     @Override
     public String getSQLiteType() {
-        return "TEXT";
+        return "BLOB";
     }
 
     @Override
@@ -55,15 +55,14 @@ public class DateColumnDefinition extends BaseDefinition {
 
     @Override
     public String getCursorMethod() {
-        return "String";
+        return "Blob";
     }
 
     @Override
-    public CodeBlock getCursorToObjectCodeLine(int index ) {
-        return CodeBlock.of( "$T.toDate( cursor.get$L( $L ) )",
-                ClassName.get( "de.wackernagel.android.sidekick.converters", "DateConverter" ),
+    public CodeBlock getCursorToObjectCodeLine(int index) {
+        return CodeBlock.of( "$T.toIntArray( cursor.get$L( $L ) )",
+                ClassName.get( "de.wackernagel.android.sidekick.converters", "IntArrayConverter" ),
                 getCursorMethod(),
                 index );
     }
-
 }

@@ -24,4 +24,5 @@ public class Simple {
     Float bFloat;
     Byte bByte;
     Date aDate;
+    int[] aIntArray;
 }

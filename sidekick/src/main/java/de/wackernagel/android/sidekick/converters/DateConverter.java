@@ -12,7 +12,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-public class DateStringConverter {
+public class DateConverter {
 
     private static final Calendar calendar = Calendar.getInstance();
     private static final StringBuilder format = new StringBuilder(23);
@@ -22,7 +22,7 @@ public class DateStringConverter {
 
     private static final Pattern TIMESTAMP = Pattern.compile("\\d{4}-\\d{2}-\\d{2}( |T)\\d{2}:\\d{2}(:\\d{2}(\\.\\d{3})?)?");
 
-    private DateStringConverter() {}
+    private DateConverter() {}
 
     /**
      * Supported timestamp formats are:
