@@ -14,8 +14,8 @@ dependencies {
     compile 'de.wackernagel.android:sidekick:1.3.8'
     
     # Extensions
-    compile 'de.wackernagel.android:sidekick-annotations:0.2.0'
-    compile 'de.wackernagel.android:sidekick-processor:0.2.0'
+    compile 'de.wackernagel.android:sidekick-annotations:0.3.0'
+    compile 'de.wackernagel.android:sidekick-processor:0.3.0'
 }
 ```
 
