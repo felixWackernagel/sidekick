@@ -11,7 +11,7 @@ This project is in the early stages of development but grows continuously to sup
 ```gradle
 dependencies {
     ...
-    compile 'de.wackernagel.android:sidekick:1.3.7'
+    compile 'de.wackernagel.android:sidekick:1.3.8'
     
     # Extensions
     compile 'de.wackernagel.android:sidekick-annotations:0.2.0'
