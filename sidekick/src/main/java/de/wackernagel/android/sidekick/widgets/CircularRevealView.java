@@ -130,7 +130,7 @@ public class CircularRevealView extends View {
     }
 
     public void setAnimationStartOffset( final long startOffset) {
-        this.animationStartOffset = Math.max( animationStartOffset, 0 );
+        this.animationStartOffset = Math.max( startOffset, 0 );
     }
 
     @Override
