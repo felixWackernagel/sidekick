@@ -197,11 +197,11 @@ class ContractGenerator {
                     sql.add( " ON CONFLICT " ).add( column.unique().onConflict().toString() );
                     e++;
                 }
-//                if( e > 1 ) {
-//                    logger.printMessage(Diagnostic.Kind.ERROR,
-//                            "A unique constraint over multiple tables has more then one conflict-clause! See member field '"
-//                            + column.getFieldName() + "' in class '" + table.getObjectType( false, false ) + "'." );
-//                }
+                if( e > 1 ) {
+                    throw new IllegalStateException(
+                            "A unique constraint with more then one column has more then one conflict-clauses defined! See member field '"
+                            + column.getFieldName() + "' in class '" + table.getObjectType( false, false ) + "'." );
+                }
             }
             if( index != last ) {
                 sql.add( ", " );

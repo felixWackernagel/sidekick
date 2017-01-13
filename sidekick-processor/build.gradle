@@ -5,8 +5,8 @@ targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile project(':sidekick-annotations')
-    //compile 'de.wackernagel.android:sidekick-annotations:0.2.0'
+    //compile project(':sidekick-annotations')
+    compile 'de.wackernagel.android:sidekick-annotations:0.3.0'
     compile 'com.squareup:javapoet:1.7.0'
     compile 'com.google.auto.service:auto-service:1.0-rc2'
 }
@@ -14,7 +14,7 @@ dependencies {
 ext {
     PUBLISH_GROUP_ID = 'de.wackernagel.android'
     PUBLISH_ARTIFACT_ID = 'sidekick-processor'
-    PUBLISH_VERSION = '0.2.0'
+    PUBLISH_VERSION = '0.3.0'
 }
 
 def groupId = project.PUBLISH_GROUP_ID

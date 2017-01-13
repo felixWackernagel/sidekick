@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'de.wackernagel.android'
     PUBLISH_ARTIFACT_ID = 'sidekick'
-    PUBLISH_VERSION = '1.3.7'
+    PUBLISH_VERSION = '1.3.8'
 
     ANDROID_SUPPORT_VERSION = '24.2.1'
     SDK_VERSION = 24
