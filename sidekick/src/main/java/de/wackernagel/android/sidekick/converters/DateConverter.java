@@ -70,16 +70,17 @@ public class DateConverter {
         calendar.setTime( date );
         format.setLength( 0 );
         format.append( calendar.get( Calendar.YEAR ) ).append( "-" );
-        twoDigits( format, calendar.get( Calendar.MONTH ) + 1 );
+        prependZero( format, calendar.get( Calendar.MONTH ) + 1, 2 );
         format.append( "-");
-        twoDigits( format, calendar.get( Calendar.DAY_OF_MONTH ) );
+        prependZero( format, calendar.get( Calendar.DAY_OF_MONTH ), 2 );
         format.append( " " );
-        twoDigits( format, calendar.get( Calendar.HOUR_OF_DAY ) );
+        prependZero( format, calendar.get( Calendar.HOUR_OF_DAY ), 2 );
         format.append( ":" );
-        twoDigits( format, calendar.get( Calendar.MINUTE ) );
+        prependZero( format, calendar.get( Calendar.MINUTE ), 2 );
         format.append( ":" );
-        twoDigits( format, calendar.get( Calendar.SECOND) );
-        format.append( "." ).append( calendar.get( Calendar.MILLISECOND ) );
+        prependZero( format, calendar.get( Calendar.SECOND), 2 );
+        format.append( "." );
+        prependZero( format, calendar.get( Calendar.MILLISECOND ), 3 );
         return format.toString();
     }
 
@@ -89,8 +90,11 @@ public class DateConverter {
      * @param format builder
      * @param number to append
      */
-    private static void twoDigits(@NonNull final StringBuilder format, final int number) {
-        if( number < 10 ) {
+    private static void prependZero(@NonNull final StringBuilder format, final int number, final int digits) {
+        if( digits >= 3 && number < 100 ) {
+            format.append( 0 );
+        }
+        if( digits >= 2 && number < 10 ) {
             format.append( 0 );
         }
         format.append(number);

@@ -44,6 +44,10 @@ dependencies {
 
     // junit tests
     testCompile 'junit:junit:4.12'
+    testCompile "org.powermock:powermock-module-junit4:1.6.2"
+    testCompile "org.powermock:powermock-module-junit4-rule:1.6.2"
+    testCompile "org.powermock:powermock-api-mockito:1.6.2"
+    testCompile "org.powermock:powermock-classloading-xstream:1.6.2"
 
     // instrumentation tests
     androidTestCompile 'com.android.support.test:rules:0.5'

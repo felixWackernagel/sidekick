@@ -110,7 +110,7 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
 
         final Date now = new Date();
         final ContentValues values = TagModel.builder().setName( "tag1" ).setCreated( now ).setChanged( now ).build();
-        final String nowAsString = new SimpleDateFormat( "yyyy'-'MM'-'dd HH':'mm':'ss'.'SSS" ).format( now );
+        final String nowAsString = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS" ).format( now );
         assertEquals( "ContentValues name", "tag1", values.getAsString( TagModel.Contract.COLUMN_NAME ) );
         assertEquals( "ContentValues created",nowAsString, values.getAsString( TagModel.Contract.COLUMN_CREATED ) );
         assertEquals( "ContentValues changed", nowAsString, values.getAsString( TagModel.Contract.COLUMN_CHANGED ) );
