@@ -1,18 +1,33 @@
 package de.wackernagel.android.sidekick.annotations.processor.definitions;
 
+import javax.lang.model.element.TypeElement;
+
 /**
  * A TableDefinition contains information about the model and SQLite table class.
  */
 public class TableDefinition {
 
+    private final TypeElement origin;
     private final String packageName;
     private final String className;
     private final String authority;
 
-    public TableDefinition( final String packageName, final String className, final String authority ) {
+    public TableDefinition(final String packageName, final String className, final String authority ) {
+        this( null, packageName, className, authority );
+    }
+
+    public TableDefinition(final TypeElement origin, final String packageName, final String className, final String authority ) {
+        this.origin = origin;
         this.packageName = packageName;
         this.className = className;
         this.authority = authority;
+    }
+
+    /**
+     * @return origin class annotated with @Contract or null when its a relation table.
+     */
+    public TypeElement getOriginElement() {
+        return origin;
     }
 
     /**

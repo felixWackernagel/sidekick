@@ -5,7 +5,7 @@ import de.wackernagel.android.sidekick.annotations.Contract;
 import de.wackernagel.android.sidekick.annotations.NotNull;
 
 @Contract( authority = ArticleProvider.AUTHORITY )
-class Tag extends Base {
+class Tag extends Type {
     @NotNull
     String name;
 }

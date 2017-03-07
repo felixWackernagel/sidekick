@@ -21,8 +21,8 @@ public class ObjectsCompatTest {
         Assert.assertTrue(ObjectsCompat.equals(null, null));
 
         final Date now = new Date();
-        final TagModel tagA = new TagModel( 1, "A", now, now );
-        final TagModel tagB = new TagModel( 2, "B", now, now );
+        final TagModel tagA = new TagModel( 1, "A", "tag", now, now );
+        final TagModel tagB = new TagModel( 2, "B", "tag", now, now );
         Assert.assertTrue(ObjectsCompat.equals(tagA, tagA));
         Assert.assertFalse(ObjectsCompat.equals(tagA, tagB));
     }

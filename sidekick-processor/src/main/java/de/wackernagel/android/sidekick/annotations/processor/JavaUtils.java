@@ -64,33 +64,6 @@ public class JavaUtils {
                         typeUtils.getWildcardType(null, null) ) ); // wildcard for generics
     }
 
-    /**
-     * @param clazz to inspect
-     * @param elements utils
-     * @param types utils
-     * @return list of all member field of class and his inheriting classes
-     */
-    static Set<Element> getMemberFields(final TypeElement clazz, final Elements elements, final Types types) {
-        final Set<Element> memberFields = new LinkedHashSet<>();
-        for( Element element : clazz.getEnclosedElements() ) {
-            if( element.getKind() == ElementKind.FIELD ) {
-                memberFields.add(element);
-            }
-        }
-
-        final TypeMirror objectClass = elements.getTypeElement( Object.class.getName() ).asType();
-        if( types.isSameType( objectClass, clazz.getSuperclass() ) ) {
-            return memberFields;
-        } else {
-            final TypeElement superClass = elements.getTypeElement( clazz.getSuperclass().toString() );
-            final Set<Element> superClassMemberFields = getMemberFields( superClass, elements, types);
-            if( !superClassMemberFields.isEmpty() ) {
-                memberFields.addAll(superClassMemberFields);
-            }
-            return memberFields;
-        }
-    }
-
     public static Set<TypeMirror> getGenericTypes(Element field ) {
         final Set<TypeMirror> annotatedFields = new LinkedHashSet<>();
         if( field.asType() instanceof DeclaredType ) {
@@ -99,6 +72,37 @@ public class JavaUtils {
             }
         }
         return annotatedFields;
+    }
+
+    /**
+     * @param clazz to inspect
+     * @param elements utils
+     * @param types utils
+     * @return list of all member field of class and his inheriting classes
+     */
+    public static Set<Element> getMemberFields(final TypeElement clazz, final Elements elements, final Types types, final boolean includeInheritance) {
+        final Set<Element> memberFields = new LinkedHashSet<>();
+        for( Element element : clazz.getEnclosedElements() ) {
+            if( element.getKind() == ElementKind.FIELD ) {
+                memberFields.add(element);
+            }
+        }
+
+        if( !includeInheritance ) {
+            return memberFields;
+        }
+
+        final TypeMirror objectClass = elements.getTypeElement( Object.class.getName() ).asType();
+        if( types.isSameType( objectClass, clazz.getSuperclass() ) ) {
+            return memberFields;
+        } else {
+            final TypeElement superClass = elements.getTypeElement( clazz.getSuperclass().toString() );
+            final Set<Element> superClassMemberFields = getMemberFields( superClass, elements, types, true);
+            if( !superClassMemberFields.isEmpty() ) {
+                memberFields.addAll(superClassMemberFields);
+            }
+            return memberFields;
+        }
     }
 
     static boolean isPrimitiveOfContentProvider( final TypeName typeName ) {

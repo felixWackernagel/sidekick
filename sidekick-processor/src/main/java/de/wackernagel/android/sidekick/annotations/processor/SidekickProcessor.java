@@ -2,9 +2,12 @@ package de.wackernagel.android.sidekick.annotations.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Date;
 import java.util.HashMap;
@@ -85,11 +88,12 @@ public class SidekickProcessor extends AbstractProcessor {
         for( Element annotatedElement : environment.getElementsAnnotatedWith(Contract.class) ) {
             final TypeElement annotatedClass = (TypeElement) annotatedElement;
             final TableDefinition tableDefinition = new TableDefinition(
+                    annotatedClass,
                     JavaUtils.getPackageName(elementUtils, annotatedClass),
                     annotatedClass.getSimpleName().toString(),
                     annotatedClass.getAnnotation(Contract.class).authority() );
 
-            final Set<Element> fields = JavaUtils.getMemberFields(annotatedClass, elementUtils, typeUtils);
+            final Set<Element> fields = JavaUtils.getMemberFields(annotatedClass, elementUtils, typeUtils, true);
             final Set<ColumnDefinition> columnDefinitions = convertToDefinitions(fields);
             toGenerate.put(tableDefinition, columnDefinitions);
         }
@@ -117,12 +121,28 @@ public class SidekickProcessor extends AbstractProcessor {
         }
 
         // generate model and contract
+        final Set<String> generated = new HashSet<>();
         for( Map.Entry<TableDefinition, Set<ColumnDefinition>> entry : toGenerate.entrySet() ) {
             final TableDefinition tableDefinition = entry.getKey();
             final Set<ColumnDefinition> columnDefinitions = entry.getValue();
 
-            final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions );
+            final ModelGenerator generatedModelClass = new ModelGenerator( tableDefinition, columnDefinitions, elementUtils, typeUtils );
+
+            for( TypeSpec superModel : generatedModelClass.getSuperModels() ) {
+                if( !generated.contains( tableDefinition.getPackageName() + "." + superModel.name ) ) {
+                    try {
+                        final JavaFile javaFile = JavaFile.builder( tableDefinition.getPackageName(), superModel).build();
+                        javaFile.writeTo( processingEnv.getFiler() );
+                        generated.add( tableDefinition.getPackageName() + "." + superModel.name );
+                        logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + superModel.name + " generated.");
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+
             if( generatedModelClass.writeClass(tableDefinition.getPackageName(), processingEnv.getFiler()) ) {
+                generated.add( tableDefinition.getObjectType(true, true) );
                 logger.printMessage(NOTE, "Sidekick: " + tableDefinition.getPackageName() + "." + tableDefinition.getClassName() + "Model generated.");
             }
         }

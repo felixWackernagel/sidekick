@@ -7,6 +7,8 @@ import de.wackernagel.android.sidekick.annotations.NotNull;
 
 public class Base {
 
+    long id;
+
     @Default( value = "CURRENT_TIMESTAMP")
     @NotNull
     Date created;
