@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import de.wackernagel.android.example.sidekick.db.TagModel;
 import de.wackernagel.android.example.sidekick.provider.ArticleContract;
@@ -109,11 +110,12 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
         assertEquals( 0, cursor.getCount() );
 
         final Date now = new Date();
-        final ContentValues values = TagModel.builder().setName( "tag1" ).setCreated( now ).setChanged( now ).build();
-        final String nowAsString = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS" ).format( now );
+        final ContentValues values = TagModel.builder().setName( "tag1" ).setType( "tag" ).setCreated( now ).setChanged( now ).build();
+        final String nowAsString = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault() ).format( now );
         assertEquals( "ContentValues name", "tag1", values.getAsString( TagModel.Contract.COLUMN_NAME ) );
         assertEquals( "ContentValues created",nowAsString, values.getAsString( TagModel.Contract.COLUMN_CREATED ) );
         assertEquals( "ContentValues changed", nowAsString, values.getAsString( TagModel.Contract.COLUMN_CHANGED ) );
+        assertEquals( "ContentValues type", "tag", values.getAsString( TagModel.Contract.COLUMN_TYPE ) );
 
         final Uri insert = getMockContentResolver().insert( TagModel.Contract.CONTENT_URI, values );
         assertNotNull( insert );
@@ -125,6 +127,7 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
         assertTrue( cursor.moveToFirst() );
         final TagModel model = TagModel.FACTORY.createFromCursor( cursor );
         assertEquals( "Tag id", 1L, model.getId() );
+        assertEquals( "Tag type", "tag", model.getType() );
         assertEquals( "Tag name", "tag1", model.getName() );
         assertEquals( "Tag created",now, model.getCreated() );
         assertEquals( "Tag changed", now, model.getChanged() );
@@ -139,7 +142,7 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
         assertEquals( 0, cursor.getCount() );
 
         final Uri insert = getMockContentResolver().insert( TagModel.Contract.CONTENT_URI,
-                new TagModel.Builder().setName( "tag1" ).build() );
+                TagModel.builder().setName( "tag1" ).setType("tag").build() );
         assertNotNull( insert );
         assertEquals( 1, ContentUris.parseId( insert ) );
 
@@ -150,6 +153,7 @@ public class ProviderTest extends ProviderTestCase2<ArticleProvider> {
         final TagModel model = TagModel.FACTORY.createFromCursor( cursor );
         assertEquals( 1L, model.getId() );
         assertEquals( "tag1", model.getName() );
+        assertEquals( "tag", model.getType() );
         assertNotNull( model.getCreated() );
         assertNotNull( model.getChanged() );
 
