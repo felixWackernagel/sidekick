@@ -189,41 +189,46 @@ public class CircularRevealView extends View {
         }
     }
 
-    public void reveal(@Size(2) @NonNull final int[] from ) {
-        changeState(STATE_REVEAL_STARTED);
-        animationState = ANIMATION_STARTING;
-        circleX = from[0];
-        circleY = from[1];
-        ViewCompat.postInvalidateOnAnimation( this );
+    public void reveal(@Size(2) @NonNull final int[] from) {
+        if( changeState(STATE_REVEAL_STARTED) ) {
+            animationState = ANIMATION_STARTING;
+            circleX = from[0];
+            circleY = from[1];
+            ViewCompat.postInvalidateOnAnimation( this );
+        }
     }
 
-    public void conceal(@Size(2) @NonNull final int[] to ) {
-        changeState(STATE_CONCEAL_STARTED);
-        animationState = ANIMATION_STARTING;
-        circleX = to[0];
-        circleY = to[1];
-        ViewCompat.postInvalidateOnAnimation(this);
+    public void conceal(@Size(2) @NonNull final int[] to) {
+        if( changeState(STATE_CONCEAL_STARTED) ) {
+            animationState = ANIMATION_STARTING;
+            circleX = to[0];
+            circleY = to[1];
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 
     public void setStateRevealed() {
-        changeState(STATE_REVEALED);
-        ViewCompat.postInvalidateOnAnimation(this);
+        if( changeState(STATE_REVEALED) ) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 
     public void setStateConcealed() {
-        changeState(STATE_CONCEALED);
-        ViewCompat.postInvalidateOnAnimation(this);
+        if( changeState(STATE_CONCEALED) ) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 
-    private void changeState( @State int newState ) {
+    private boolean changeState( @State int newState ) {
         if( state == newState) {
-            return;
+            return false;
         }
 
         state = newState;
         if( stateChangeListener != null ) {
             stateChangeListener.onStateChange(newState);
         }
+        return true;
     }
 
     @State

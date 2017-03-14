@@ -2,7 +2,7 @@
     <string name="app_name">Sidekick Showcase</string>
     <string name="tooltip_from_resource">Tooltip from resource</string>
 
-    <string name="aspect_ratio_description">Scale the ImageView with 5 in build ratios from material design guideline. Depending on the aspect (width or height as calculation base) looks the scaling different. Use width on 16:9, 3:2, 4:3 and height on 3:4, 2:3. 1:1 uses the smaller site.</string>
+    <string name="aspect_ratio_description">Scale the ImageView with 5 in build ratios from material design guideline. Depending on the aspect (width or height as calculation base) looks the scaling different. Use width on 16:9, 3:2, 4:3 and height on 3:4, 2:3.</string>
 
     <string name="reveal_view_revealing">start reveal</string>
     <string name="reveal_view_revealed">revealed</string>

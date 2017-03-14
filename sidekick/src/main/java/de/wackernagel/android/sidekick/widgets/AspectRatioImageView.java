@@ -62,6 +62,14 @@ public class AspectRatioImageView extends ImageView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if( ratio == RATIO_1_1 ) {
+            if( aspect == ASPECT_WIDTH )
+                super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+            else
+                super.onMeasure(heightMeasureSpec, heightMeasureSpec);
+            return;
+        }
+
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         if( ratio == RATIO_NONE ) {
@@ -71,14 +79,10 @@ public class AspectRatioImageView extends ImageView {
         int contentWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
         int contentHeight = getMeasuredHeight() - getPaddingBottom() - getPaddingTop();
 
-        if( ratio == RATIO_1_1 ) {
-            contentWidth = contentHeight = Math.min( contentWidth, contentHeight );
+        if( aspect == ASPECT_WIDTH ) {
+            contentHeight = (int)( contentWidth / ratioFactor );
         } else {
-            if( aspect == ASPECT_WIDTH ) {
-                contentHeight = (int)( contentWidth / ratioFactor );
-            } else {
-                contentWidth = (int)( ratioFactor * contentHeight );
-            }
+            contentWidth = (int)( ratioFactor * contentHeight );
         }
 
         contentWidth += getPaddingLeft() + getPaddingRight();
