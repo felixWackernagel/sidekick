@@ -3,6 +3,8 @@
           package="de.wackernagel.android.example.sidekick"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -28,9 +30,10 @@
         <activity android:name=".TintingActivity" />
         <activity android:name=".PhotoActivity" />
         <activity android:name=".SimpleProviderActivity" />
+        <activity android:name=".GridGutterDecorationActivity" />
 
         <provider
-            android:authorities="de.wackernagel.android.example.sidekick"
+            android:authorities="${applicationId}"
             android:name=".provider.ArticleProvider"
             android:exported="false"/>
     </application>

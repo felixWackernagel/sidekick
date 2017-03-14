@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     tools:context="de.wackernagel.android.example.sidekick.MainActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="48dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white">
+
+        <Spinner
+            android:id="@+id/columns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="80dp"
+            android:layout_gravity="center_vertical"
+            style="@style/Widget.AppCompat.Spinner.Underlined"/>
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="80dp"
+            android:layout_gravity="center_vertical"
+            style="@style/Widget.AppCompat.Spinner.Underlined"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"/>
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top/Bottom"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"/>
+
+        <CheckBox
+            android:id="@+id/leftAndRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Left/Right"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"/>
+
+    </LinearLayout>
+
+</FrameLayout>

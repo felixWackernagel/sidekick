@@ -2,7 +2,6 @@ package de.wackernagel.android.example.sidekick;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -34,7 +33,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 "No RecyclerView in layout found!" );
         recyclerView.setLayoutManager( new LinearLayoutManager(this) );
         recyclerView.setAdapter( adapter );
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         getSupportLoaderManager().initLoader( 0, null, this );
     }
 
@@ -46,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return new ObjectLoader<List<SimpleItem>>( this ) {
             @Override
             public List<SimpleItem> loadInBackground() {
-                SystemClock.sleep( 1000L );
-
                 final List<SimpleItem> list = new ArrayList<>();
                 list.add( new SimpleItem( "Widgets - TypefaceTextView", TypefaceTextViewActivity.class ) );
                 list.add( new SimpleItem( "Widgets - AspectRatioImageView", AspectRatioImageViewActivity.class ) );
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 list.add( new SimpleItem( "Utils - Device and Network", DeviceActivity.class ) );
                 list.add( new SimpleItem( "Utils - Drawable Tinting", TintingActivity.class ) );
                 list.add( new SimpleItem( "Helper - Photos", PhotoActivity.class ) );
+                list.add( new SimpleItem( "Helper - Grid Gutter Decoration", GridGutterDecorationActivity.class ) );
                 list.add( new SimpleItem( "Resources - Colors", ColorsActivity.class ) );
                 list.add( new SimpleItem( "Frameworks - ContentProviderProcessor", SimpleProviderActivity.class ) );
                 return list;
