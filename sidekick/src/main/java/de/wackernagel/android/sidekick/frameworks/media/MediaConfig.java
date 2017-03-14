@@ -7,22 +7,26 @@ import android.support.annotation.NonNull;
 public class MediaConfig {
 
     private final String applicationName;
-
-    private Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
-    private int compressQuality = 76;
+    private final Bitmap.CompressFormat compressionFormat;
+    private final int compressionQuality;
 
     /**
      * Create a {@link MediaConfig} for the {@link MediaUtils} class.
      *
-     * @param applicationName which is used as a unique sub directory name for medias
+     * @param applicationName as unique directory name for medias
+     * @param compressionFormat for all image medias
+     * @param compressionQuality for all image medias
      */
-    public MediaConfig( @NonNull final String applicationName ) {
+    public MediaConfig(@NonNull final String applicationName, @NonNull final Bitmap.CompressFormat compressionFormat, @IntRange( from = 0, to = 100 ) final int compressionQuality) {
         this.applicationName = applicationName;
+        this.compressionFormat = compressionFormat;
+        this.compressionQuality = compressionQuality;
     }
 
     /**
      * @return your application name which is used as a unique sub directory name for medias
      */
+    @NonNull
     public final String getApplicationName() {
         return applicationName;
     }
@@ -31,35 +35,52 @@ public class MediaConfig {
      * @return format for Bitmap compression (default is JPEG)
      */
     @NonNull
-    public Bitmap.CompressFormat getCompressFormat() {
-        return compressFormat;
-    }
-
-    /**
-     * @param compressFormat for Bitmap compression
-     */
-    public void setCompressFormat( @NonNull final Bitmap.CompressFormat compressFormat) {
-        if( compressFormat == Bitmap.CompressFormat.JPEG || compressFormat == Bitmap.CompressFormat.PNG ) {
-            this.compressFormat = compressFormat;
-        } else {
-            throw new IllegalArgumentException( "MediaConfig#setCompressFormat accepts at the moment only JPEG and PNG." );
-        }
+    public final Bitmap.CompressFormat getCompressionFormat() {
+        return compressionFormat;
     }
 
     /**
      * @return quality for Bitmap compression (default is 76)
      */
     @IntRange( from = 0, to = 100 )
-    public int getCompressQuality() {
-        return compressQuality;
+    public final int getCompressionQuality() {
+        return compressionQuality;
     }
 
-    /**
-     * @param compressQuality for Bitmap compression
-     */
-    public void setCompressQuality( @IntRange( from = 0, to = 100 ) int compressQuality) {
-        this.compressQuality = compressQuality;
+    public static Builder builder(@NonNull final String applicationName) {
+        return new Builder(applicationName);
     }
 
+    public static class Builder {
 
+        private final String applicationName;
+        private Bitmap.CompressFormat compressionFormat;
+        private int compressionQuality;
+
+        public Builder(@NonNull final String applicationName) {
+            this.applicationName = applicationName;
+            this.compressionFormat = Bitmap.CompressFormat.JPEG;
+            this.compressionQuality = 76;
+        }
+
+        /**
+         * @param compressionFormat for Bitmap compression
+         */
+        public Builder compressionFormat(@NonNull final Bitmap.CompressFormat compressionFormat) {
+            this.compressionFormat = compressionFormat;
+            return this;
+        }
+
+        /**
+         * @param compressionQuality for Bitmap compression
+         */
+        public Builder compressionQuality(@IntRange( from = 0, to = 100 ) final int compressionQuality) {
+            this.compressionQuality = compressionQuality;
+            return this;
+        }
+
+        public MediaConfig build() {
+            return new MediaConfig(applicationName, compressionFormat, compressionQuality);
+        }
+    }
 }

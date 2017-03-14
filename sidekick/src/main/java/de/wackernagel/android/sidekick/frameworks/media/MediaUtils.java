@@ -1,5 +1,6 @@
 package de.wackernagel.android.sidekick.frameworks.media;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
@@ -18,6 +19,7 @@ import android.provider.MediaStore;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,28 +36,28 @@ import java.util.Locale;
 public class MediaUtils {
     private static final String TAG = "MediaUtils";
 
-    public static final int REQUEST_CAMERA_IMAGE = 456;
-    public static final int REQUEST_PICK_IMAGE = 457;
-
     private MediaUtils() {
     }
 
+    @RequiresPermission(allOf = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE})
     @TargetApi(11)
-    public static void startCameraForResult(@NonNull final android.app.Fragment fragment, @NonNull final MediaConfig config ) {
-        fragment.startActivityForResult( createImageCameraIntent( fragment.getActivity(), config ), REQUEST_CAMERA_IMAGE );
+    public static void startCameraForResult(@NonNull final android.app.Fragment fragment, @NonNull final MediaConfig config, final int cameraRequestCode) {
+        fragment.startActivityForResult( createCameraIntent( fragment.getActivity(), config ), cameraRequestCode );
     }
 
-    public static void startCameraForResult(@NonNull final Fragment fragment, @NonNull final MediaConfig config) {
-        fragment.startActivityForResult( createImageCameraIntent( fragment.getActivity(), config ), REQUEST_CAMERA_IMAGE );
+    @RequiresPermission(allOf = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    public static void startCameraForResult(@NonNull final Fragment fragment, @NonNull final MediaConfig config, final int cameraRequestCode) {
+        fragment.startActivityForResult( createCameraIntent( fragment.getActivity(), config ), cameraRequestCode );
     }
 
-    public static void startCameraForResult(@NonNull final Activity activity, @NonNull final MediaConfig config) {
-        activity.startActivityForResult(createImageCameraIntent(activity, config), REQUEST_CAMERA_IMAGE);
+    @RequiresPermission(allOf = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    public static void startCameraForResult(@NonNull final Activity activity, @NonNull final MediaConfig config, final int cameraRequestCode) {
+        activity.startActivityForResult(createCameraIntent(activity, config), cameraRequestCode);
     }
 
-    private static Intent createImageCameraIntent( @NonNull final Context context, @NonNull final MediaConfig config ) {
+    private static Intent createCameraIntent(@NonNull final Context context, @NonNull final MediaConfig config ) {
         final Intent intent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
-        final File mediaFile = createMediaFile( getFileExtension( config.getCompressFormat() ), config.getApplicationName() );
+        final File mediaFile = createMediaFile( getFileExtension( config.getCompressionFormat() ), config.getApplicationName() );
         if( mediaFile != null ) {
             final String mediaPath = mediaFile.getAbsolutePath();
             Uri mediaUri = Uri.fromFile( mediaFile );
@@ -73,16 +75,16 @@ public class MediaUtils {
     }
 
     @TargetApi(11)
-    public static void startImagePickerForResult( @NonNull final android.app.Fragment fragment) {
-        fragment.startActivityForResult(createImagePickerIntent(), REQUEST_PICK_IMAGE);
+    public static void startImagePickerForResult( @NonNull final android.app.Fragment fragment, final int imagePickerRequestCode) {
+        fragment.startActivityForResult(createImagePickerIntent(), imagePickerRequestCode);
     }
 
-    public static void startImagePickerForResult( @NonNull final Fragment fragment) {
-        fragment.startActivityForResult(createImagePickerIntent(), REQUEST_PICK_IMAGE);
+    public static void startImagePickerForResult( @NonNull final Fragment fragment, final int imagePickerRequestCode) {
+        fragment.startActivityForResult(createImagePickerIntent(), imagePickerRequestCode);
     }
 
-    public static void startImagePickerForResult( @NonNull final Activity activity) {
-        activity.startActivityForResult(createImagePickerIntent(), REQUEST_PICK_IMAGE);
+    public static void startImagePickerForResult( @NonNull final Activity activity, final int imagePickerRequestCode) {
+        activity.startActivityForResult(createImagePickerIntent(), imagePickerRequestCode);
     }
 
     private static Intent createImagePickerIntent() {
@@ -116,23 +118,34 @@ public class MediaUtils {
 
     /**
      * @param context for media scanner
-     * @param requestCode from launched camera app
-     * @param resultCode from camera app
-     * @param data from camera app
+     * @param requestCode of activity result
+     * @param resultCode from picker
+     * @param data from picker app
+     * @param imagePickerRequestCode to identify action
      * @return {@link MediaResult} which contain the requested media state or null if the result doesn't belong to the {@link MediaUtils}
      */
     @Nullable
-    public static MediaResult onActivityResult( @NonNull final Context context, @NonNull final MediaConfig config, final int requestCode, int resultCode, final Intent data ) {
-        switch( requestCode ) {
-            case REQUEST_CAMERA_IMAGE:
-                return processCameraResult( context, config, resultCode );
-
-            case REQUEST_PICK_IMAGE:
-                return processImagePickerResult( context, config, resultCode, data );
-
-            default:
-                return null;
+    public static MediaResult onImagePickerResult( @NonNull final Context context, @NonNull final MediaConfig config, final int requestCode, int resultCode, final Intent data, final int imagePickerRequestCode ) {
+        if( requestCode == imagePickerRequestCode ) {
+            return processImagePickerResult(context, config, resultCode, data);
         }
+        return null;
+    }
+
+    /**
+     * @param context for media scanner
+     * @param requestCode of activity result
+     * @param resultCode from camera app
+     * @param data from camera app
+     * @param cameraRequestCode to identify action
+     * @return {@link MediaResult} which contain the requested media state or null if the result doesn't belong to the {@link MediaUtils}
+     */
+    @Nullable
+    public static MediaResult onCameraResult( @NonNull final Context context, @NonNull final MediaConfig config, final int requestCode, int resultCode, final Intent data, final int cameraRequestCode) {
+        if( requestCode == cameraRequestCode ) {
+            return processCameraResult(context, config, resultCode);
+        }
+        return null;
     }
 
     @NonNull
@@ -145,8 +158,8 @@ public class MediaUtils {
             final Bitmap bitmap = getBitmap(context, mediaUri);
             if( bitmap != null ) {
 
-                File mediaFile = createMediaFile( getFileExtension( config.getCompressFormat() ), config.getApplicationName());
-                mediaFile = writeBitmapToFile(bitmap, mediaFile, config.getCompressFormat(), config.getCompressQuality() );
+                File mediaFile = createMediaFile( getFileExtension( config.getCompressionFormat() ), config.getApplicationName());
+                mediaFile = writeBitmapToFile(bitmap, mediaFile, config.getCompressionFormat(), config.getCompressionQuality() );
                 bitmap.recycle();
 
                 if( mediaFile != null ) {
@@ -239,7 +252,10 @@ public class MediaUtils {
                 return ".png";
 
             case JPEG:
+                return ".jpg";
+
             default:
+                Log.e(TAG, "Unknown CompressFormat '" + compressFormat + "'. Fallback to jpg file extension.");
                 return ".jpg";
         }
     }
@@ -250,7 +266,10 @@ public class MediaUtils {
                 return ".png";
 
             case JPEG:
+                return ".jpg";
+
             default:
+                Log.e(TAG, "Unknown CompressFormat '" + compressFormat + "'. Fallback to jpg file extension.");
                 return ".jpg";
         }
     }
@@ -288,12 +307,12 @@ public class MediaUtils {
         int mediaWidth = options.outWidth;
         int mediaHeight = options.outHeight;
 
-        Log.i( TAG, "Scale bitmap from " + mediaWidth + "x" + mediaHeight + " to " + targetWidth + "x" + targetHeight );
-
         int scaleFactor = Math.min( mediaWidth / targetWidth, mediaHeight / targetHeight );
         options.inJustDecodeBounds = false;
         options.inSampleSize = scaleFactor;
         options.inPurgeable = true;
+
+        Log.i( TAG, "Scale bitmap from " + mediaWidth + "x" + mediaHeight + " to " + targetWidth + "x" + targetHeight + " with scaleFactor " + scaleFactor );
 
         return BitmapFactory.decodeFile(mediaPath, options);
     }
@@ -308,12 +327,12 @@ public class MediaUtils {
         int mediaWidth = options.outWidth;
         int mediaHeight = options.outHeight;
 
-        Log.i( TAG, "Scale bitmap from " + mediaWidth + "x" + mediaHeight + " to " + targetWidth + "x" + targetHeight );
-
         int scaleFactor = Math.min( mediaWidth / targetWidth, mediaHeight / targetHeight );
         options.inJustDecodeBounds = false;
         options.inSampleSize = scaleFactor;
         options.inPurgeable = true;
+
+        Log.i( TAG, "Scale bitmap from " + mediaWidth + "x" + mediaHeight + " to " + targetWidth + "x" + targetHeight + " with scaleFactor " + scaleFactor );
 
         return BitmapFactory.decodeStream(mediaStream, null, options);
     }
