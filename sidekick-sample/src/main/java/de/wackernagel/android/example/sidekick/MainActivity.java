@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,25 +13,23 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import de.wackernagel.android.sidekick.compats.ObjectsCompat;
 import de.wackernagel.android.sidekick.frameworks.objectcursor.ObjectLoader;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<MainActivity.SimpleItem>> {
 
-    private final SimpleAdapter adapter = new SimpleAdapter();
+    private SimpleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final RecyclerView recyclerView = ObjectsCompat.requireNonNull(
-                ( RecyclerView ) findViewById(R.id.recyclerView),
-                "No RecyclerView in layout found!" );
-        recyclerView.setLayoutManager( new LinearLayoutManager(this) );
-        recyclerView.setAdapter( adapter );
+        final RecyclerView recyclerView = ( RecyclerView ) findViewById(R.id.recyclerView);
+        recyclerView.setAdapter( adapter = new SimpleAdapter() );
     }
 
     @Override
@@ -49,20 +46,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return new ObjectLoader<List<SimpleItem>>( this ) {
             @Override
             public List<SimpleItem> loadInBackground() {
-                final List<SimpleItem> list = new ArrayList<>();
-                list.add( new SimpleItem( "Widgets - TypefaceTextView", TypefaceTextViewActivity.class ) );
-                list.add( new SimpleItem( "Widgets - AspectRatioImageView", AspectRatioImageViewActivity.class ) );
-                list.add( new SimpleItem( "Widgets - CircularRevealView", RevealViewActivity.class ) );
-                list.add( new SimpleItem( "Widgets - IndicatorView", IndicatorActivity.class ) );
-                list.add( new SimpleItem( "Utils - Tooltip", TooltipActivity.class ) );
-                list.add( new SimpleItem( "Utils - ColorFilterUtils", ColorFilterUtilsActivity.class ) );
-                list.add( new SimpleItem( "Utils - Device and Network", DeviceActivity.class ) );
-                list.add( new SimpleItem( "Utils - Drawable Tinting", TintingActivity.class ) );
-                list.add( new SimpleItem( "Helper - Photos", PhotoActivity.class ) );
-                list.add( new SimpleItem( "Helper - Grid Gutter Decoration", GridGutterDecorationActivity.class ) );
-                list.add( new SimpleItem( "Resources - Colors", ColorsActivity.class ) );
-                list.add( new SimpleItem( "Frameworks - ContentProviderProcessor", SimpleProviderActivity.class ) );
-                return list;
+                return Arrays.asList(
+                    new SimpleItem( "Widgets - TypefaceTextView", TypefaceTextViewActivity.class ),
+                    new SimpleItem( "Widgets - AspectRatioImageView", AspectRatioImageViewActivity.class ),
+                    new SimpleItem( "Widgets - CircularRevealView", RevealViewActivity.class ),
+                    new SimpleItem( "Widgets - IndicatorView", IndicatorActivity.class ),
+                    new SimpleItem( "Utils - Tooltip", TooltipActivity.class ),
+                    new SimpleItem( "Utils - ColorFilterUtils", ColorFilterUtilsActivity.class ),
+                    new SimpleItem( "Utils - Device and Network", DeviceActivity.class ),
+                    new SimpleItem( "Utils - Drawable Tinting", TintingActivity.class ),
+                    new SimpleItem( "Helper - Photos", PhotoActivity.class ),
+                    new SimpleItem( "Helper - Grid Gutter Decoration", GridGutterDecorationActivity.class ),
+                    new SimpleItem( "Resources - Colors", ColorsActivity.class ),
+                    new SimpleItem( "Frameworks - ContentProviderProcessor", SimpleProviderActivity.class ) );
             }
         };
     }
@@ -72,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if( loader.getId() != 0 ) {
             return;
         }
-        adapter.addItems( data );
+        adapter.setItems( data );
 
         final ProgressBar progress = ( ProgressBar ) findViewById( R.id.progressBar );
         progress.setVisibility( View.GONE );
@@ -98,10 +94,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     public static class SimpleAdapter extends RecyclerView.Adapter<SimpleViewHolder> {
         private ArrayList<SimpleItem> items = new ArrayList<>();
+        private LayoutInflater inflater = null;
+
+        void setItems( List<SimpleItem> items ) {
+            clearItems();
+            addItems(items);
+        }
 
         void addItems( List<SimpleItem> items ) {
             this.items.addAll( items );
-            notifyItemRangeInserted( 0, items.size() );
+            notifyItemRangeInserted( items.size(), items.size() );
         }
 
         void clearItems() {
@@ -116,7 +118,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         @Override
         public SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SimpleViewHolder(LayoutInflater.from( parent.getContext() ).inflate( R.layout.simple_item, parent, false ) );
+            if( inflater == null )
+                inflater = LayoutInflater.from( parent.getContext() );
+            return new SimpleViewHolder(inflater.inflate( R.layout.simple_item, parent, false ) );
         }
 
         @Override
@@ -126,7 +130,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    v.getContext().startActivity(new Intent(v.getContext(), getItem(adaptPos).activity));
+                    if( adaptPos != RecyclerView.NO_POSITION )
+                        v.getContext().startActivity(new Intent(v.getContext(), getItem(adaptPos).activity));
                 }
             });
         }
